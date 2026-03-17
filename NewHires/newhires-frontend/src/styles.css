@@ -1,0 +1,38 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+}
+
+.custom-nav {
+  background-color: #eaeaea!important; 
+  background: linear-gradient(90deg, #eaeaea 20%, #030c16 100%) !important;
+}
+
+.brand-text {
+  color: #ff5038;
+  font-size: 0.85rem; 
+  font-weight: 300; 
+}
+.brand-text2 {
+  color: #ff5038;
+  font-size: 2rem; 
+  font-weight: 400; 
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.navbar-brand img {
+  border-radius: 4px; /* Opcional: redondea las esquinas si el logo es cuadrado */
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+  transform: scale(1.1); /* Efecto sutil al pasar el ratón */
+}

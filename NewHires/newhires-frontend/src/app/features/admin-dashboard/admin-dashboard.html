@@ -1,0 +1,45 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Panel de Control: Nuevas Incorporaciones</h2>
+    <button class="btn btn-outline-primary btn-sm" (click)="loadSubmissions()">Actualizar</button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Cargando datos de candidatos...</p>
+  </div>
+
+  <div *ngIf="!loading && submissions.length === 0" class="alert alert-info">
+    No hay envíos registrados todavía.
+  </div>
+
+  <div class="table-responsive" *ngIf="!loading && submissions.length > 0">
+    <table class="table table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Candidato (Email)</th>
+          <th>Fecha de Envío</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sub of submissions">
+          <td>#{{ sub.id }}</td>
+          <td><strong>{{ sub.email }}</strong></td>
+          <td>{{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <span [ngClass]="getStatusClass(sub.status)">
+              {{ sub.status }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-info me-2 text-white">Ver Detalle</button>
+            <button class="btn btn-sm btn-success">Validar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
