@@ -1,37 +1,77 @@
-<div class="container mt-4">
-  <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()" class="card p-4 shadow-sm">
-    <h3 class="mb-4">Registro de Nueva Incorporación</h3>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white p-4">
+          <h2 class="h4 mb-1">Formulario de Incorporación</h2>
+          <p class="mb-0 opacity-75">Por favor, completa los datos y adjunta la documentación necesaria.</p>
+        </div>
 
-    <div *ngFor="let field of fields" class="mb-3">
-      <label class="form-label font-weight-bold">{{ field.label }}</label>
+        <div class="card-body p-4">
+          <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
+            
+            <div *ngFor="let field of fields" class="mb-4 pb-3 border-bottom">
+              
+              <label class="form-label fw-bold d-block mb-2">
+                {{ field.label }}
+                <span *ngIf="field.isRequired" class="text-danger" title="Obligatorio">*</span>
+              </label>
 
-      <input *ngIf="field.fieldType === 'TEXT' || field.fieldType === 'NUMBER'" 
-             [type]="field.fieldType === 'TEXT' ? 'text' : 'number'" 
-             [formControlName]="field.id" 
-             class="form-control">
+              <ng-container [ngSwitch]="field.type">
+                
+                <input *ngSwitchCase="'text'" 
+                       type="text" 
+                       [formControlName]="field.id.toString()" 
+                       class="form-control"
+                       [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
 
-      <input *ngIf="field.fieldType === 'FILE'" 
-             type="file" 
-             [accept]="field.accept"
-             (change)="onFileChange($event, field.id)" 
-             class="form-control">
+                <input *ngSwitchCase="'number'" 
+                       type="number" 
+                       [formControlName]="field.id.toString()" 
+                       class="form-control"
+                       [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
 
-      <select *ngIf="field.fieldType === 'SELECT'" 
-              [formControlName]="field.id" 
-              class="form-select">
-        <option value="">Seleccione una opción...</option>
-        <option *ngFor="let opt of field.options" [value]="opt.optionValue">
-          {{ opt.optionValue }}
-        </option>
-      </select>
+                <select *ngSwitchCase="'select'" 
+                        [formControlName]="field.id.toString()" 
+                        class="form-select"
+                        [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                  <option value="">Selecciona una opción...</option>
+                  <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                </select>
 
-      <div *ngIf="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched" class="text-danger small mt-1">
-        Este campo es obligatorio.
+                <div *ngSwitchCase="'file'">
+                  <input type="file" 
+                         (change)="onFileChange($event, field.id)" 
+                         class="form-control"
+                         [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                  <div class="form-text mt-1 italic">
+                    <small class="text-muted">Asegúrate de que el nombre del archivo siga el formato solicitado.</small>
+                  </div>
+                </div>
+
+              </ng-container>
+
+              <div class="invalid-feedback" *ngIf="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                Este campo es obligatorio.
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-5">
+              <button type="submit" 
+                      [disabled]="dynamicForm.invalid" 
+                      class="btn btn-success btn-lg shadow-sm">
+                <i class="bi bi-send-fill me-2"></i>Enviar documentación
+              </button>
+              <small class="text-center text-muted mt-2">
+                Al enviar, confirmas que la información proporcionada es verídica.
+              </small>
+            </div>
+
+          </form>
+        </div>
       </div>
+      
     </div>
-
-    <button type="submit" [disabled]="dynamicForm.invalid" class="btn btn-success w-100">
-      Enviar Documentación
-    </button>
-  </form>
+  </div>
 </div>

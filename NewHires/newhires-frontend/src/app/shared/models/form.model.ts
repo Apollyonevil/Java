@@ -6,10 +6,9 @@ export interface FieldOption {
 export interface FieldDefinition {
   id: number;
   label: string;
-  fieldType: 'TEXT' | 'NUMBER' | 'SELECT' | 'FILE'; // Coincide con tu lógica de Java
+  type: string;
   isRequired: boolean;
-  accept?: string;           // Para .pdf, .jpg
-  options?: FieldOption[];   // Aquí caen los datos de la tabla field_options
+  options?: string[]; // El signo '?' lo hace opcional, así no rompe nada
 }
 
 export interface Submission {

@@ -25,14 +25,29 @@ export class OnboardingFormComponent implements OnInit {
     this.dynamicForm = this.fb.group({});
   } 
 
-  ngOnInit() {
-    this.token = this.route.snapshot.queryParamMap.get('token') || '';
+ngOnInit() {
+  this.token = this.route.snapshot.queryParamMap.get('token') || '';
 
-    this.formService.getFormStructure().subscribe(res => {
-      this.fields = res;
+  this.formService.getFormStructure().subscribe({
+    next: (res) => {
+      console.log('Campos recibidos del servidor:', res);
+      
+      // Ajustamos los datos que vienen del servidor a lo que espera el Front
+      this.fields = res.map((field: any) => ({
+        ...field,
+        // Pasamos 'TEXT' a 'text', 'PDF' a 'file', etc.
+        type: field.type.toLowerCase() === 'pdf' ? 'file' : field.type.toLowerCase(),
+        // Si el back manda 'required', lo asignamos a 'isRequired'
+        isRequired: field.required !== undefined ? field.required : field.isRequired
+      }));
+
       this.buildForm();
-    });
-  }
+    },
+    error: (err) => {
+      console.error('El servidor no responde o hay error de CORS:', err);
+    }
+  });
+}
 
   buildForm() {
     this.fields.forEach(field => {
