@@ -27,7 +27,7 @@ public class FormPersistenceAdapter implements FormRepository {
 
     @Override
     public List<FieldDefinition> findAllFieldDefinitions() {
-        return definitionRepo.findAll().stream()
+        return definitionRepo.findAllByOrderBySortOrderAsc().stream()
                 .map(mapper::toDomain)
                 .toList();
     }

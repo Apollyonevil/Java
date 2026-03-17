@@ -22,6 +22,9 @@ public class FieldDefinitionEntity {
     private boolean required;
     private String placeholder;
 
+    @Column(name = "sort_order") 
+    private Integer sortOrder;
+
     @ElementCollection // Para guardar la lista de opciones (SELECT)
     @CollectionTable(name = "field_options", joinColumns = @JoinColumn(name = "field_id"))
     private List<String> options;
