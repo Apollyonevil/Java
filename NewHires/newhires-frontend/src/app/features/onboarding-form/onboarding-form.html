@@ -3,9 +3,9 @@
     <div class="col-lg-8">
       
       <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white p-4">
+        <div class="card-header bg-dark text-white p-4">
           <h2 class="h4 mb-1">Formulario de Incorporación</h2>
-          <p class="mb-0 opacity-75">Por favor, completa los datos y adjunta la documentación necesaria.</p>
+          <p class="mb-0 opacity-75">Por favor, completa los datos y adjunta la documentación solicitada.</p>
         </div>
 
         <div class="card-body p-4">
@@ -24,12 +24,14 @@
                        type="text" 
                        [formControlName]="field.id.toString()" 
                        class="form-control"
+                       [placeholder]="field.placeholder || ''"
                        [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
 
                 <input *ngSwitchCase="'number'" 
                        type="number" 
                        [formControlName]="field.id.toString()" 
                        class="form-control"
+                       [placeholder]="field.placeholder || ''"
                        [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
 
                 <select *ngSwitchCase="'select'" 
@@ -40,20 +42,34 @@
                   <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
                 </select>
 
-                <div *ngSwitchCase="'file'">
-                  <input type="file" 
-                         (change)="onFileChange($event, field.id)" 
-                         class="form-control"
-                         [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                  <div class="form-text mt-1 italic">
-                    <small class="text-muted">Asegúrate de que el nombre del archivo siga el formato solicitado.</small>
-                  </div>
-                </div>
+                <div *ngSwitchCase="'pdf'">
+                <p *ngIf="field.placeholder" class="small mb-1 text-secondary">
+                  <i class="bi bi-info-circle me-1"></i>{{ field.placeholder }}
+                </p>
+                <input type="file" 
+                      (change)="onFileChange($event, field.id.toString())" 
+                      class="form-control"
+                      accept="application/pdf"
+                      [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                <div class="form-text"><small class="text-muted italic">Formato requerido: <strong>PDF</strong>.</small></div>
+              </div>
+
+              <div *ngSwitchCase="'jpg'">
+                <p *ngIf="field.placeholder" class="small mb-1 text-secondary">
+                  <i class="bi bi-camera me-1"></i>{{ field.placeholder }}
+                </p>
+                <input type="file" 
+                      (change)="onFileChange($event, field.id.toString())" 
+                      class="form-control"
+                      accept="image/jpeg, image/jpg"
+                      [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                <div class="form-text"><small class="text-muted italic">Formato requerido: <strong>JPG/JPEG</strong>.</small></div>
+              </div>
 
               </ng-container>
 
-              <div class="invalid-feedback" *ngIf="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                Este campo es obligatorio.
+              <div class="invalid-feedback d-block" *ngIf="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+                <small>Este dato es obligatorio para procesar tu alta.</small>
               </div>
             </div>
 
@@ -61,11 +77,8 @@
               <button type="submit" 
                       [disabled]="dynamicForm.invalid" 
                       class="btn btn-success btn-lg shadow-sm">
-                <i class="bi bi-send-fill me-2"></i>Enviar documentación
+                Enviar documentación
               </button>
-              <small class="text-center text-muted mt-2">
-                Al enviar, confirmas que la información proporcionada es verídica.
-              </small>
             </div>
 
           </form>

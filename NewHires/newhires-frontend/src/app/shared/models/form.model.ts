@@ -4,13 +4,14 @@ export interface FieldOption {
 }
 
 export interface FieldDefinition {
-  id: number;
+  id: string; // 
   label: string;
   type: string;
   isRequired: boolean;
-  options?: string[]; // El signo '?' lo hace opcional, así no rompe nada
+  placeholder?: string;
+  options?: string[];
+  sortOrder: number; 
 }
-
 export interface Submission {
   id: number;
   token: string;

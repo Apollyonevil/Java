@@ -25,45 +25,44 @@ export class OnboardingFormComponent implements OnInit {
     this.dynamicForm = this.fb.group({});
   } 
 
-ngOnInit() {
-  this.token = this.route.snapshot.queryParamMap.get('token') || '';
+  ngOnInit() {
+    this.token = this.route.snapshot.queryParamMap.get('token') || '';
 
-  this.formService.getFormStructure().subscribe({
-    next: (res) => {
-      console.log('Campos recibidos del servidor:', res);
-      
-      // Ajustamos los datos que vienen del servidor a lo que espera el Front
-      this.fields = res.map((field: any) => ({
-        ...field,
-        // Pasamos 'TEXT' a 'text', 'PDF' a 'file', etc.
-        type: field.type.toLowerCase() === 'pdf' ? 'file' : field.type.toLowerCase(),
-        // Si el back manda 'required', lo asignamos a 'isRequired'
-        isRequired: field.required !== undefined ? field.required : field.isRequired
-      }));
+    this.formService.getFormStructure().subscribe({
+      next: (data) => {
+        // Normalizamos los datos que vienen del backend
+        this.fields = data.map(field => ({
+          ...field,
+          // Aseguramos minúsculas para que el ngSwitch funcione siempre
+          type: field.type.trim().toLowerCase(),
+          // Usamos la propiedad correcta del modelo
+          isRequired: field.isRequired 
+        })).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
-      this.buildForm();
-    },
-    error: (err) => {
-      console.error('El servidor no responde o hay error de CORS:', err);
-    }
-  });
-}
-
-  buildForm() {
-    this.fields.forEach(field => {
-      // Usamos field.isRequired (como está en tu modelo de base de datos)
-      const validators = field.isRequired ? [Validators.required] : [];
-      // Importante: usamos field.id.toString() porque los nombres de control deben ser strings
-      this.dynamicForm.addControl(field.id.toString(), this.fb.control('', validators));
+        this.buildForm();
+      },
+      error: (err) => {
+        console.error('Error cargando estructura del formulario:', err);
+      }
     });
   }
 
-  onFileChange(event: any, fieldId: number) {
+  buildForm() {
+    this.fields.forEach(field => {
+      const validators = field.isRequired ? [Validators.required] : [];
+      // Usamos el ID como string para el nombre del control
+      const controlName = field.id.toString();
+      this.dynamicForm.addControl(controlName, this.fb.control('', validators));
+    });
+  }
+
+  onFileChange(event: any, fieldId: string) { 
     const file = event.target.files[0];
     if (file) {
-      this.fileMap.set(fieldId.toString(), file);
-      // Marcamos el control como sucio para que la validación sepa que hay algo
-      this.dynamicForm.get(fieldId.toString())?.setValue(file.name);
+      const idStr = fieldId.toString();
+      this.fileMap.set(idStr, file); 
+      // Seteamos el nombre del archivo para que el validador 'required' lo dé por válido
+      this.dynamicForm.get(idStr)?.setValue(file.name);
     }
   }
 

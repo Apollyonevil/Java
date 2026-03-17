@@ -41,5 +41,9 @@ export class FormService {
       return this.http.get<Submission[]>(`${environment.apiUrl}/admin/forms/submissions`);
     }
 
+    updateField(field: FieldDefinition): Observable<FieldDefinition> {
+    return this.http.put<FieldDefinition>(`${this.apiUrl}/fields/${field.id}`, field);
+  }
+
   
 }
