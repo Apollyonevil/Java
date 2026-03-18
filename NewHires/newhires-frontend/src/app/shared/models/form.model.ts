@@ -1,21 +1,24 @@
 export interface FieldOption {
   id: number;
-  optionValue: string; // Ej: "12 pagas", "XL"
+  optionValue: string; 
 }
 
 export interface FieldDefinition {
-  id: string; // 
+  id: string;
   label: string;
   type: string;
-  isRequired: boolean;
-  placeholder?: string;
-  options?: string[];
-  sortOrder: number; 
+  required: boolean;    
+  sortOrder?: number;  
+  placeholder?: string; 
+  options?: string[]; 
 }
+
 export interface Submission {
-  id: number;
+  id: string;
+  employeeId: string;
+  candidateName: string;
+  email: string;
   token: string;
-  email: string;             // De la tabla invitations/submissions
-  submittedAt: string;
-  status: string;            // PENDING, VALIDATED, etc.
+  status: string;
+  submittedAt?: string | Date;
 }

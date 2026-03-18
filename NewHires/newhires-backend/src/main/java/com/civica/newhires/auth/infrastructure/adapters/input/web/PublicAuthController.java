@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 @RestController
-@RequestMapping("/api/public/auth") // Ruta pública para el candidato
+@RequestMapping("/api/public/auth") 
 @RequiredArgsConstructor
 public class PublicAuthController {
 

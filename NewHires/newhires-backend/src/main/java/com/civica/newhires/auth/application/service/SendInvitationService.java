@@ -17,7 +17,7 @@ public class SendInvitationService implements SendInvitationUseCase {
 
     @Override
     public void execute(String email) {
-        // Lógica: Crear, guardar y notificar
+
         Invitation invitation = new Invitation(email);
         repository.save(invitation);
         notificationService.sendMagicLink(invitation.getEmail(), invitation.getToken());

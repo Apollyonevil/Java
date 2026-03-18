@@ -7,7 +7,7 @@ import java.util.UUID;
 public record SubmissionResponseDTO(
     UUID id,
     UUID employeeId,
-    String employeeFullName, // Esto lo sacarías uniendo datos de otro slice
+    String employeeFullName, 
     LocalDateTime submittedAt,
     SubmissionStatus status
 ) {}

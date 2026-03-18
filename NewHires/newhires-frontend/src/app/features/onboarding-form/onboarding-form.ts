@@ -7,67 +7,77 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-onboarding-form',
-  templateUrl: './onboarding-form.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule] 
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './onboarding-form.html',
+  styleUrls: ['./onboarding-form.css'] 
 })
 export class OnboardingFormComponent implements OnInit {
   dynamicForm: FormGroup;
   fields: FieldDefinition[] = [];
   token: string = '';
   fileMap: Map<string, File> = new Map();
+  loading: boolean = true;
+  isSubmitted: boolean = false; 
 
   constructor(
-    private fb: FormBuilder,
-    private formService: FormService,
-    private route: ActivatedRoute
+    private readonly fb: FormBuilder,
+    private readonly formService: FormService,
+    private readonly route: ActivatedRoute
   ) { 
     this.dynamicForm = this.fb.group({});
   } 
 
   ngOnInit() {
     this.token = this.route.snapshot.queryParamMap.get('token') || '';
+    this.loadStructure();
+  }
 
+  private loadStructure() {
     this.formService.getFormStructure().subscribe({
       next: (data) => {
-        // Normalizamos los datos que vienen del backend
+        // Normalizamos los tipos y el orden desde el principio
         this.fields = data.map(field => ({
           ...field,
-          // Aseguramos minúsculas para que el ngSwitch funcione siempre
-          type: field.type.trim().toLowerCase(),
-          // Usamos la propiedad correcta del modelo
-          isRequired: field.isRequired 
+          type: field.type.toLowerCase(), 
+          options: field.options || []
         })).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
         this.buildForm();
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Error cargando estructura del formulario:', err);
+        console.error('Error cargando la estructura:', err);
+        this.loading = false;
       }
     });
   }
 
-  buildForm() {
+  private buildForm() {
+    const group: any = {};
     this.fields.forEach(field => {
-      const validators = field.isRequired ? [Validators.required] : [];
-      // Usamos el ID como string para el nombre del control
-      const controlName = field.id.toString();
-      this.dynamicForm.addControl(controlName, this.fb.control('', validators));
+      group[field.id] = [
+        '', 
+        field.required ? [Validators.required] : []
+      ];
     });
+    this.dynamicForm = this.fb.group(group);
   }
 
   onFileChange(event: any, fieldId: string) { 
     const file = event.target.files[0];
     if (file) {
-      const idStr = fieldId.toString();
-      this.fileMap.set(idStr, file); 
-      // Seteamos el nombre del archivo para que el validador 'required' lo dé por válido
-      this.dynamicForm.get(idStr)?.setValue(file.name);
+      this.fileMap.set(fieldId, file); 
+      // Seteamos el nombre del archivo en el form para que el Validator.required pase a true
+      this.dynamicForm.get(fieldId)?.setValue(file.name);
     }
   }
 
   onSubmit() {
     if (this.dynamicForm.valid) {
+      this.loading = true;
+
+      // Filtramos solo las respuestas que NO son archivos (las de texto/select)
       const textResponses = Object.keys(this.dynamicForm.value)
         .filter(key => !this.fileMap.has(key)) 
         .map(key => ({ 
@@ -75,11 +85,19 @@ export class OnboardingFormComponent implements OnInit {
           value: this.dynamicForm.value[key] 
         }));
 
-      this.formService.submitForm(this.token, textResponses, this.fileMap)
-        .subscribe({
-          next: () => alert('¡Documentación enviada correctamente!'),
-          error: () => alert('Error al enviar. Revisa el token o los archivos.')
-        });
+      this.formService.submitForm(this.token, textResponses, this.fileMap).subscribe({
+        next: () => {
+          this.isSubmitted = true; // <-- Activamos la pantalla de éxito
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error al enviar:', err);
+          this.loading = false;
+          alert('Error al enviar. El enlace podría haber caducado.');
+        }
+      });
+    } else {
+      this.dynamicForm.markAllAsTouched();
     }
   }
 }

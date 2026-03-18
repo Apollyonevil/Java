@@ -1,19 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
+import { OnboardingFormComponent } from './onboarding-form';
+import { FormService } from '../../core/services/form';
 
-import { OnboardingForm } from './onboarding-form';
-
-describe('OnboardingForm', () => {
-  let component: OnboardingForm;
-  let fixture: ComponentFixture<OnboardingForm>;
+describe('OnboardingFormComponent', () => {
+  let component: OnboardingFormComponent;
+  let fixture: ComponentFixture<OnboardingFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OnboardingForm],
+      imports: [
+        OnboardingFormComponent,
+        HttpClientTestingModule,
+        ReactiveFormsModule,
+        RouterTestingModule
+      ],
+      providers: [FormService]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OnboardingForm);
+    fixture = TestBed.createComponent(OnboardingFormComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -1,90 +1,78 @@
 <div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      
-      <div class="card shadow-lg border-0">
-        <div class="card-header bg-dark text-white p-4">
-          <h2 class="h4 mb-1">Formulario de Incorporación</h2>
-          <p class="mb-0 opacity-75">Por favor, completa los datos y adjunta la documentación solicitada.</p>
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow border-0">
+        
+        <div class="card-header bg-primary text-white p-4 text-center">
+          <h2 class="h4 mb-1">Bienvenido a Cívica</h2>
+          <p class="small mb-0 opacity-75">Completa tu información de incorporación</p>
         </div>
 
         <div class="card-body p-4">
-          <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
+          
+          <div *ngIf="loading && !isSubmitted" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando formulario personalizado...</p>
+          </div>
+
+          <form *ngIf="!loading && !isSubmitted" [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
             
-            <div *ngFor="let field of fields" class="mb-4 pb-3 border-bottom">
-              
-              <label class="form-label fw-bold d-block mb-2">
-                {{ field.label }}
-                <span *ngIf="field.isRequired" class="text-danger" title="Obligatorio">*</span>
+            <div *ngFor="let field of fields" class="mb-3">
+              <label class="form-label fw-bold small text-secondary">
+                {{ field.label }} 
+                <span *ngIf="field.required" class="text-danger">*</span>
               </label>
 
-              <ng-container [ngSwitch]="field.type">
-                
-                <input *ngSwitchCase="'text'" 
-                       type="text" 
-                       [formControlName]="field.id.toString()" 
-                       class="form-control"
-                       [placeholder]="field.placeholder || ''"
-                       [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+              <input *ngIf="['text', 'number', 'date'].includes(field.type)"
+                     [type]="field.type" 
+                     [formControlName]="field.id" 
+                     class="form-control"
+                     [placeholder]="field.placeholder || ''"
+                     [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
 
-                <input *ngSwitchCase="'number'" 
-                       type="number" 
-                       [formControlName]="field.id.toString()" 
-                       class="form-control"
-                       [placeholder]="field.placeholder || ''"
-                       [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
+              <select *ngIf="field.type === 'select'" 
+                      [formControlName]="field.id" 
+                      class="form-select"
+                      [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                <option value="">Seleccione una opción...</option>
+                <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+              </select>
 
-                <select *ngSwitchCase="'select'" 
-                        [formControlName]="field.id.toString()" 
-                        class="form-select"
-                        [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                  <option value="">Selecciona una opción...</option>
-                  <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
-                </select>
-
-                <div *ngSwitchCase="'pdf'">
-                <p *ngIf="field.placeholder" class="small mb-1 text-secondary">
-                  <i class="bi bi-info-circle me-1"></i>{{ field.placeholder }}
-                </p>
+              <div *ngIf="field.type === 'file'">
                 <input type="file" 
-                      (change)="onFileChange($event, field.id.toString())" 
-                      class="form-control"
-                      accept="application/pdf"
-                      [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                <div class="form-text"><small class="text-muted italic">Formato requerido: <strong>PDF</strong>.</small></div>
+                       (change)="onFileChange($event, field.id)" 
+                       class="form-control"
+                       [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
               </div>
 
-              <div *ngSwitchCase="'jpg'">
-                <p *ngIf="field.placeholder" class="small mb-1 text-secondary">
-                  <i class="bi bi-camera me-1"></i>{{ field.placeholder }}
-                </p>
-                <input type="file" 
-                      (change)="onFileChange($event, field.id.toString())" 
-                      class="form-control"
-                      accept="image/jpeg, image/jpg"
-                      [class.is-invalid]="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                <div class="form-text"><small class="text-muted italic">Formato requerido: <strong>JPG/JPEG</strong>.</small></div>
-              </div>
-
-              </ng-container>
-
-              <div class="invalid-feedback d-block" *ngIf="dynamicForm.get(field.id.toString())?.invalid && dynamicForm.get(field.id.toString())?.touched">
-                <small>Este dato es obligatorio para procesar tu alta.</small>
+              <div *ngIf="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid" class="invalid-feedback d-block">
+                Este campo es obligatorio para continuar.
               </div>
             </div>
 
-            <div class="d-grid gap-2 mt-5">
-              <button type="submit" 
-                      [disabled]="dynamicForm.invalid" 
-                      class="btn btn-success btn-lg shadow-sm">
-                Enviar documentación
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary btn-lg shadow-sm" [disabled]="dynamicForm.invalid || loading">
+                {{ loading ? 'Enviando...' : 'Enviar Documentación' }}
               </button>
             </div>
-
           </form>
+
+          <div *ngIf="isSubmitted" class="text-center py-4">
+            <div class="mb-3">
+              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h3 class="fw-bold h4">¡Envío completado!</h3>
+            <p class="text-muted">Hola, hemos recibido tus datos correctamente.</p>
+            <hr class="my-4">
+            <div class="alert alert-light border-0 bg-light p-3 small">
+              <i class="bi bi-info-circle me-2"></i>
+              Se ha enviado un <strong>correo de confirmación</strong> a tu cuenta de Cívica.
+            </div>
+            <p class="small text-secondary mt-3">Ya puedes cerrar esta pestaña.</p>
+          </div>
+
         </div>
       </div>
-      
     </div>
   </div>
 </div>

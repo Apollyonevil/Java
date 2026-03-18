@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/auth") // Ruta específica para administración
+@RequestMapping("/api/admin/auth") 
 @RequiredArgsConstructor
 public class AdminAuthController {
 

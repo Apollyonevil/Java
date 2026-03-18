@@ -4,46 +4,75 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { FieldDefinition, Submission } from '../../shared/models/form.model';
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class FormService {
-  private readonly apiUrl = `${environment.apiUrl}/forms`; // Apunta a http://localhost:8080/api/forms
+  // URLs base para separar responsabilidades
+  private readonly userUrl = 'http://localhost:8080/api/v1/forms';
+  private readonly adminUrl = 'http://localhost:8080/api/admin/forms';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
-  // 1. Obtener los campos dinámicos
+  /**
+   * MÉTODOS PARA EL CANDIDATO (USER)
+   */
+
   getFormStructure(): Observable<FieldDefinition[]> {
-    return this.http.get<FieldDefinition[]>(this.apiUrl);
+    return this.http.get<FieldDefinition[]>(`${this.userUrl}/structure`);
   }
 
-  // 2. Enviar el formulario (Texto + Archivos)
   submitForm(token: string, textResponses: any[], files: Map<string, File>): Observable<void> {
     const formData = new FormData();
     
-    // El token es vital para la seguridad que pusimos en el Back
+    // 1. Enviamos el token como un string simple
     formData.append('token', token);
-    
-    // Pasamos las respuestas de texto como un String JSON (tal cual espera el Back)
-    formData.append('responses', JSON.stringify(textResponses));
 
-    // Añadimos cada archivo al FormData
+    // 2. Enviamos las respuestas JSON como un Blob
+    formData.append('responses', new Blob([JSON.stringify(textResponses)], {
+      type: 'application/json'
+    }));
+
+    // 3. Enviamos los archivos usando el ID del campo como nombre del archivo para el mapeo
     files.forEach((file, fieldId) => {
-      formData.append('files', file, file.name);
-      // Nota: El Back espera recibir esto y mapearlo por el ID del campo
+      formData.append('files', file, fieldId); 
     });
 
-    return this.http.post<void>(`${this.apiUrl}/submit`, formData);
-   }
-
-    getAllSubmissions(): Observable<Submission[]> {
-      return this.http.get<Submission[]>(`${environment.apiUrl}/admin/forms/submissions`);
-    }
-
-    updateField(field: FieldDefinition): Observable<FieldDefinition> {
-    return this.http.put<FieldDefinition>(`${this.apiUrl}/fields/${field.id}`, field);
+    return this.http.post<void>(`${this.userUrl}/submit`, formData);
   }
 
-  
+  /**
+   * MÉTODOS PARA EL ADMINISTRADOR
+   */
+
+  // NUEVO: Crea la invitación, genera el token y guarda al candidato como PENDING
+  createInvitation(name: string, email: string): Observable<Submission> {
+    return this.http.post<Submission>(`${this.adminUrl}/invite`, {
+      candidateName: name,
+      email: email
+    });
+  }
+
+  // Obtiene la lista de todos los candidatos (incluidos los pendientes)
+  getAllSubmissions(): Observable<Submission[]> {
+    return this.http.get<Submission[]>(`${this.adminUrl}/submissions`);
+  }
+
+  // Gestión de la estructura del formulario (Editor de campos)
+  updateField(field: FieldDefinition): Observable<FieldDefinition> {
+    return this.http.put<FieldDefinition>(`${this.adminUrl}/fields/${field.id}`, field);
+  }
+
+  saveField(field: FieldDefinition): Observable<FieldDefinition> {
+    return this.http.post<FieldDefinition>(this.adminUrl, field);
+  }
+
+  deleteField(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.adminUrl}/${id}`);
+  }
+
+  // Envío manual de emails (si decides implementarlo en el back)
+  sendOnboardingEmail(employeeId: string): Observable<any> {
+    return this.http.post(`${this.adminUrl}/send-email/${employeeId}`, {});
+  }
 }

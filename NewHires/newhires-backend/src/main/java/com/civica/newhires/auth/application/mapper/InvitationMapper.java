@@ -9,5 +9,4 @@ public class InvitationMapper {
         return new Invitation(request.email());
     }
     
-    // Aquí se puede añadir un toResponseDTO si fuera necesario devolver datos
 }

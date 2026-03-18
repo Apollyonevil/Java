@@ -15,6 +15,6 @@ public class FieldValueEntity {
     private UUID fieldDefinitionId;
     private UUID employeeId;
 
-    @Column(columnDefinition = "TEXT") // Usamos TEXT por si la respuesta es larga
+    @Column(columnDefinition = "TEXT") 
     private String value;
 }

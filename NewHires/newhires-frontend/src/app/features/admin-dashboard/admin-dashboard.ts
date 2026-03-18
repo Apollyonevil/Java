@@ -1,84 +1,98 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FormService } from '../../core/services/form';
-import { Submission, FieldDefinition } from '../../shared/models/form.model';
+import { FieldDefinition, Submission } from '../../shared/models/form.model';
 
 @Component({
   selector: 'app-admin-dashboard',
-  templateUrl: './admin-dashboard.html',
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule],
+  templateUrl: './admin-dashboard.html'
 })
 export class AdminDashboardComponent implements OnInit {
-  submissions: Submission[] = [];
   fields: FieldDefinition[] = [];
-  loading: boolean = true;
+  submissions: Submission[] = [];
+  loading: boolean = false;
+
+  editingField: any = null;
+  optionsText: string = '';
+
+  newCandidateName: string = '';
+  newCandidateEmail: string = '';
 
   constructor(private formService: FormService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.loadFormStructure();
     this.loadSubmissions();
-    this.loadFields();
+  }
+
+  loadFormStructure() {
+    this.loading = true;
+    this.formService.getFormStructure().subscribe({
+      next: (data) => {
+        this.fields = data.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+        this.loading = false;
+      },
+      error: () => this.loading = false
+    });
   }
 
   loadSubmissions() {
-    this.loading = true;
-    this.formService.getAllSubmissions().subscribe({
-      next: (data) => {
-        this.submissions = data;
-        this.loading = false;
+    this.formService.getAllSubmissions().subscribe(data => this.submissions = data);
+  }
+
+  generateInvitation() {
+    if (!this.newCandidateName || !this.newCandidateEmail) return;
+
+    this.formService.createInvitation(this.newCandidateName, this.newCandidateEmail).subscribe({
+      next: () => {
+        this.newCandidateName = '';
+        this.newCandidateEmail = '';
+        this.loadSubmissions(); // Refresca la tabla tras generar
       },
-      error: (err) => {
-        console.error('Error cargando registros', err);
-        this.loading = false;
-      }
+      error: (err) => alert('Error al generar: ' + err.message)
     });
   }
 
-  loadFields() {
-    this.formService.getFormStructure().subscribe({
-      next: (data) => {
-        // Usamos el spread operator para evitar el error de mutación de Sonar
-        this.fields = [...data].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-      },
-      error: (err) => console.error('Error cargando configuración del formulario', err)
-    });
-  }
-
-  moveField(index: number, direction: 'up' | 'down') {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    if (newIndex >= 0 && newIndex < this.fields.length) {
-      // 1. Intercambio de posiciones en el array local
-      const temp = this.fields[index];
-      this.fields[index] = this.fields[newIndex];
-      this.fields[newIndex] = temp;
-
-      // 2. Actualizamos los sortOrder de todos según su posición actual
-      this.fields.forEach((field, i) => field.sortOrder = i + 1);
-
-      // 3. Persistimos los cambios
-      this.saveNewOrder();
+  saveField() {
+    if (this.optionsText) {
+      this.editingField.options = this.optionsText.split(',').map(s => s.trim());
     }
-  }
+    const obs = this.editingField.id 
+      ? this.formService.updateField(this.editingField) 
+      : this.formService.saveField(this.editingField);
 
-  saveNewOrder() {
-    console.log('Sincronizando nuevo orden con el servidor...', this.fields);
-    // Para cada campo modificado, llamamos al backend
-    this.fields.forEach(field => {
-      // Asumiendo que has creado updateField en tu servicio
-      this.formService.updateField(field).subscribe({
-        error: (err) => console.error(`Error al actualizar campo ${field.id}`, err)
-      });
+    obs.subscribe(() => {
+      this.loadFormStructure();
+      this.editingField = null;
     });
   }
 
-  getStatusClass(status: string) {
-    switch (status) {
-      case 'VALIDATED': return 'badge bg-success';
-      case 'PENDING': return 'badge bg-warning text-dark';
-      case 'REJECTED': return 'badge bg-danger';
-      default: return 'badge bg-secondary';
-    }
+  addNewField() {
+    this.editingField = { label: '', type: 'text', required: false, sortOrder: this.fields.length };
+    this.optionsText = '';
   }
+
+  editField(field: FieldDefinition) {
+    this.editingField = { ...field };
+    this.optionsText = field.options ? field.options.join(', ') : '';
+  }
+
+  deleteField(id: string) {
+    if (confirm('¿Eliminar?')) this.formService.deleteField(id).subscribe(() => this.loadFormStructure());
+  }
+
+  copyTokenLink(token: string) {
+    const url = `${window.location.origin}/onboarding?token=${token}`;
+    navigator.clipboard.writeText(url);
+    alert('¡Link copiado!');
+  }
+
+  sendEmail(id: string) {
+    this.formService.sendOnboardingEmail(id).subscribe(() => alert('Email enviado'));
+  }
+
+  moveField(index: number, direction: string) { /* Lógica de orden opcional */ }
 }

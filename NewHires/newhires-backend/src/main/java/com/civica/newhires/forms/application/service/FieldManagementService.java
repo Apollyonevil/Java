@@ -13,13 +13,11 @@ public class FieldManagementService implements ManageFieldsUseCase {
 
     @Override
     public FieldDefinition createField(FieldDefinition field) {
-        // Podríamos validar que el label no esté duplicado
         return formRepository.saveDefinition(field);
     }
 
     @Override
     public FieldDefinition updateField(UUID id, FieldDefinition field) {
-        // Verificamos que existe antes de actualizar
         formRepository.findDefinitionById(id); 
         return formRepository.saveDefinition(field);
     }

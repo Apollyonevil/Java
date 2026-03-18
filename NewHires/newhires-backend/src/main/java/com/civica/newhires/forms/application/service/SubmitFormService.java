@@ -1,17 +1,20 @@
 package com.civica.newhires.forms.application.service;
 
+import com.civica.newhires.auth.domain.ports.output.UserIdentityPort;
 import com.civica.newhires.forms.application.dto.FieldResponseDTO;
+import com.civica.newhires.forms.application.dto.FileInput;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldValue;
 import com.civica.newhires.forms.domain.model.Submission;
 import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
 import com.civica.newhires.forms.domain.ports.output.FormRepository;
-import com.civica.newhires.forms.domain.ports.output.UserIdentityPort;
+import com.civica.newhires.forms.domain.ports.output.NotificationPort;
+import com.civica.newhires.forms.domain.ports.output.SubmissionRepository; 
 import com.civica.newhires.forms.domain.ports.output.FileStoragePort;
+import com.civica.newhires.forms.domain.service.FormDomainService; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,70 +26,78 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SubmitFormService implements SubmitFormUseCase {
 
-    private final FormRepository formRepository;
+    private final FormRepository formRepository; 
+    private final SubmissionRepository submissionRepository; 
     private final UserIdentityPort userIdentityPort;
-    private final FileNameGenerator fileNameGenerator;
-    private final FormValidator formValidator;
     private final FileStoragePort fileStoragePort;
+    private final FormDomainService formDomainService; 
+    private final NotificationPort notificationPort;
 
     @Override
     @Transactional
-    public void execute(String token, List<FieldResponseDTO> textResponses, Map<UUID, MultipartFile> files) {
+    public void execute(String token, List<FieldResponseDTO> textResponses, Map<UUID, FileInput> files) {
         
-        // 1. Validar token y obtener identidad del empleado
-        // Asegúrate de que userIdentityPort devuelva un Optional<UUID>
+        // 1. Identificación del usuario con datos reales
         UUID employeeId = userIdentityPort.findEmployeeIdByToken(token)
-                .orElseThrow(() -> new RuntimeException("Acceso no autorizado o token expirado"));
+                .orElseThrow(() -> new RuntimeException("Acceso no autorizado: Token inválido"));
+
+        String employeeEmail = userIdentityPort.findEmailByToken(token)
+                .orElseThrow(() -> new RuntimeException("No se encontró email para el token suministrado"));
+
+        // Intentamos obtener el nombre real; si no existe, usamos el email como identificador
+        String employeeName = userIdentityPort.findNameByToken(token)
+                .orElse(employeeEmail.split("@")[0]); 
 
         List<FieldDefinition> definitions = formRepository.findAllFieldDefinitions();
         List<FieldValue> valuesToSave = new ArrayList<>();
 
-        // 2. Procesar respuestas de texto (Campos normales)
+        // 2. Procesar respuestas de texto
         if (textResponses != null) {
             textResponses.forEach(dto -> {
-                // Si fieldDefinitionId en el DTO es UUID, esto funcionará perfecto
-                FieldDefinition def = findDefinition(definitions, dto.fieldDefinitionId());
-                formValidator.validate(def, dto);
+                UUID fieldId = parseUuid(dto.fieldDefinitionId());
+                FieldDefinition def = findDefinition(definitions, fieldId);
+                
+                formDomainService.validateField(def, dto.value());
                 valuesToSave.add(new FieldValue(def.getId(), employeeId, dto.value()));
             });
         }
 
-        // 3. Procesar archivos físicos (PDFs, fotos...)
+        // 3. Procesar archivos
         if (files != null) {
-            files.forEach((fieldId, file) -> {
-                FieldDefinition def = findDefinition(definitions, fieldId);
+            files.forEach((fieldUuid, fileInput) -> {
+                FieldDefinition def = findDefinition(definitions, fieldUuid);
                 
                 try {
-                    // Generar nombre según requisitos
-                    String newName = fileNameGenerator.generate(
-                        def.getLabel(), "SOLICITANTE", "NUEVO", file.getOriginalFilename()
-                    );
-
-                    // Guardar físicamente
-                    String savedPath = fileStoragePort.save(file, newName);
-                    
-                    // Guardar la referencia en la lista
+                    String newName = formDomainService.generateFileName(def.getLabel(), fileInput.fileName());
+                    String savedPath = fileStoragePort.save(fileInput.content(), newName);
                     valuesToSave.add(new FieldValue(def.getId(), employeeId, savedPath));
-                    
                 } catch (IOException e) {
-                    throw new RuntimeException("Error crítico al guardar el documento: " + def.getLabel(), e);
+                    throw new RuntimeException("Error al procesar el archivo: " + def.getLabel(), e);
                 }
             });
         }
 
-        // 4. Persistencia final de los valores
+        // 4. Persistencia y Notificaciones
         formRepository.saveValues(valuesToSave);
         
-        // 5. Registrar hito de entrega para RRHH
-        // Verificamos que el modelo Submission acepte UUID en el constructor
-        Submission submission = new Submission(employeeId);
-        formRepository.saveSubmission(submission);
+        // Registro oficial de la entrega con todos los datos reales
+        Submission submission = new Submission(employeeId, employeeName, employeeEmail, token);
+        submissionRepository.save(submission);
+
+        // Notificaciones automáticas
+        notificationPort.sendSubmissionConfirmation(employeeEmail, employeeName);
+        notificationPort.sendAdminNotification("rrhh@civica.com", employeeName);
+    }
+
+    private UUID parseUuid(Object id) {
+        if (id instanceof UUID) return (UUID) id;
+        return UUID.fromString(id.toString());
     }
 
     private FieldDefinition findDefinition(List<FieldDefinition> definitions, UUID id) {
         return definitions.stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("El campo con ID " + id + " no existe."));
+                .orElseThrow(() -> new RuntimeException("Definición de campo no encontrada: " + id));
     }
 }

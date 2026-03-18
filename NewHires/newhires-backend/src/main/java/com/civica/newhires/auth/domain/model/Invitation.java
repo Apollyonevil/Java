@@ -3,6 +3,8 @@ package com.civica.newhires.auth.domain.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+
+
 public class Invitation {
     private final UUID id;
     private final String email;
@@ -10,46 +12,33 @@ public class Invitation {
     private final LocalDateTime expiresAt;
     private InvitationStatus status;
 
-    
-    private static final int EXPIRATION_HOURS = 48;
-
- 
-    public Invitation(String email) {
-        this.id = UUID.randomUUID();
-        this.email = email;
-        this.token = UUID.randomUUID().toString(); // Generamos un token único y seguro
-        this.expiresAt = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
-        this.status = InvitationStatus.PENDING;
-    }
-
 
     public Invitation(UUID id, String email, String token, LocalDateTime expiresAt, InvitationStatus status) {
-        this.id = id;
+        this.id = id != null ? id : UUID.randomUUID();
         this.email = email;
-        this.token = token;
-        this.expiresAt = expiresAt;
-        this.status = status;
+        this.token = token != null ? token : UUID.randomUUID().toString();
+        this.expiresAt = expiresAt != null ? expiresAt : LocalDateTime.now().plusHours(48);
+        this.status = status != null ? status : InvitationStatus.PENDING;
     }
 
-    public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiresAt);
-    }
-
-    public boolean isPending() {
-        return this.status == InvitationStatus.PENDING;
+    public Invitation(String email) {
+        this(
+            UUID.randomUUID(), 
+            email, 
+            UUID.randomUUID().toString(), 
+            LocalDateTime.now().plusHours(48), 
+            InvitationStatus.PENDING
+        );
     }
 
 
     public boolean isValid() {
-        return isPending() && !isExpired();
+        return status == InvitationStatus.PENDING && LocalDateTime.now().isBefore(expiresAt);
     }
 
 
-    public void markAsUsed() {
-        if (!isValid()) {
-            throw new IllegalStateException("No se puede usar una invitación expirada o ya procesada");
-        }
-        this.status = InvitationStatus.USED;
+    public void accept() {
+        this.status = InvitationStatus.ACCEPTED; 
     }
 
 

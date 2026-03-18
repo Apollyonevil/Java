@@ -13,7 +13,7 @@ public class FieldDTOMapper {
         return new FieldDefinitionDTO(
             domain.getId(),
             domain.getLabel(),
-            domain.getType().name(), // Convertimos el Enum a String para el JSON
+            domain.getType().name(),
             domain.isRequired(),
             domain.getPlaceholder()
         );

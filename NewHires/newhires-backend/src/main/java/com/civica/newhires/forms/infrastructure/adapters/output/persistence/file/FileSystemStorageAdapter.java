@@ -1,10 +1,8 @@
 package com.civica.newhires.forms.infrastructure.adapters.output.persistence.file;
 
 import com.civica.newhires.forms.domain.ports.output.FileStoragePort;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,10 +14,9 @@ public class FileSystemStorageAdapter implements FileStoragePort {
 
     private final Path rootLocation;
 
-    // Spring inyectará aquí el valor de tu application.properties
     public FileSystemStorageAdapter(@Value("${storage.location:uploads}") String storageLocation) {
         this.rootLocation = Paths.get(storageLocation);
-        init(); // Crea la carpeta al arrancar
+        init(); 
     }
 
     private void init() {
@@ -31,11 +28,15 @@ public class FileSystemStorageAdapter implements FileStoragePort {
     }
 
     @Override
-    public String save(MultipartFile file, String newName) throws IOException {
-        if (file == null || file.isEmpty()) return null;
+    public String save(byte[] content, String newName) throws IOException {
+        if (content == null || content.length == 0) {
+            return null;
+        }
 
         Path destinationFile = this.rootLocation.resolve(newName);
-        Files.write(destinationFile, file.getBytes());
+        
+
+        Files.write(destinationFile, content);
         
         return newName; 
     }
@@ -45,7 +46,7 @@ public class FileSystemStorageAdapter implements FileStoragePort {
         try {
             Files.deleteIfExists(this.rootLocation.resolve(fileName));
         } catch (IOException e) {
-            // Loguear error si fuera necesario
+     
         }
     }
 }

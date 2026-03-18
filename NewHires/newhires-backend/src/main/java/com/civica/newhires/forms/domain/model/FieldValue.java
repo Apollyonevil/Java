@@ -4,9 +4,9 @@ import java.util.UUID;
 
 public class FieldValue {
     private final UUID id;
-    private final UUID fieldDefinitionId; // Relación con la pregunta
-    private final UUID employeeId;        // Quién responde
-    private String value;                 // El dato (texto o ruta del archivo)
+    private final UUID fieldDefinitionId;
+    private final UUID employeeId;        
+    private String value;               
 
     public FieldValue(UUID fieldDefinitionId, UUID employeeId, String value) {
         this.id = UUID.randomUUID();
@@ -15,7 +15,6 @@ public class FieldValue {
         this.value = value;
     }
 
-    // Constructor para persistencia
     public FieldValue(UUID id, UUID fieldDefinitionId, UUID employeeId, String value) {
         this.id = id;
         this.fieldDefinitionId = fieldDefinitionId;
@@ -27,7 +26,7 @@ public class FieldValue {
         this.value = newValue;
     }
 
-    // Getters
+
     public UUID getId() { return id; }
     public UUID getFieldDefinitionId() { return fieldDefinitionId; }
     public UUID getEmployeeId() { return employeeId; }

@@ -14,7 +14,7 @@ public class ValidateAccessService implements ValidateAccessUseCase {
 
     @Override
     public boolean execute(String token) {
-        // Lógica: Solo buscar y validar reglas de dominio
+
         return repository.findByToken(token)
                 .map(Invitation::isValid)
                 .orElse(false);

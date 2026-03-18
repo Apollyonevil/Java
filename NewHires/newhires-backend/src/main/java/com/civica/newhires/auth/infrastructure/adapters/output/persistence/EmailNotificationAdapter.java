@@ -8,7 +8,6 @@ public class EmailNotificationAdapter implements NotificationService {
 
     @Override
     public void sendMagicLink(String email, String token) {
-        // Solo implementamos lo que pide la interfaz: el Magic Link
         System.out.println("🪄 [MAGIC LINK] Enviando acceso a: " + email + " | Token: " + token);
     }
 }

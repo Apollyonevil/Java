@@ -8,10 +8,10 @@ import com.civica.newhires.forms.infrastructure.adapters.output.persistence.enti
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
 import org.springframework.stereotype.Component;
 
+
 @Component
 public class FormPersistenceMapper {
 
-    // --- MAPPINGS DE DEFINICIÓN (FieldDefinition) ---
     public FieldDefinition toDomain(FieldDefinitionEntity entity) {
         if (entity == null) return null;
         return new FieldDefinition(
@@ -43,22 +43,28 @@ public class FormPersistenceMapper {
         return entity;
     }
 
-    // --- MAPPINGS DE ENTREGAS (Submission) ---
     public Submission toDomain(SubmissionEntity entity) {
-        if (entity == null) return null;
-        return new Submission(
-            entity.getId(),
-            entity.getEmployeeId(),
-            entity.getSubmittedAt(),
-            entity.getStatus()
-        );
-    }
+            if (entity == null) return null;
+            // Ahora usamos el constructor completo que actualizamos antes
+            return new Submission(
+                entity.getId(),
+                entity.getEmployeeId(),
+                entity.getCandidateName(), 
+                entity.getEmail(),
+                entity.getToken(),
+                entity.getSubmittedAt(),
+                entity.getStatus()
+            );
+        }
 
     public SubmissionEntity toEntity(Submission domain) {
         if (domain == null) return null;
         SubmissionEntity entity = new SubmissionEntity();
         entity.setId(domain.getId());
         entity.setEmployeeId(domain.getEmployeeId());
+        entity.setCandidateName(domain.getCandidateName()); 
+        entity.setEmail(domain.getEmail()); 
+        entity.setToken(domain.getToken());               
         entity.setSubmittedAt(domain.getSubmittedAt());
         entity.setStatus(domain.getStatus());
         return entity;

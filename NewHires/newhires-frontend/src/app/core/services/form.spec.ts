@@ -1,13 +1,16 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing'; // Necesario para servicios con HttpClient
+import { FormService } from './form'; // Cambiado de 'Form' a 'FormService'
 
-import { Form } from './form';
-
-describe('Form', () => {
-  let service: Form;
+describe('FormService', () => {
+  let service: FormService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Form);
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule], // Importamos el módulo de pruebas de HTTP
+      providers: [FormService]
+    });
+    service = TestBed.inject(FormService);
   });
 
   it('should be created', () => {

@@ -1,108 +1,131 @@
-<div class="container mt-5 pb-5">
-  
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-people-fill me-2"></i>Panel de Control: Nuevas Incorporaciones</h2>
-    <button class="btn btn-outline-primary btn-sm" (click)="loadSubmissions()">
-      <i class="bi bi-arrow-clockwise"></i> Actualizar
-    </button>
-  </div>
+<div class="container-fluid py-4">
+  <div class="row">
+    
+    <div class="col-lg-5">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-white">Configuración del Formulario</h5>
+          <button class="btn btn-sm btn-light" (click)="addNewField()">➕ Nuevo Campo</button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loading" class="text-center py-3">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
 
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2">Cargando datos de candidatos...</p>
-  </div>
-
-  <div *ngIf="!loading && submissions.length === 0" class="alert alert-info shadow-sm">
-    No hay envíos registrados todavía.
-  </div>
-
-  <div class="card shadow-sm border-0 mb-5" *ngIf="!loading && submissions.length > 0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Candidato (Email)</th>
-            <th>Fecha de Envío</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let sub of submissions">
-            <td><small class="text-muted">#{{ sub.id }}</small></td>
-            <td><strong>{{ sub.email }}</strong></td>
-            <td>{{ sub.submittedAt | date:'dd/MM/yyyy HH:mm' }}</td>
-            <td>
-              <span [ngClass]="getStatusClass(sub.status)">
-                {{ sub.status }}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-info me-2 text-white">Ver Detalle</button>
-              <button class="btn btn-sm btn-success">Validar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <hr class="my-5">
-
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3><i class="bi bi-list-check me-2"></i>Gestión de Formulario</h3>
-    <span class="badge bg-secondary">Dinamismo activo</span>
-  </div>
-
-  <div class="card shadow-sm border-0">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-secondary">
-          <tr>
-            <th style="width: 80px;">Orden</th>
-            <th>Etiqueta del Campo</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th class="text-center">Reordenar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let field of fields; let i = index">
-            <td class="text-center fw-bold">{{ i + 1 }}</td>
-            <td>{{ field.label }}</td>
-            <td>
-              <span class="badge bg-light text-dark border">{{ field.type }}</span>
-            </td>
-            <td>
-              <span *ngIf="field.isRequired" class="badge bg-danger-subtle text-danger">Obligatorio</span>
-              <span *ngIf="!field.isRequired" class="badge bg-light text-muted">Opcional</span>
-            </td>
-            <td class="text-center">
-              <div class="btn-group shadow-sm">
-                <button class="btn btn-sm btn-white border" 
-                        [disabled]="i === 0" 
-                        (click)="moveField(i, 'up')"
-                        title="Subir">
-                  ↑
-                </button>
-                <button class="btn btn-sm btn-white border" 
-                        [disabled]="i === fields.length - 1" 
-                        (click)="moveField(i, 'down')"
-                        title="Bajar">
-                  ↓
-                </button>
+          <ul class="list-group list-group-flush" *ngIf="!loading">
+            <li *ngFor="let field of fields; let i = index" class="list-group-item d-flex justify-content-between align-items-start px-0">
+              <div class="ms-2 me-auto">
+                <div class="fw-bold">{{field.label}}</div>
+                <span class="badge bg-secondary small">{{field.type}}</span>
+                <span *ngIf="field.required" class="badge bg-danger ms-1 small">Requerido</span>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
+                <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
+                <button class="btn btn-outline-primary" (click)="editField(field)">✏️</button>
+                <button class="btn btn-outline-danger" (click)="deleteField(field.id)">🗑️</button>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-primary" *ngIf="editingField">
+        <div class="card-body">
+          <h6>{{ editingField.id ? 'Editar Campo' : 'Nuevo Campo' }}</h6>
+          <div class="mb-2">
+            <label class="small fw-bold">Etiqueta</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="editingField.label">
+          </div>
+          <div class="mb-2">
+            <label class="small fw-bold">Tipo de entrada</label>
+            <select class="form-select form-select-sm" [(ngModel)]="editingField.type">
+              <option value="text">Texto corto</option>
+              <option value="number">Número</option>
+              <option value="date">Fecha</option>
+              <option value="select">Desplegable (Select)</option>
+              <option value="file">Archivo (PDF/Imagen)</option>
+            </select>
+          </div>
+          <div class="mb-2" *ngIf="['select', 'radio'].includes(editingField.type)">
+            <label class="small fw-bold">Opciones (separadas por comas)</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="optionsText" placeholder="Opción 1, Opción 2">
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="editingField.required" id="reqCheck">
+            <label class="form-check-label small" for="reqCheck">Obligatorio</label>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-primary w-100" (click)="saveField()">Guardar</button>
+            <button class="btn btn-sm btn-light w-100" (click)="editingField = null">Cancelar</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card-footer bg-white py-3">
-      <small class="text-muted italic">
-        * Al mover los campos, el orden se actualiza automáticamente para los candidatos.
-      </small>
+
+    <div class="col-lg-7">
+      <div class="card shadow-sm mb-4 border-success">
+        <div class="card-header bg-success text-white">
+          <h6 class="mb-0 text-white">📩 Invitar Nuevo Candidato</h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-5">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="newCandidateName" placeholder="Nombre completo">
+            </div>
+            <div class="col-md-5">
+              <input type="email" class="form-control form-control-sm" [(ngModel)]="newCandidateEmail" placeholder="email@dominio.com">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-sm btn-success w-100" (click)="generateInvitation()">Generar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-white">Candidatos e Invitaciones</h5>
+          <button class="btn btn-sm btn-outline-light" (click)="loadSubmissions()">🔄 Actualizar</button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Candidato</th>
+                  <th>Estado</th>
+                  <th>Fecha</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sub of submissions">
+                  <td class="align-middle">
+                    <div class="fw-bold">{{sub.candidateName}}</div>
+                    <div class="small text-muted" style="font-size: 0.70rem;">{{sub.email}}</div>
+                  </td>
+                  <td class="align-middle">
+                    <span class="badge" [ngClass]="sub.status === 'PENDING_INVITE' ? 'bg-warning' : 'bg-success'">
+                      {{sub.status}}
+                    </span>
+                  </td>
+                  <td class="align-middle small">
+                    {{ sub.submittedAt ? (sub.submittedAt | date:'short') : 'Pendiente' }}
+                  </td>
+                  <td class="text-center align-middle">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token)">🔗 Link</button>
+                      <button class="btn btn-outline-primary" (click)="sendEmail(sub.id)">📧 Email</button>
+                      <button class="btn btn-dark">👁️</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
 </div>
