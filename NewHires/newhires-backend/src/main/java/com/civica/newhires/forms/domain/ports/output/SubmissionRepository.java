@@ -8,9 +8,9 @@ import java.util.UUID;
 public interface SubmissionRepository {
     
     void save(Submission submission);
-
     Optional<Submission> findByEmployeeId(UUID employeeId);
-
     List<Submission> findAll();
     Optional<Submission> findById(UUID id);
+    void deleteById(UUID id); 
+    Optional<Submission> findByToken(String token);
 }

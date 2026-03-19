@@ -17,9 +17,18 @@ public class SendInvitationService implements SendInvitationUseCase {
 
     @Override
     public void execute(String email) {
-
+        // 1. Guardamos la invitación en BD (esto es lo importante)
         Invitation invitation = new Invitation(email);
         repository.save(invitation);
-        notificationService.sendMagicLink(invitation.getEmail(), invitation.getToken());
+
+        // 2. Intentamos enviar el mail, pero que no rompa el flujo si falla
+        try {
+            notificationService.sendMagicLink(invitation.getEmail(), invitation.getToken());
+        } catch (Exception e) {
+            // Logueamos el error para saber qué pasó (ej. el límite de Mailtrap)
+            // Pero NO relanzamos la excepción para que el frontend reciba un OK (200)
+            System.err.println("Error enviando invitación por email: " + e.getMessage());
+            // Aquí podrías marcar la invitación en BD como "PENDIENTE_ENVIO" si quisieras
+        }
     }
 }

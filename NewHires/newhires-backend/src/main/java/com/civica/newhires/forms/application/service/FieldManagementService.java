@@ -3,6 +3,8 @@ package com.civica.newhires.forms.application.service;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
 import com.civica.newhires.forms.domain.ports.output.FormRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
@@ -16,26 +18,33 @@ public class FieldManagementService implements ManageFieldsUseCase {
         return formRepository.saveDefinition(field);
     }
 
-        @Override
-        public FieldDefinition updateField(UUID id, FieldDefinition field) {
-            // 1. Opcional: Validar que existe
-            formRepository.findDefinitionById(id); 
+@Override
+@Transactional // Asegúrate de tener esta anotación para que la sesión esté abierta
+public FieldDefinition updateField(UUID id, FieldDefinition field) {
+    // 1. Validar que existe (opcional pero recomendado)
+    formRepository.findDefinitionById(id); 
 
-            // 2. Creamos una instancia nueva con los datos actualizados
-            // Usamos el constructor que acabamos de modificar
-            FieldDefinition updatedField = new FieldDefinition(
-                id,                             // El ID original de la URL
-                field.getLabel(), 
-                field.getType(), 
-                field.isRequired(), 
-                field.getPlaceholder(), 
-                field.getOptions(),
-                field.getSortOrder()            // <--- AQUÍ se guarda el nuevo orden
-            );
+    // 2. Crear instancia nueva
+    FieldDefinition updatedField = new FieldDefinition(
+        id, 
+        field.getLabel(), 
+        field.getType(), 
+        field.isRequired(), 
+        field.getPlaceholder(), 
+        field.getOptions(),
+        field.getSortOrder()
+    );
 
-            // 3. Persistimos
-            return formRepository.saveDefinition(updatedField);
-        }
+    // 3. Persistir y forzar el refresco
+    FieldDefinition saved = formRepository.saveDefinition(updatedField);
+    
+    // IMPORTANTE: Forzamos a Hibernate a cargar las opciones para el JSON
+    if (saved.getOptions() != null) {
+        saved.getOptions().size(); // Esto "despierta" a la colección si es Lazy
+    }
+    
+    return saved;
+}
 
     @Override
     public void deleteField(UUID id) {

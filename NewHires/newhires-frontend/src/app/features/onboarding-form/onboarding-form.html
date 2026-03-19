@@ -10,66 +10,87 @@
 
         <div class="card-body p-4">
           
-          <div *ngIf="loading && !isSubmitted" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2 text-muted">Cargando formulario personalizado...</p>
-          </div>
+          @if (loading && !isSubmitted) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="mt-2 text-muted">Cargando formulario personalizado...</p>
+            </div>
+          }
 
-          <form *ngIf="!loading && !isSubmitted" [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
-            
-            <div *ngFor="let field of fields" class="mb-3">
-              <label class="form-label fw-bold small text-secondary">
-                {{ field.label }} 
-                <span *ngIf="field.required" class="text-danger">*</span>
-              </label>
+          @if (!loading && !isSubmitted) {
+            <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
+              
+              @for (field of fields; track field.id) {
+                <div class="mb-3">
+                  <label class="form-label fw-bold small text-secondary">
+                    {{ field.label }}
+                    @if (field.required) {
+                      <span class="text-danger">*</span>
+                    }
+                  </label>
 
-              <input *ngIf="['text', 'number', 'date'].includes(field.type)"
-                     [type]="field.type" 
-                     [formControlName]="field.id" 
-                     class="form-control"
-                     [placeholder]="field.placeholder || ''"
-                     [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                  @if (['text', 'number', 'date'].includes(field.type)) {
+                    <input [type]="field.type"
+                           [formControlName]="field.id"
+                           class="form-control"
+                           [placeholder]="field.placeholder || ''"
+                           [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                  }
 
-              <select *ngIf="field.type === 'select'" 
-                      [formControlName]="field.id" 
-                      class="form-select"
-                      [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
-                <option value="">Seleccione una opción...</option>
-                <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
-              </select>
+                  @if (field.type === 'select') {
+                    <select [formControlName]="field.id"
+                            class="form-select"
+                            [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                      <option value="">Seleccione una opción...</option>
+                      @for (opt of field.options; track opt) {
+                        <option [value]="opt">{{ opt }}</option>
+                      }
+                    </select>
+                  }
 
-              <div *ngIf="field.type === 'file'">
-                <input type="file" 
-                       (change)="onFileChange($event, field.id)" 
-                       class="form-control"
-                       [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                  @if (field.type === 'file') {
+                    <div>
+              <input type="file"
+                    (change)="onFileChange($event, field.id, field.placeholder || '')"
+                    class="form-control"
+                    [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                      @if (field.placeholder) {
+                        <small class="text-muted mt-1 d-block">{{ field.placeholder }}</small>
+                      }
+                    </div>
+                  }
+
+                  @if (dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid) {
+                    <div class="invalid-feedback d-block">
+                      Este campo es obligatorio para continuar.
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg shadow-sm" [disabled]="dynamicForm.invalid || loading">
+                  {{ loading ? 'Enviando...' : 'Enviar Documentación' }}
+                </button>
               </div>
+            </form>
+          }
 
-              <div *ngIf="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid" class="invalid-feedback d-block">
-                Este campo es obligatorio para continuar.
+          @if (isSubmitted) {
+            <div class="text-center py-4">
+              <div class="mb-3">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
               </div>
+              <h3 class="fw-bold h4">¡Envío completado!</h3>
+              <p class="text-muted">Hola, hemos recibido tus datos correctamente.</p>
+              <hr class="my-4">
+              <div class="alert alert-light border-0 bg-light p-3 small">
+                <i class="bi bi-info-circle me-2"></i>
+                Se ha enviado un <strong>correo de confirmación</strong> a tu cuenta de Cívica.
+              </div>
+              <p class="small text-secondary mt-3">Ya puedes cerrar esta pestaña.</p>
             </div>
-
-            <div class="d-grid mt-4">
-              <button type="submit" class="btn btn-primary btn-lg shadow-sm" [disabled]="dynamicForm.invalid || loading">
-                {{ loading ? 'Enviando...' : 'Enviar Documentación' }}
-              </button>
-            </div>
-          </form>
-
-          <div *ngIf="isSubmitted" class="text-center py-4">
-            <div class="mb-3">
-              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-            </div>
-            <h3 class="fw-bold h4">¡Envío completado!</h3>
-            <p class="text-muted">Hola, hemos recibido tus datos correctamente.</p>
-            <hr class="my-4">
-            <div class="alert alert-light border-0 bg-light p-3 small">
-              <i class="bi bi-info-circle me-2"></i>
-              Se ha enviado un <strong>correo de confirmación</strong> a tu cuenta de Cívica.
-            </div>
-            <p class="small text-secondary mt-3">Ya puedes cerrar esta pestaña.</p>
-          </div>
+          }
 
         </div>
       </div>

@@ -6,7 +6,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-@Component("formsEmailNotificationAdapter") // <--- AÑADE ESTE NOMBRE AQUÍ
+@Component("formsEmailNotificationAdapter")
 @RequiredArgsConstructor
 public class EmailNotificationAdapter implements NotificationPort {
 
@@ -16,9 +16,20 @@ public class EmailNotificationAdapter implements NotificationPort {
     public void sendSubmissionConfirmation(String toEmail, String candidateName) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
-        message.setFrom("rrhh@civica.com"); // Es buena práctica poner el remitente
+        message.setFrom("rrhh@civica.com"); 
         message.setSubject("¡Formulario Recibido - Cívica!");
         message.setText("Hola " + candidateName + ",\nHemos recibido tu documentación correctamente. RRHH la revisará pronto.");
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendInvitation(String toEmail, String candidateName, String token) {
+        String link = "http://localhost:4200/onboarding?token=" + token;
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setFrom("rrhh@civica.com");
+        message.setSubject("Bienvenido a Cívica - Completa tu documentación");
+        message.setText("Hola " + candidateName + ",\n\nTe damos la bienvenida a Cívica. Por favor completa tu documentación en el siguiente enlace:\n\n" + link + "\n\nEl enlace caduca en 48 horas.");
         mailSender.send(message);
     }
 
@@ -34,6 +45,5 @@ public class EmailNotificationAdapter implements NotificationPort {
 
     @Override
     public void sendRejectionNotice(String toEmail, String reason) {
-        // Lógica para el caso de rechazo
     }
 }

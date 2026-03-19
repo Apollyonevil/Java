@@ -6,6 +6,7 @@ import com.civica.newhires.forms.domain.ports.input.*;
 import com.civica.newhires.forms.domain.ports.output.*;
 import com.civica.newhires.forms.domain.service.FormDomainService;
 
+import jakarta.servlet.MultipartConfigElement;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,28 +15,38 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 public class FormBeanConfig {
 
+@Bean
+public MultipartConfigElement multipartConfigElement() {
+    return new MultipartConfigElement(
+        "",
+        20971520,  // 20MB en bytes
+        52428800,  // 50MB en bytes
+        0
+    );
+}
+
     @Bean
     public FormDomainService formDomainService() {
         return new FormDomainService();
     }
-@Bean
-public SubmitFormUseCase submitFormUseCase(
-        FormRepository formRepo, 
-        SubmissionRepository submissionRepo, 
-        UserIdentityPort identity, 
-        FileStoragePort storage, // Movido aquí para coincidir
-        FormDomainService formDomainService,
-        NotificationPort notificationPort) { // Inyectamos el puerto de notificaciones
 
-    return new SubmitFormService(
-        formRepo, 
-        submissionRepo, 
-        identity, 
-        storage, 
-        formDomainService,
-        notificationPort
-    );
-}
+    @Bean
+    public SubmitFormUseCase submitFormUseCase(
+            FormRepository formRepo,
+            SubmissionRepository submissionRepo,
+            UserIdentityPort identity,
+            FileStoragePort storage,
+            FormDomainService formDomainService,
+            NotificationPort notificationPort) {
+        return new SubmitFormService(
+            formRepo,
+            submissionRepo,
+            identity,
+            storage,
+            formDomainService,
+            notificationPort
+        );
+    }
 
     @Bean
     public GetSubmissionsUseCase getSubmissionsUseCase(SubmissionRepository submissionRepository) {
@@ -46,7 +57,7 @@ public SubmitFormUseCase submitFormUseCase(
     public ManageFieldsUseCase manageFieldsUseCase(FormRepository formRepository) {
         return new FieldManagementService(formRepository);
     }
-    
+
     @Bean
     public GetFormStructureUseCase getFormStructureUseCase(FormRepository formRepository) {
         return new GetFormStructureService(formRepository);
@@ -57,5 +68,13 @@ public SubmitFormUseCase submitFormUseCase(
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         return mapper;
+    }
+
+    @Bean
+    public InviteCandidateUseCase inviteCandidateUseCase(
+            SubmissionRepository submissionRepository,
+            UserIdentityPort userIdentityPort,
+            NotificationPort notificationPort) {
+        return new InviteCandidateService(submissionRepository, userIdentityPort, notificationPort);
     }
 }

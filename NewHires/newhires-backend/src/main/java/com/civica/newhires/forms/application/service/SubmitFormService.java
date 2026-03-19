@@ -6,6 +6,7 @@ import com.civica.newhires.forms.application.dto.FileInput;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldValue;
 import com.civica.newhires.forms.domain.model.Submission;
+import com.civica.newhires.forms.domain.model.SubmissionStatus;
 import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
 import com.civica.newhires.forms.domain.ports.output.FormRepository;
 import com.civica.newhires.forms.domain.ports.output.NotificationPort;
@@ -79,14 +80,30 @@ public class SubmitFormService implements SubmitFormUseCase {
 
         // 4. Persistencia y Notificaciones
         formRepository.saveValues(valuesToSave);
-        
-        // Registro oficial de la entrega con todos los datos reales
-        Submission submission = new Submission(employeeId, employeeName, employeeEmail, token);
-        submissionRepository.save(submission);
 
-        // Notificaciones automáticas
-        notificationPort.sendSubmissionConfirmation(employeeEmail, employeeName);
-        notificationPort.sendAdminNotification("rrhh@civica.com", employeeName);
+        // Buscar submission existente por token y actualizar estado
+        submissionRepository.findByToken(token).ifPresentOrElse(
+            existing -> {
+                existing.setStatus(SubmissionStatus.SUBMITTED);
+                submissionRepository.save(existing);
+            },
+            () -> {
+                // Solo si no existe, crear uno nuevo
+                Submission submission = new Submission(employeeId, employeeName, employeeEmail, token);
+                submission.setStatus(SubmissionStatus.SUBMITTED);
+                submissionRepository.save(submission);
+            }
+        );
+
+        try {
+            notificationPort.sendSubmissionConfirmation(employeeEmail, employeeName);
+            Thread.sleep(1500);
+            notificationPort.sendAdminNotification("rrhh@civica.com", employeeName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            System.err.println("⚠️ Email no enviado: " + e.getMessage());
+        }
     }
 
     private UUID parseUuid(Object id) {

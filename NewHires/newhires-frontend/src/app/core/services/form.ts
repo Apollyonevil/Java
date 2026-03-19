@@ -25,25 +25,17 @@ export class FormService {
   submitForm(token: string, textResponses: any[], files: Map<string, File>): Observable<void> {
     const formData = new FormData();
     
-    // 1. Enviamos el token como un string simple
     formData.append('token', token);
-
-    // 2. Enviamos las respuestas JSON como un Blob
     formData.append('responses', new Blob([JSON.stringify(textResponses)], {
       type: 'application/json'
     }));
 
-    // 3. Enviamos los archivos usando el ID del campo como nombre del archivo para el mapeo
     files.forEach((file, fieldId) => {
-      formData.append('files', file, fieldId); 
+      formData.append(fieldId, file, file.name);
     });
 
     return this.http.post<void>(`${this.userUrl}/submit`, formData);
   }
-
-  /**
-   * MÉTODOS PARA EL ADMINISTRADOR
-   */
 
   // NUEVO: Crea la invitación, genera el token y guarda al candidato como PENDING
   createInvitation(name: string, email: string): Observable<Submission> {
@@ -70,6 +62,10 @@ export class FormService {
   deleteField(id: string): Observable<void> {
     return this.http.delete<void>(`${this.adminUrl}/${id}`);
   }
+
+  deleteSubmission(id: string): Observable<void> {
+  return this.http.delete<void>(`${this.adminUrl}/submissions/${id}`);
+}
 
   // Envío manual de emails (si decides implementarlo en el back)
   sendOnboardingEmail(employeeId: string): Observable<any> {

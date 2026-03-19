@@ -1,78 +1,15 @@
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-5">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Configuración Formulario</h5>
-          <button class="btn btn-sm btn-light" (click)="addNewField()">+ Añadir</button>
-        </div>
-        <div class="card-body">
-          <div *ngIf="loading" class="text-center py-2">
-            <div class="spinner-border spinner-border-sm text-primary"></div>
-          </div>
 
-          <ul class="list-group list-group-flush" *ngIf="!loading">
-            <li *ngFor="let field of fields; let i = index" class="list-group-item d-flex justify-content-between align-items-center px-0">
-              <div class="ms-2">
-                <span class="text-muted small">#{{i + 1}}</span>
-                <strong class="d-block">{{ field.label }}</strong>
-                <span class="badge bg-light text-dark border small">{{ field.type }}</span>
-              </div>
-              <div class="btn-group btn-group-sm me-2">
-                <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
-                <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
-              <div class="card shadow-sm border-primary" *ngIf="editingField">
-                <div class="card-body">
-                  <h6>{{ editingField.id ? 'Editar' : 'Nuevo' }} Campo</h6>
-                  <button (click)="saveField()">Guardar</button>
-                  <button (click)="editingField = null">Cancelar</button>
-                </div>
-              </div>
-                <button class="btn btn-outline-danger" (click)="deleteField(field.id!)">✕</button>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="card shadow-sm border-primary" *ngIf="editingField">
-        <div class="card-body">
-          <h6 class="card-title">{{ editingField.id ? 'Editar' : 'Nuevo' }} Campo</h6>
-          <div class="mb-2">
-            <label class="small fw-bold">Etiqueta</label>
-            <input class="form-control form-control-sm" [(ngModel)]="editingField.label">
-          </div>
-          <div class="mb-2">
-            <label class="small fw-bold">Tipo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="editingField.type">
-              <option value="text">Texto</option>
-              <option value="textarea">Área de texto</option>
-              <option value="select">Desplegable</option>
-              <option value="date">Fecha</option>
-            </select>
-          </div>
-          <div class="mb-2" *ngIf="editingField.type === 'select'">
-            <label class="small fw-bold">Opciones (separadas por coma)</label>
-            <input class="form-control form-control-sm" [(ngModel)]="optionsText" placeholder="Ej: Opción 1, Opción 2">
-          </div>
-          <div class="mt-3 d-flex gap-2">
-            <button class="btn btn-sm btn-primary flex-grow-1" (click)="saveField()" [disabled]="loading">
-              {{ loading ? 'Guardando...' : 'Guardar' }}
-            </button>
-            <button class="btn btn-sm btn-light border" (click)="editingField = null">Cancelar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-7">
+<div class="container-fluid mt-4 px-4">
+  
+  <div class="row mb-5">
+    <div class="col-12">
       <div class="card shadow-sm mb-4 border-success">
         <div class="card-body">
           <h6 class="text-success fw-bold">Generar Invitación</h6>
           <div class="d-flex gap-2">
             <input class="form-control" [(ngModel)]="newCandidateName" placeholder="Nombre">
             <input class="form-control" [(ngModel)]="newCandidateEmail" placeholder="Email">
-            <button class="btn btn-success" (click)="generateInvitation()" [disabled]="isGenerating">
+            <button class="btn btn-success px-4" (click)="generateInvitation()" [disabled]="isGenerating">
               {{ isGenerating ? '...' : 'Invitar' }}
             </button>
           </div>
@@ -80,39 +17,120 @@
       </div>
 
       <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-          <h5 class="mb-0 small fw-bold">Candidatos</h5>
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0 small fw-bold">Candidatos Registrados</h5>
           <button class="btn btn-sm btn-outline-secondary" (click)="loadSubmissions()">↻</button>
         </div>
         <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
+          <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
-              <tr class="small">
+              <tr class="small text-uppercase">
                 <th>Nombre</th>
+                <th>Email</th>
                 <th>Estado</th>
-                <th class="text-end">Acciones</th>
+                <th class="text-end px-4">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let submission of submissions">
-                <td>
-                  <div class="fw-bold small">{{ submission.candidateName }}</div>
-                  <div class="text-muted" style="font-size: 0.75rem;">{{ submission.email }}</div>
-                </td>
-                <td><span class="badge bg-info text-dark" style="font-size: 0.65rem;">{{ submission.status }}</span></td>
-                <td class="text-end">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" (click)="sendEmail(submission.id)" [disabled]="sendingEmails[submission.id]">
-                      {{ sendingEmails[submission.id] ? '...' : 'Email' }}
+              @for (sub of submissions; track $index) {
+                <tr>
+                  <td class="small fw-bold">{{ sub.candidateName }}</td>
+                  <td class="small text-muted">{{ sub.email }}</td>
+                  <td><span class="badge bg-info text-dark" style="font-size: 0.7rem;">{{ sub.status }}</span></td>
+                  <td class="text-end px-4">
+                    <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
+                      {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
                     </button>
-                    <button class="btn btn-outline-secondary" (click)="copyTokenLink(submission.token)">Link</button>
+                    <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
+                    <button class="btn btn-outline-danger" (click)="deleteSubmission(sub.id!)">✕</button>
                   </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
+  <hr class="my-5 border-2 opacity-10">
+
+  <div class="row pb-5">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0">Configuración de Campos</h5>
+          <button class="btn btn-primary btn-sm" (click)="addNewField()">+ Añadir Campo</button>
+        </div>
+        <div class="card-body p-0">
+          @if (loading) {
+            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+          } @else {
+            <ul class="list-group list-group-flush">
+              @for (field of fields; track i; let i = $index) {
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <div class="d-flex align-items-center">
+                    <span class="badge bg-secondary me-3">#{{i + 1}}</span>
+                    <div>
+                      <strong class="d-block">{{ field.label }}</strong>
+                      <small class="text-muted text-uppercase">{{ field.type }}</small>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
+                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
+                    <button class="btn btn-outline-primary ms-3 px-3" (click)="editField(field)">Editar</button>
+                    <button class="btn btn-outline-danger" (click)="deleteField(field.id!)">✕</button>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+@if (editingField) {
+  <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-primary text-white border-0">
+          <h5 class="modal-title fw-bold">{{ editingField.id ? 'Editar' : 'Nuevo' }} Campo</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="editingField = null"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Etiqueta del campo</label>
+            <input class="form-control" [(ngModel)]="editingField.label" placeholder="Ej: Nombre completo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Tipo de entrada</label>
+            <select class="form-select" [(ngModel)]="editingField.type">
+              <option value="TEXT">Texto</option>
+              <option value="NUMBER">Número</option>
+              <option value="SELECT">Desplegable</option>
+              <option value="PDF">PDF</option>
+              <option value="JPG">JPG</option>
+            </select>
+          </div>
+          @if (editingField.type === 'SELECT') {
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Opciones (separadas por coma)</label>
+              <input class="form-control" [(ngModel)]="optionsText" placeholder="Opción 1, Opción 2">
+            </div>
+          }
+        </div>
+        <div class="modal-footer bg-light border-0">
+          <button class="btn btn-link text-muted text-decoration-none" (click)="editingField = null">Cancelar</button>
+          <button class="btn btn-primary px-4 shadow-sm" (click)="saveField()" [disabled]="loading">
+            {{ loading ? 'Sincronizando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

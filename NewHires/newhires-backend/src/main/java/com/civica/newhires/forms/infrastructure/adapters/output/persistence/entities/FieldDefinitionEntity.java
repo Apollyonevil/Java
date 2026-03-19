@@ -27,5 +27,7 @@ public class FieldDefinitionEntity {
 
     @ElementCollection // Para guardar la lista de opciones (SELECT)
     @CollectionTable(name = "field_options", joinColumns = @JoinColumn(name = "field_id"))
+    @Column(name = "options")
+    @OrderColumn(name = "option_order")
     private List<String> options;
 }

@@ -18,12 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/api/v1/forms")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true") 
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class UserFormController {
 
     private final SubmitFormUseCase submitFormUseCase;
@@ -39,35 +38,34 @@ public class UserFormController {
         return ResponseEntity.ok(fields);
     }
 
-
     @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> submit(
             @RequestPart("token") String token,
             @RequestPart("responses") List<FieldResponseDTO> responses,
-            @RequestPart(value = "files", required = false) Map<String, MultipartFile> filesMap) throws IOException {
-
+            @RequestParam Map<String, MultipartFile> allParams) throws IOException {
 
         Map<UUID, FileInput> domainFiles = new HashMap<>();
-        
-        if (filesMap != null) {
-            for (Map.Entry<String, MultipartFile> entry : filesMap.entrySet()) {
-                MultipartFile file = entry.getValue();
-                
-                if (file != null && !file.isEmpty()) {
 
-                    UUID fieldId = UUID.fromString(entry.getKey());
-                    
-                    domainFiles.put(fieldId, new FileInput(
+        allParams.forEach((key, file) -> {
+            try {
+                UUID uuid = UUID.fromString(key);
+                if (file != null && !file.isEmpty()) {
+                    try {
+                        domainFiles.put(uuid, new FileInput(
                             file.getOriginalFilename(),
                             file.getContentType(),
                             file.getBytes()
-                    ));
+                        ));
+                    } catch (IOException e) {
+                        throw new RuntimeException("Error leyendo archivo", e);
+                    }
                 }
+            } catch (IllegalArgumentException e) {
+                // no es un UUID, es token o responses, lo ignoramos
             }
-        }
+        });
 
         submitFormUseCase.execute(token, responses, domainFiles);
-        
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

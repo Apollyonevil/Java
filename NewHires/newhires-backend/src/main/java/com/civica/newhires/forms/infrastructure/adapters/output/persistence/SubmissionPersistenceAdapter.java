@@ -39,4 +39,14 @@ public class SubmissionPersistenceAdapter implements SubmissionRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+        @Override
+    public void deleteById(UUID id) {
+        submissionRepo.deleteById(id);
+    }
+
+    @Override
+    public Optional<Submission> findByToken(String token) {
+        return submissionRepo.findByToken(token).map(mapper::toDomain);
+    }
 }

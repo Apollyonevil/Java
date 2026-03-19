@@ -36,6 +36,12 @@ public class FormPersistenceAdapter implements FormRepository {
 
     @Override
     public FieldDefinition saveDefinition(FieldDefinition definition) {
+
+        definitionRepo.findById(definition.getId()).ifPresent(existing -> {
+            existing.getOptions().clear();
+            definitionRepo.saveAndFlush(existing);
+        });
+        
         var entity = mapper.toEntity(definition);
         var savedEntity = definitionRepo.save(entity);
         return mapper.toDomain(savedEntity);

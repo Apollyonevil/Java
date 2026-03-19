@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface JpaFieldDefinitionRepository extends JpaRepository<FieldDefinitionEntity, UUID> {
-
+    
     List<FieldDefinitionEntity> findAllByOrderBySortOrderAsc();
 }

@@ -11,12 +11,9 @@ public class FormDomainService {
         }
     }
 
-    public String generateFileName(String label, String originalName) {
-        String extension = extractExtension(originalName);
-        return (label + "_SOLICITANTE_NUEVO" + extension)
-                .toUpperCase()
-                .replace(" ", "_");
-    }
+   public String generateFileName(String label, String originalName) {
+    return originalName; 
+}
 
     private String extractExtension(String name) {
         return (name != null && name.contains(".")) 

@@ -3,6 +3,7 @@ package com.civica.newhires.forms.infrastructure.adapters.input.web.mappers;
 import com.civica.newhires.forms.application.dto.FieldDefinitionDTO;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component 
 public class FieldDTOMapper {
@@ -15,7 +16,9 @@ public class FieldDTOMapper {
             domain.getLabel(),
             domain.getType().name(),
             domain.isRequired(),
-            domain.getPlaceholder()
+            domain.getPlaceholder(),
+            domain.getOptions(),   
+            domain.getSortOrder()   
         );
     }
 }

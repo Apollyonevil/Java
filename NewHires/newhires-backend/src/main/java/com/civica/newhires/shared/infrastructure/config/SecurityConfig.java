@@ -18,7 +18,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .cors(Customizer.withDefaults()) 
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/**").permitAll() 
+            .requestMatchers("/api/v1/forms/submit").permitAll()
+            .requestMatchers("/api/**").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(AbstractHttpConfigurer::disable)
