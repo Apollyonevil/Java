@@ -2,6 +2,8 @@ package com.civica.newhires.forms.infrastructure.adapters.output.persistence.ent
 
 import com.civica.newhires.forms.domain.model.SubmissionStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,25 +12,31 @@ import java.util.UUID;
 public class SubmissionEntity {
 
     @Id
+    @JdbcTypeCode(Types.VARCHAR)
+    @Column(name = "id", length = 36, columnDefinition = "VARCHAR(36)")
     private UUID id;
+
+    @JdbcTypeCode(Types.VARCHAR)
+    @Column(name = "employee_id", length = 36, columnDefinition = "VARCHAR(36)")
     private UUID employeeId;
+
+    @Column(name = "candidate_name")
     private String candidateName;
+
+    @Column(name = "email")
     private String email;
-    private String token; // El campo que nos está dando guerra
+
+    @Column(name = "token")
+    private String token;
+
+    @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private SubmissionStatus status;
 
-    // --- GETTERS Y SETTERS MANUALES (Esto arregla el error del Mapper) ---
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
+    // --- GETTERS Y SETTERS MANUALES ---
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -41,6 +49,9 @@ public class SubmissionEntity {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getToken() { return token; }
+    public void setToken(String token) { this.token = token; }
 
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }

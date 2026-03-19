@@ -8,15 +8,20 @@ import com.civica.newhires.forms.infrastructure.adapters.output.persistence.enti
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class FormPersistenceMapper {
 
     public FieldDefinition toDomain(FieldDefinitionEntity entity) {
         if (entity == null) return null;
+        // Se añade entity.getSortOrder() como 7º parámetro del constructor
         return new FieldDefinition(
-            entity.getId(), entity.getLabel(), entity.getType(),
-            entity.isRequired(), entity.getPlaceholder(), entity.getOptions()
+            entity.getId(), 
+            entity.getLabel(), 
+            entity.getType(),
+            entity.isRequired(), 
+            entity.getPlaceholder(), 
+            entity.getOptions(),
+            entity.getSortOrder() // <--- IMPORTANTE: Para que el dominio tenga el orden
         );
     }
 
@@ -29,6 +34,7 @@ public class FormPersistenceMapper {
         entity.setRequired(domain.isRequired());
         entity.setPlaceholder(domain.getPlaceholder());
         entity.setOptions(domain.getOptions());
+        entity.setSortOrder(domain.getSortOrder()); 
         return entity;
     }
 
@@ -44,27 +50,26 @@ public class FormPersistenceMapper {
     }
 
     public Submission toDomain(SubmissionEntity entity) {
-            if (entity == null) return null;
-            // Ahora usamos el constructor completo que actualizamos antes
-            return new Submission(
-                entity.getId(),
-                entity.getEmployeeId(),
-                entity.getCandidateName(), 
-                entity.getEmail(),
-                entity.getToken(),
-                entity.getSubmittedAt(),
-                entity.getStatus()
-            );
-        }
+        if (entity == null) return null;
+        return new Submission(
+            entity.getId(),
+            entity.getEmployeeId(),
+            entity.getCandidateName(), 
+            entity.getEmail(),
+            entity.getToken(),
+            entity.getSubmittedAt(),
+            entity.getStatus()
+        );
+    }
 
     public SubmissionEntity toEntity(Submission domain) {
         if (domain == null) return null;
         SubmissionEntity entity = new SubmissionEntity();
         entity.setId(domain.getId());
         entity.setEmployeeId(domain.getEmployeeId());
-        entity.setCandidateName(domain.getCandidateName()); 
+        entity.setCandidateName(domain.getCandidateName());
         entity.setEmail(domain.getEmail()); 
-        entity.setToken(domain.getToken());               
+        entity.setToken(domain.getToken());
         entity.setSubmittedAt(domain.getSubmittedAt());
         entity.setStatus(domain.getStatus());
         return entity;
