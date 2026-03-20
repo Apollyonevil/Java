@@ -1,104 +1,168 @@
-
 <div class="container-fluid mt-4 px-4">
-  <div class="container-fluid mt-4 px-4">
+  
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0">Panel de Administración</h4>
     <button class="btn btn-outline-danger btn-sm" (click)="logout()">Cerrar sesión</button>
   </div>
-  
-  <div class="row mb-5">
-    <div class="col-12">
-      <div class="card shadow-sm mb-4 border-success">
-        <div class="card-body">
-          <h6 class="text-success fw-bold">Generar Invitación</h6>
-          <div class="d-flex gap-2">
-            <input class="form-control" [(ngModel)]="newCandidateName" placeholder="Nombre">
-            <input class="form-control" [(ngModel)]="newCandidateEmail" placeholder="Email">
-            <button class="btn btn-success px-4" (click)="generateInvitation()" [disabled]="isGenerating">
-              {{ isGenerating ? '...' : 'Invitar' }}
-            </button>
+
+  <!-- Pestañas -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'candidatos'" (click)="activeTab = 'candidatos'" style="cursor:pointer">
+        Candidatos
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'formulario'" (click)="activeTab = 'formulario'" style="cursor:pointer">
+        Gestión del Formulario
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'administradores'" (click)="activeTab = 'administradores'" style="cursor:pointer">
+        Gestión de administradores
+      </a>
+    </li>
+  </ul>
+
+  <!-- Pestaña Candidatos -->
+  @if (activeTab === 'candidatos') {
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow-sm mb-4 border-success">
+          <div class="card-body">
+            <h6 class="text-success fw-bold">Generar Invitación</h6>
+            <div class="d-flex gap-2">
+              <input class="form-control" [(ngModel)]="newCandidateName" placeholder="Nombre">
+              <input class="form-control" [(ngModel)]="newCandidateEmail" placeholder="Email">
+              <button class="btn btn-success px-4" (click)="generateInvitation()" [disabled]="isGenerating">
+                {{ isGenerating ? '...' : 'Invitar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 small fw-bold">Candidatos Registrados</h5>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadSubmissions()">↻</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-uppercase">
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Estado</th>
+                  <th class="text-end px-4">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (sub of submissions; track $index) {
+                  <tr>
+                    <td class="small fw-bold">{{ sub.candidateName }}</td>
+                    <td class="small text-muted">{{ sub.email }}</td>
+                    <td><span class="badge bg-info text-dark" style="font-size: 0.7rem;">{{ sub.status }}</span></td>
+                    <td class="text-end px-4">
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
+                          {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
+                        <button class="btn btn-outline-danger" (click)="deleteSubmission(sub.id!)">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-
-      <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0 small fw-bold">Candidatos Registrados</h5>
-          <button class="btn btn-sm btn-outline-secondary" (click)="loadSubmissions()">↻</button>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr class="small text-uppercase">
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Estado</th>
-                <th class="text-end px-4">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (sub of submissions; track $index) {
-                <tr>
-                  <td class="small fw-bold">{{ sub.candidateName }}</td>
-                  <td class="small text-muted">{{ sub.email }}</td>
-                  <td><span class="badge bg-info text-dark" style="font-size: 0.7rem;">{{ sub.status }}</span></td>
-                  <td class="text-end px-4">
-                    <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
-                      {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
-                    </button>
-                    <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
-                    <button class="btn btn-outline-danger" (click)="deleteSubmission(sub.id!)">✕</button>
-                  </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
-  </div>
+  }
 
-  <hr class="my-5 border-2 opacity-10">
-
-  <div class="row pb-5">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
-          <h5 class="mb-0">Configuración de Campos</h5>
-          <button class="btn btn-primary btn-sm" (click)="addNewField()">+ Añadir Campo</button>
-        </div>
-        <div class="card-body p-0">
-          @if (loading) {
-            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
-          } @else {
-            <ul class="list-group list-group-flush">
-              @for (field of fields; track i; let i = $index) {
-                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                  <div class="d-flex align-items-center">
-                    <span class="badge bg-secondary me-3">#{{i + 1}}</span>
-                    <div>
-                      <strong class="d-block">{{ field.label }}</strong>
-                      <small class="text-muted text-uppercase">{{ field.type }}</small>
+  <!-- Pestaña Formulario -->
+  @if (activeTab === 'formulario') {
+    <div class="row pb-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0">Configuración de Campos</h5>
+            <button class="btn btn-primary btn-sm" (click)="addNewField()">+ Añadir Campo</button>
+          </div>
+          <div class="card-body p-0">
+            @if (loading) {
+              <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+            } @else {
+              <ul class="list-group list-group-flush">
+                @for (field of fields; track i; let i = $index) {
+                  <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    <div class="d-flex align-items-center">
+                      <span class="badge bg-secondary me-3">#{{i + 1}}</span>
+                      <div>
+                        <strong class="d-block">{{ field.label }}</strong>
+                        <small class="text-muted text-uppercase">{{ field.type }}</small>
+                      </div>
                     </div>
-                  </div>
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
-                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
-                    <button class="btn btn-outline-primary ms-3 px-3" (click)="editField(field)">Editar</button>
-                    <button class="btn btn-outline-danger" (click)="deleteField(field.id!)">✕</button>
-                  </div>
-                </li>
-              }
-            </ul>
-          }
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
+                      <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
+                      <button class="btn btn-outline-primary ms-3 px-3" (click)="editField(field)">Editar</button>
+                      <button class="btn btn-outline-danger" (click)="deleteField(field.id!)">✕</button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  }
+
+  <!-- Pestaña Administradores -->
+  @if (activeTab === 'administradores') {
+    <div class="row pb-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0">Gestión de Administradores</h5>
+            <button class="btn btn-light btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-uppercase">
+                  <th>Usuario</th>
+                  <th>Estado</th>
+                  <th class="text-end px-4">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of adminUsers; track user.id) {
+                  <tr>
+                    <td class="small fw-bold">{{ user.username }}</td>
+                    <td><span class="badge bg-success" style="font-size: 0.7rem;">Activo</span></td>
+                    <td class="text-end px-4">
+                      <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" (click)="editUser(user)">Editar</button>
+                        <button class="btn btn-outline-danger" (click)="deleteUser(user.id)">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
 </div>
 
+<!-- Modal Editar Campo -->
 @if (editingField) {
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">
@@ -140,44 +204,7 @@
   </div>
 }
 
-<hr class="my-5 border-2 opacity-10">
-
-<div class="row pb-5">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-3">
-        <h5 class="mb-0">Gestión de Administradores</h5>
-        <button class="btn btn-light btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr class="small text-uppercase">
-              <th>Usuario</th>
-              <th>Estado</th>
-              <th class="text-end px-4">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of adminUsers; track user.id) {
-              <tr>
-                <td class="small fw-bold">{{ user.username }}</td>
-                <td><span class="badge bg-success" style="font-size: 0.7rem;">Activo</span></td>
-                <td class="text-end px-4">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" (click)="editUser(user)">Editar</button>
-                    <button class="btn btn-outline-danger" (click)="deleteUser(user.id)">✕</button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Modal Editar Usuario -->
 @if (editingUser) {
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">

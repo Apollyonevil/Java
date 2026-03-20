@@ -227,4 +227,6 @@ export class AdminDashboardComponent implements OnInit {
   logout() {
     this.authService.logout();
   }
+
+  activeTab: string = 'candidatos';
 }
