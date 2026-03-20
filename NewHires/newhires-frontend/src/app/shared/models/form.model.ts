@@ -7,10 +7,11 @@ export interface FieldDefinition {
   id: string;
   label: string;
   type: string;
-  required: boolean;    
-  sortOrder?: number;  
-  placeholder?: string; 
-  options?: string[]; 
+  originalType?: string;
+  required: boolean;
+  placeholder?: string;
+  options?: string[];
+  sortOrder?: number;
 }
 
 export interface Submission {

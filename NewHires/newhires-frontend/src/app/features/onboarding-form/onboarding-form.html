@@ -2,14 +2,14 @@
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <div class="card shadow border-0">
-        
+
         <div class="card-header card-header-dark text-white p-4 text-center">
           <h2 class="h4 mb-1">Bienvenido a Cívica</h2>
           <p class="small mb-0 opacity-75">Completa tu información de incorporación</p>
         </div>
 
         <div class="card-body p-4">
-          
+
           @if (loading && !isSubmitted) {
             <div class="text-center py-5">
               <div class="spinner-border text-primary" role="status"></div>
@@ -49,17 +49,21 @@
 
                   @if (field.type === 'file') {
                     <div>
-              <input type="file"
-                    (change)="onFileChange($event, field.id, field.placeholder || '')"
-                    class="form-control"
-                    [class.is-invalid]="dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid">
+                      <input type="file"
+                             (change)="onFileChange($event, field.id, field.placeholder || '', field.originalType || '')"
+                             class="form-control"
+                             [accept]="getAcceptType(field.originalType || '')"
+                             [class.is-invalid]="(dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid) || !!fileErrors[field.id]">
                       @if (field.placeholder) {
                         <small class="text-muted mt-1 d-block">{{ field.placeholder }}</small>
+                      }
+                      @if (fileErrors[field.id]) {
+                        <div class="invalid-feedback d-block">{{ fileErrors[field.id] }}</div>
                       }
                     </div>
                   }
 
-                  @if (dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid) {
+                  @if (dynamicForm.get(field.id)?.touched && dynamicForm.get(field.id)?.invalid && !fileErrors[field.id]) {
                     <div class="invalid-feedback d-block">
                       Este campo es obligatorio para continuar.
                     </div>

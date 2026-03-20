@@ -17,6 +17,7 @@ export class OnboardingFormComponent implements OnInit {
   fields: FieldDefinition[] = [];
   token: string = '';
   fileMap: Map<string, File> = new Map();
+  fileErrors: { [key: string]: string } = {};
   loading: boolean = true;
   isSubmitted: boolean = false;
 
@@ -38,13 +39,15 @@ export class OnboardingFormComponent implements OnInit {
     this.formService.getFormStructure().subscribe({
       next: (data) => {
         this.fields = data.map(field => {
-          let normalizedType = field.type.toLowerCase();
+          const originalType = field.type.toLowerCase();
+          let normalizedType = originalType;
           if (normalizedType === 'pdf' || normalizedType === 'jpg') {
             normalizedType = 'file';
           }
           return {
             ...field,
             type: normalizedType,
+            originalType: originalType,
             options: field.options || []
           };
         }).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
@@ -72,13 +75,50 @@ export class OnboardingFormComponent implements OnInit {
     this.dynamicForm = this.fb.group(group);
   }
 
-  onFileChange(event: any, fieldId: string, placeholder: string) {
+  onFileChange(event: any, fieldId: string, placeholder: string, originalType: string) {
     const file = event.target.files[0];
-    if (file) {
-      const renamedFile = this.renameFile(file, placeholder);
-      this.fileMap.set(fieldId, renamedFile);
-      this.dynamicForm.get(fieldId)?.setValue(renamedFile.name);
+    if (!file) return;
+
+    const validationError = this.validateFileType(file, originalType);
+    if (validationError) {
+      this.fileErrors[fieldId] = validationError;
+      event.target.value = '';
+      this.dynamicForm.get(fieldId)?.setValue('');
+      this.fileMap.delete(fieldId);
+      this.cdr.markForCheck();
+      return;
     }
+
+    delete this.fileErrors[fieldId];
+    const renamedFile = this.renameFile(file, placeholder);
+    this.fileMap.set(fieldId, renamedFile);
+    this.dynamicForm.get(fieldId)?.setValue(renamedFile.name);
+    this.cdr.markForCheck();
+  }
+
+  private validateFileType(file: File, originalType: string): string | null {
+    const fileName = file.name.toLowerCase();
+
+    if (originalType === 'pdf') {
+      if (!fileName.endsWith('.pdf') && file.type !== 'application/pdf') {
+        return 'Solo se permiten archivos PDF (.pdf)';
+      }
+    }
+
+    if (originalType === 'jpg') {
+      if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg')
+          && file.type !== 'image/jpeg') {
+        return 'Solo se permiten imágenes JPG (.jpg, .jpeg)';
+      }
+    }
+
+    return null;
+  }
+
+  getAcceptType(originalType: string): string {
+    if (originalType === 'pdf') return '.pdf,application/pdf';
+    if (originalType === 'jpg') return '.jpg,.jpeg,image/jpeg';
+    return '*';
   }
 
   private renameFile(file: File, placeholder: string): File {
@@ -91,7 +131,9 @@ export class OnboardingFormComponent implements OnInit {
     const prefix = prefixMatch ? prefixMatch[1].trim().toUpperCase() : '';
 
     const { nombre, apellidos } = this.getNombreYApellidos();
-    const nombreFormateado = apellidos && nombre ? `${apellidos}, ${nombre}` : (apellidos || nombre || 'candidato');
+    const nombreFormateado = apellidos && nombre
+      ? `${apellidos}, ${nombre}`
+      : (apellidos || nombre || 'candidato');
     const extension = file.name.split('.').pop();
 
     const nuevoNombre = prefix
