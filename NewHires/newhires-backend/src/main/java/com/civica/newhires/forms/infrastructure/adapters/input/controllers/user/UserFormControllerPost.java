@@ -1,11 +1,9 @@
-package com.civica.newhires.forms.infrastructure.adapters.input.web;
+package com.civica.newhires.forms.infrastructure.adapters.input.controllers.user;
 
-import com.civica.newhires.forms.application.dto.FieldDefinitionDTO;
 import com.civica.newhires.forms.application.dto.FieldResponseDTO;
 import com.civica.newhires.forms.application.dto.FileInput;
-import com.civica.newhires.forms.domain.ports.input.GetFormStructureUseCase;
 import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
-import com.civica.newhires.forms.infrastructure.adapters.input.web.mappers.FieldDTOMapper;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,20 +21,9 @@ import java.util.UUID;
 @RequestMapping("/api/v1/forms")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
-public class UserFormController {
+public class UserFormControllerPost {
 
     private final SubmitFormUseCase submitFormUseCase;
-    private final GetFormStructureUseCase getFormStructureUseCase;
-    private final FieldDTOMapper mapper;
-
-    @GetMapping("/structure")
-    public ResponseEntity<List<FieldDefinitionDTO>> getStructure() {
-        List<FieldDefinitionDTO> fields = getFormStructureUseCase.execute()
-                .stream()
-                .map(mapper::toDTO)
-                .toList();
-        return ResponseEntity.ok(fields);
-    }
 
     @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> submit(
@@ -61,7 +48,7 @@ public class UserFormController {
                     }
                 }
             } catch (IllegalArgumentException e) {
-                // no es un UUID, es token o responses, lo ignoramos
+            
             }
         });
 

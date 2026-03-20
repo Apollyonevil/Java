@@ -19,12 +19,10 @@ public class FieldManagementService implements ManageFieldsUseCase {
     }
 
 @Override
-@Transactional // Asegúrate de tener esta anotación para que la sesión esté abierta
+@Transactional
 public FieldDefinition updateField(UUID id, FieldDefinition field) {
-    // 1. Validar que existe (opcional pero recomendado)
     formRepository.findDefinitionById(id); 
 
-    // 2. Crear instancia nueva
     FieldDefinition updatedField = new FieldDefinition(
         id, 
         field.getLabel(), 
@@ -35,12 +33,10 @@ public FieldDefinition updateField(UUID id, FieldDefinition field) {
         field.getSortOrder()
     );
 
-    // 3. Persistir y forzar el refresco
     FieldDefinition saved = formRepository.saveDefinition(updatedField);
     
-    // IMPORTANTE: Forzamos a Hibernate a cargar las opciones para el JSON
     if (saved.getOptions() != null) {
-        saved.getOptions().size(); // Esto "despierta" a la colección si es Lazy
+        saved.getOptions().size();
     }
     
     return saved;

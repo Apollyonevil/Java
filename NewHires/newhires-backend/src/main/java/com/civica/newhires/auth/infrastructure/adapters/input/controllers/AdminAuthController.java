@@ -1,4 +1,4 @@
-package com.civica.newhires.auth.infrastructure.adapters.input.web;
+package com.civica.newhires.auth.infrastructure.adapters.input.controllers;
 
 import com.civica.newhires.auth.application.dto.InvitationRequest;
 import com.civica.newhires.auth.domain.ports.input.SendInvitationUseCase;

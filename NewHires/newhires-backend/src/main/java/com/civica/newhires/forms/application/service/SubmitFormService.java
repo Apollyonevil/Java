@@ -38,21 +38,18 @@ public class SubmitFormService implements SubmitFormUseCase {
     @Transactional
     public void execute(String token, List<FieldResponseDTO> textResponses, Map<UUID, FileInput> files) {
         
-        // 1. Identificación del usuario con datos reales
         UUID employeeId = userIdentityPort.findEmployeeIdByToken(token)
                 .orElseThrow(() -> new RuntimeException("Acceso no autorizado: Token inválido"));
 
         String employeeEmail = userIdentityPort.findEmailByToken(token)
                 .orElseThrow(() -> new RuntimeException("No se encontró email para el token suministrado"));
 
-        // Intentamos obtener el nombre real; si no existe, usamos el email como identificador
         String employeeName = userIdentityPort.findNameByToken(token)
                 .orElse(employeeEmail.split("@")[0]); 
 
         List<FieldDefinition> definitions = formRepository.findAllFieldDefinitions();
         List<FieldValue> valuesToSave = new ArrayList<>();
 
-        // 2. Procesar respuestas de texto
         if (textResponses != null) {
             textResponses.forEach(dto -> {
                 UUID fieldId = parseUuid(dto.fieldDefinitionId());
@@ -63,7 +60,6 @@ public class SubmitFormService implements SubmitFormUseCase {
             });
         }
 
-        // 3. Procesar archivos
         if (files != null) {
             files.forEach((fieldUuid, fileInput) -> {
                 FieldDefinition def = findDefinition(definitions, fieldUuid);
@@ -78,17 +74,14 @@ public class SubmitFormService implements SubmitFormUseCase {
             });
         }
 
-        // 4. Persistencia y Notificaciones
         formRepository.saveValues(valuesToSave);
 
-        // Buscar submission existente por token y actualizar estado
         submissionRepository.findByToken(token).ifPresentOrElse(
             existing -> {
                 existing.setStatus(SubmissionStatus.SUBMITTED);
                 submissionRepository.save(existing);
             },
             () -> {
-                // Solo si no existe, crear uno nuevo
                 Submission submission = new Submission(employeeId, employeeName, employeeEmail, token);
                 submission.setStatus(SubmissionStatus.SUBMITTED);
                 submissionRepository.save(submission);

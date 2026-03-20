@@ -1,0 +1,31 @@
+package com.civica.newhires.forms.infrastructure.adapters.input.controllers.user;
+
+import com.civica.newhires.forms.application.dto.FieldDefinitionDTO;
+import com.civica.newhires.forms.domain.ports.input.GetFormStructureUseCase;
+import com.civica.newhires.forms.infrastructure.adapters.input.web.mappers.FieldDTOMapper;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/forms")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+public class UserFormControllerGet {
+
+    private final GetFormStructureUseCase getFormStructureUseCase;
+    private final FieldDTOMapper mapper;
+
+    @GetMapping("/structure")
+    public ResponseEntity<List<FieldDefinitionDTO>> getStructure() {
+        List<FieldDefinitionDTO> fields = getFormStructureUseCase.execute()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+        return ResponseEntity.ok(fields);
+    }
+
+}

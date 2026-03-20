@@ -54,12 +54,28 @@ private getAdminHeaders(): { headers: HttpHeaders } {
     return this.http.get<Submission[]>(`${this.adminUrl}/submissions`, this.getAdminHeaders());
   }
 
-  updateField(field: FieldDefinition): Observable<FieldDefinition> {
-    return this.http.put<FieldDefinition>(`${this.adminUrl}/fields/${field.id}`, field, this.getAdminHeaders());
+  updateField(field: any): Observable<FieldDefinition> {
+    const body = {
+      label: field.label,
+      type: field.type,
+      required: field.required,
+      placeholder: field.placeholder,
+      options: field.options,
+      sortOrder: field.sortOrder
+    };
+    return this.http.put<FieldDefinition>(`${this.adminUrl}/fields/${field.id}`, body, this.getAdminHeaders());
   }
 
-  saveField(field: FieldDefinition): Observable<FieldDefinition> {
-    return this.http.post<FieldDefinition>(`${this.adminUrl}/fields`, field, this.getAdminHeaders());
+  saveField(field: any): Observable<FieldDefinition> {
+    const body = {
+      label: field.label,
+      type: field.type,
+      required: field.required,
+      placeholder: field.placeholder,
+      options: field.options,
+      sortOrder: field.sortOrder
+    };
+    return this.http.post<FieldDefinition>(`${this.adminUrl}/fields`, body, this.getAdminHeaders());
   }
 
   deleteField(id: string): Observable<void> {

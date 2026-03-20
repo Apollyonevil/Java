@@ -140,9 +140,11 @@ export class AdminDashboardComponent implements OnInit {
 
     const list = [...this.fields];
     [list[index], list[newIndex]] = [list[newIndex], list[index]];
+    
     list.forEach((field, i) => {
-      field.sortOrder = i;
-      this.formService.updateField(field).subscribe();
+      const updated = { ...field, sortOrder: i };
+      this.formService.updateField(updated).subscribe();
+      list[i] = updated;
     });
 
     this.fields = list;
@@ -187,7 +189,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   addNewField() {
-    this.editingField = { label: '', type: 'text', required: false, sortOrder: this.fields.length };
+    this.editingField = { label: '', type: 'TEXT', required: false, sortOrder: this.fields.length };
     this.optionsText = '';
   }
 

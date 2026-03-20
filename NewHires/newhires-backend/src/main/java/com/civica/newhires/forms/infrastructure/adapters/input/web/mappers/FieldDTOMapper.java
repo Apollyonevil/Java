@@ -3,7 +3,6 @@ package com.civica.newhires.forms.infrastructure.adapters.input.web.mappers;
 import com.civica.newhires.forms.application.dto.FieldDefinitionDTO;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 @Component 
 public class FieldDTOMapper {

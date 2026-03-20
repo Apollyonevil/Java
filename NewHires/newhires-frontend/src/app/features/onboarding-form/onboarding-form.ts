@@ -84,27 +84,31 @@ export class OnboardingFormComponent implements OnInit {
   private renameFile(file: File, placeholder: string): File {
     if (!placeholder || !placeholder.startsWith('Formato nombre archivo:')) {
       return file;
-    } 
+    }
 
     const afterColon = placeholder.replace('Formato nombre archivo:', '').trim();
     const prefixMatch = afterColon.match(/^(.+?)\s+apellido/i);
     const prefix = prefixMatch ? prefixMatch[1].trim().toUpperCase() : '';
 
-    const nombreCompleto = this.getNombreCompleto();
+    const { nombre, apellidos } = this.getNombreYApellidos();
+    const nombreFormateado = apellidos && nombre ? `${apellidos}, ${nombre}` : (apellidos || nombre || 'candidato');
     const extension = file.name.split('.').pop();
 
     const nuevoNombre = prefix
-      ? `${prefix} ${nombreCompleto}.${extension}`
-      : `${nombreCompleto}.${extension}`;
+      ? `${prefix} ${nombreFormateado}.${extension}`
+      : `${nombreFormateado}.${extension}`;
 
     return new File([file], nuevoNombre, { type: file.type });
   }
 
-  private getNombreCompleto(): string {
-    if (this.fields.length === 0) return 'candidato';
-    const primerCampoId = this.fields[0].id;
-    const valor = this.dynamicForm.get(primerCampoId)?.value;
-    return valor ? valor.trim() : 'candidato';
+  private getNombreYApellidos(): { nombre: string, apellidos: string } {
+    const nombreFieldId = 'bafb0b5c-212e-11f1-8314-a6ac6c94ec55';
+    const apellidosFieldId = '5400ca90-5376-433d-9977-416786a83cac';
+
+    const nombre = this.dynamicForm.get(nombreFieldId)?.value?.trim() || '';
+    const apellidos = this.dynamicForm.get(apellidosFieldId)?.value?.trim() || '';
+
+    return { nombre, apellidos };
   }
 
   onSubmit() {
