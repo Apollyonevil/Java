@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormService } from '../../core/services/form';
 import { FieldDefinition, Submission } from '../../shared/models/form.model';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -21,10 +22,16 @@ export class AdminDashboardComponent implements OnInit {
   newCandidateName: string = '';
   newCandidateEmail: string = '';
 
-  constructor(
-    private formService: FormService,
-    private cdr: ChangeDetectorRef
-  ) {}
+constructor(
+  private formService: FormService,
+  private cdr: ChangeDetectorRef,
+  private authService: AuthService
+) {}
+
+// Método logout:
+logout() {
+  this.authService.logout();
+}
 
   ngOnInit(): void {
     this.refreshData();

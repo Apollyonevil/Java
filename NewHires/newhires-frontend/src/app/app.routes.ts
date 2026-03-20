@@ -1,30 +1,30 @@
 import { Routes } from '@angular/router';
-import { OnboardingFormComponent } from './features/onboarding-form/onboarding-form'; 
+import { OnboardingFormComponent } from './features/onboarding-form/onboarding-form';
 import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard';
+import { AdminLoginComponent } from './features/admin-login/admin-login';
+import { authGuard } from './core/guards/auth';
 
 export const routes: Routes = [
-  // Ruta para el empleado (ej: /onboarding?token=uuid-123)
-  { 
-    path: 'onboarding', 
-    component: OnboardingFormComponent 
+  {
+    path: 'onboarding',
+    component: OnboardingFormComponent
   },
-  
-  // Ruta para RRHH
-  { 
-    path: 'admin', 
-    component: AdminDashboardComponent 
+  {
+    path: 'admin',
+    component: AdminDashboardComponent,
+    canActivate: [authGuard]
   },
-
-  // Redirección inicial
-  { 
-    path: '', 
-    redirectTo: '/onboarding', 
-    pathMatch: 'full' 
+  {
+    path: 'admin/login',
+    component: AdminLoginComponent
   },
-
-  // Comodín para páginas no encontradas (404)
-  { 
-    path: '**', 
-    redirectTo: '/onboarding' 
+  {
+    path: '',
+    redirectTo: '/onboarding',
+    pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: '/onboarding'
   }
 ];
