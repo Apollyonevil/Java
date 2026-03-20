@@ -25,15 +25,14 @@
     </li>
   </ul>
 
-
   <!-- Pestaña Candidatos -->
   @if (activeTab === 'candidatos') {
     <div class="row mb-5">
       <div class="col-12">
         <div class="card shadow-sm mb-4 invite-card">
-            <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
+          <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0">Candidatos</h5>
-            </div>
+          </div>
           <div class="card-body">
             <h6 class="invite-title fw-bold">Generar Invitación</h6>
             <div class="d-flex gap-2">
@@ -58,6 +57,7 @@
                   <th>Nombre</th>
                   <th>Email</th>
                   <th>Estado</th>
+                  <th>Caduca</th>
                   <th class="text-end px-4">Acciones</th>
                 </tr>
               </thead>
@@ -69,11 +69,24 @@
                     <td>
                       <span class="badge badge-pending" style="font-size: 0.7rem;">{{ sub.status }}</span>
                     </td>
+                    <td>
+                      @if (sub.expiresAt) {
+                        <small [class.text-danger]="isExpired(sub.expiresAt)" [class.text-muted]="!isExpired(sub.expiresAt)">
+                          {{ sub.expiresAt | date:'dd/MM/yyyy HH:mm' }}
+                          @if (isExpired(sub.expiresAt)) {
+                            <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">Caducado</span>
+                          }
+                        </small>
+                      } @else {
+                        <small class="text-muted">—</small>
+                      }
+                    </td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-brand" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
                           {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
                         </button>
+                        <button class="btn btn-outline-secondary" (click)="renewToken(sub.id!)">↺ Renovar</button>
                         <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
                         <button class="btn btn-outline-secondary" (click)="deleteSubmission(sub.id!)">✕</button>
                       </div>

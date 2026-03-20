@@ -32,11 +32,12 @@ public class SubmissionEntity {
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt; // <-- añadido
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private SubmissionStatus status;
-
-    // --- GETTERS Y SETTERS MANUALES ---
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -55,6 +56,9 @@ public class SubmissionEntity {
 
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
 
     public SubmissionStatus getStatus() { return status; }
     public void setStatus(SubmissionStatus status) { this.status = status; }

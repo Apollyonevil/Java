@@ -8,12 +8,3 @@ export interface FieldDefinition {
   sortOrder?: number;
 }
 
-export interface Submission {
-  id?: string;
-  candidateName: string;
-  email: string;
-  employeeId?: string;
-  status: string;
-  submittedAt?: string;
-  token?: string;
-}

@@ -49,29 +49,31 @@ public class FormPersistenceMapper {
         return entity;
     }
 
-    public Submission toDomain(SubmissionEntity entity) {
-        if (entity == null) return null;
-        return new Submission(
-            entity.getId(),
-            entity.getEmployeeId(),
-            entity.getCandidateName(), 
-            entity.getEmail(),
-            entity.getToken(),
-            entity.getSubmittedAt(),
-            entity.getStatus()
-        );
-    }
+public Submission toDomain(SubmissionEntity entity) {
+    if (entity == null) return null;
+    return new Submission(
+        entity.getId(),
+        entity.getEmployeeId(),
+        entity.getCandidateName(),
+        entity.getEmail(),
+        entity.getToken(),
+        entity.getSubmittedAt(),
+        entity.getExpiresAt(), // <-- añadido
+        entity.getStatus()
+    );
+}
 
-    public SubmissionEntity toEntity(Submission domain) {
-        if (domain == null) return null;
-        SubmissionEntity entity = new SubmissionEntity();
-        entity.setId(domain.getId());
-        entity.setEmployeeId(domain.getEmployeeId());
-        entity.setCandidateName(domain.getCandidateName());
-        entity.setEmail(domain.getEmail()); 
-        entity.setToken(domain.getToken());
-        entity.setSubmittedAt(domain.getSubmittedAt());
-        entity.setStatus(domain.getStatus());
-        return entity;
-    }
+public SubmissionEntity toEntity(Submission domain) {
+    if (domain == null) return null;
+    SubmissionEntity entity = new SubmissionEntity();
+    entity.setId(domain.getId());
+    entity.setEmployeeId(domain.getEmployeeId());
+    entity.setCandidateName(domain.getCandidateName());
+    entity.setEmail(domain.getEmail());
+    entity.setToken(domain.getToken());
+    entity.setSubmittedAt(domain.getSubmittedAt());
+    entity.setExpiresAt(domain.getExpiresAt()); // <-- añadido
+    entity.setStatus(domain.getStatus());
+    return entity;
+}
 }

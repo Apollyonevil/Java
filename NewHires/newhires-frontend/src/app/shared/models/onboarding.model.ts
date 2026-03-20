@@ -5,9 +5,3 @@ export interface Invitation {
   isUsed: boolean;
 }
 
-export interface Submission {
-  id?: number;
-  invitationToken: string;
-  submittedAt: Date;
-  status: 'PENDING' | 'VALIDATED' | 'REJECTED';
-}

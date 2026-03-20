@@ -15,11 +15,12 @@ export interface FieldDefinition {
 }
 
 export interface Submission {
-  id: string;
-  employeeId: string;
+  id?: string;
   candidateName: string;
   email: string;
-  token: string;
+  employeeId?: string;
   status: string;
-  submittedAt?: string | Date;
+  submittedAt?: string;
+  expiresAt?: string;  // <-- añade esto
+  token?: string;
 }

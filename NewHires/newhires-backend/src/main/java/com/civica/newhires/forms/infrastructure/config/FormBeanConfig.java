@@ -10,6 +10,7 @@ import jakarta.servlet.MultipartConfigElement;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
@@ -63,12 +64,13 @@ public MultipartConfigElement multipartConfigElement() {
         return new GetFormStructureService(formRepository);
     }
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        return mapper;
-    }
+        @Bean
+        public ObjectMapper objectMapper() {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            return mapper;
+        }
 
     @Bean
     public InviteCandidateUseCase inviteCandidateUseCase(
@@ -77,4 +79,6 @@ public MultipartConfigElement multipartConfigElement() {
             NotificationPort notificationPort) {
         return new InviteCandidateService(submissionRepository, userIdentityPort, notificationPort);
     }
+
+    
 }

@@ -90,6 +90,10 @@ private getAdminHeaders(): { headers: HttpHeaders } {
     return this.http.post(`${this.adminUrl}/send-email/${employeeId}`, {}, this.getAdminHeaders());
   }
 
+  renewToken(id: string): Observable<Submission> {
+  return this.http.post<Submission>(`${this.adminUrl}/submissions/${id}/renew`, {}, this.getAdminHeaders());
+}
+
   //MÉTODO PARA CREAR/EDITAR ADMINS
     private readonly usersUrl = 'http://localhost:8080/api/admin/users';
 

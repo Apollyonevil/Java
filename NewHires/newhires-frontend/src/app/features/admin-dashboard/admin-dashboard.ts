@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { FormService } from '../../core/services/form';
 import { FieldDefinition, Submission } from '../../shared/models/form.model';
 import { AuthService } from '../../core/services/auth';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css']
 })
@@ -187,6 +188,25 @@ export class AdminDashboardComponent implements OnInit {
     const url = `${window.location.origin}/onboarding?token=${token}`;
     navigator.clipboard.writeText(url);
     alert('Link copiado');
+  }
+
+    isExpired(expiresAt: string): boolean {
+    return new Date(expiresAt) < new Date();
+  }
+
+  renewToken(id: string) {
+    this.formService.renewToken(id).subscribe({
+      next: (updated) => {
+        const index = this.submissions.findIndex(s => s.id === id);
+        if (index !== -1) {
+          const newSubmissions = [...this.submissions];
+          newSubmissions[index] = updated;
+          this.submissions = newSubmissions;
+          this.cdr.markForCheck();
+          alert('Token renovado y email enviado');
+        }
+      }
+    });
   }
 
   addNewField() {
