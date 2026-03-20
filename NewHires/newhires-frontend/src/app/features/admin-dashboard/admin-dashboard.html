@@ -1,9 +1,9 @@
 <div class="container-fluid mt-4 px-4">
-  
+
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0">Panel de Administración</h4>
-    <button class="btn btn-outline-danger btn-sm" (click)="logout()">Cerrar sesión</button>
+  <div class="d-flex justify-content-between align-items-center admin-header">
+    <h4 class="admin-title mb-0">Panel de Administración</h4>
+    <button class="btn btn-sm btn-logout" (click)="logout()">Cerrar sesión</button>
   </div>
 
   <!-- Pestañas -->
@@ -20,22 +20,26 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'administradores'" (click)="activeTab = 'administradores'" style="cursor:pointer">
-        Gestión de administradores
+        Gestión de Administradores
       </a>
     </li>
   </ul>
+
 
   <!-- Pestaña Candidatos -->
   @if (activeTab === 'candidatos') {
     <div class="row mb-5">
       <div class="col-12">
-        <div class="card shadow-sm mb-4 border-success">
+        <div class="card shadow-sm mb-4 invite-card">
+            <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0">Candidatos</h5>
+            </div>
           <div class="card-body">
-            <h6 class="text-success fw-bold">Generar Invitación</h6>
+            <h6 class="invite-title fw-bold">Generar Invitación</h6>
             <div class="d-flex gap-2">
               <input class="form-control" [(ngModel)]="newCandidateName" placeholder="Nombre">
               <input class="form-control" [(ngModel)]="newCandidateEmail" placeholder="Email">
-              <button class="btn btn-success px-4" (click)="generateInvitation()" [disabled]="isGenerating">
+              <button class="btn btn-brand px-4" (click)="generateInvitation()" [disabled]="isGenerating">
                 {{ isGenerating ? '...' : 'Invitar' }}
               </button>
             </div>
@@ -62,14 +66,16 @@
                   <tr>
                     <td class="small fw-bold">{{ sub.candidateName }}</td>
                     <td class="small text-muted">{{ sub.email }}</td>
-                    <td><span class="badge bg-info text-dark" style="font-size: 0.7rem;">{{ sub.status }}</span></td>
+                    <td>
+                      <span class="badge badge-pending" style="font-size: 0.7rem;">{{ sub.status }}</span>
+                    </td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
+                        <button class="btn btn-outline-brand" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
                           {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
                         </button>
                         <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
-                        <button class="btn btn-outline-danger" (click)="deleteSubmission(sub.id!)">✕</button>
+                        <button class="btn btn-outline-secondary" (click)="deleteSubmission(sub.id!)">✕</button>
                       </div>
                     </td>
                   </tr>
@@ -87,13 +93,13 @@
     <div class="row pb-5">
       <div class="col-12">
         <div class="card shadow-sm">
-          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0">Configuración de Campos</h5>
-            <button class="btn btn-primary btn-sm" (click)="addNewField()">+ Añadir Campo</button>
+            <button class="btn btn-brand btn-sm" (click)="addNewField()">+ Añadir Campo</button>
           </div>
           <div class="card-body p-0">
             @if (loading) {
-              <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+              <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
             } @else {
               <ul class="list-group list-group-flush">
                 @for (field of fields; track i; let i = $index) {
@@ -108,8 +114,8 @@
                     <div class="btn-group btn-group-sm">
                       <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
                       <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
-                      <button class="btn btn-outline-primary ms-3 px-3" (click)="editField(field)">Editar</button>
-                      <button class="btn btn-outline-danger" (click)="deleteField(field.id!)">✕</button>
+                      <button class="btn btn-outline-brand ms-3 px-3" (click)="editField(field)">Editar</button>
+                      <button class="btn btn-outline-secondary" (click)="deleteField(field.id!)">✕</button>
                     </div>
                   </li>
                 }
@@ -126,9 +132,9 @@
     <div class="row pb-5">
       <div class="col-12">
         <div class="card shadow-sm">
-          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-3">
+          <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0">Gestión de Administradores</h5>
-            <button class="btn btn-light btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
+            <button class="btn btn-brand btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -143,11 +149,11 @@
                 @for (user of adminUsers; track user.id) {
                   <tr>
                     <td class="small fw-bold">{{ user.username }}</td>
-                    <td><span class="badge bg-success" style="font-size: 0.7rem;">Activo</span></td>
+                    <td><span class="badge bg-secondary" style="font-size: 0.7rem;">Activo</span></td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" (click)="editUser(user)">Editar</button>
-                        <button class="btn btn-outline-danger" (click)="deleteUser(user.id)">✕</button>
+                        <button class="btn btn-outline-brand" (click)="editUser(user)">Editar</button>
+                        <button class="btn btn-outline-secondary" (click)="deleteUser(user.id)">✕</button>
                       </div>
                     </td>
                   </tr>
@@ -167,7 +173,7 @@
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-primary text-white border-0">
+        <div class="modal-header modal-header-brand border-0">
           <h5 class="modal-title fw-bold">{{ editingField.id ? 'Editar' : 'Nuevo' }} Campo</h5>
           <button type="button" class="btn-close btn-close-white" (click)="editingField = null"></button>
         </div>
@@ -195,7 +201,7 @@
         </div>
         <div class="modal-footer bg-light border-0">
           <button class="btn btn-link text-muted text-decoration-none" (click)="editingField = null">Cancelar</button>
-          <button class="btn btn-primary px-4 shadow-sm" (click)="saveField()" [disabled]="loading">
+          <button class="btn btn-brand px-4 shadow-sm" (click)="saveField()" [disabled]="loading">
             {{ loading ? 'Sincronizando...' : 'Guardar Cambios' }}
           </button>
         </div>
@@ -209,7 +215,7 @@
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-secondary text-white border-0">
+        <div class="modal-header modal-header-gray border-0">
           <h5 class="modal-title fw-bold">{{ editingUser.id ? 'Editar' : 'Nuevo' }} Administrador</h5>
           <button type="button" class="btn-close btn-close-white" (click)="editingUser = null"></button>
         </div>
@@ -225,7 +231,7 @@
         </div>
         <div class="modal-footer bg-light border-0">
           <button class="btn btn-link text-muted text-decoration-none" (click)="editingUser = null">Cancelar</button>
-          <button class="btn btn-secondary px-4" (click)="saveUser()">Guardar</button>
+          <button class="btn btn-brand px-4" (click)="saveUser()">Guardar</button>
         </div>
       </div>
     </div>

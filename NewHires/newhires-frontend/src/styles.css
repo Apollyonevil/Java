@@ -4,8 +4,7 @@ body {
 }
 
 .custom-nav {
-  background-color: #eaeaea!important; 
-  background: linear-gradient(90deg, #eaeaea 20%, #030c16 100%) !important;
+  background: linear-gradient(90deg, #333333 20%, #EE880E 100%) !important;
 }
 
 .brand-text {

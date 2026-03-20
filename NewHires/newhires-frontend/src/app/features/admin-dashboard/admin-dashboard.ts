@@ -9,7 +9,8 @@ import { AuthService } from '../../core/services/auth';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-dashboard.html'
+  templateUrl: './admin-dashboard.html',
+  styleUrls: ['./admin-dashboard.css']
 })
 export class AdminDashboardComponent implements OnInit {
   fields: FieldDefinition[] = [];
