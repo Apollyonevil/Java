@@ -84,7 +84,6 @@ export class AdminDashboardComponent implements OnInit {
       this.editingField.options = this.optionsText.split(',').map((o: string) => o.trim());
     }
 
-    // Si sortOrder es null, asigna el índice actual
     if (this.editingField.sortOrder == null) {
       const index = this.fields.findIndex(f => f.id === this.editingField.id);
       this.editingField.sortOrder = index !== -1 ? index : this.fields.length;

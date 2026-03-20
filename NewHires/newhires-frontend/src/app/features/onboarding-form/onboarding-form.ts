@@ -84,7 +84,7 @@ export class OnboardingFormComponent implements OnInit {
   private renameFile(file: File, placeholder: string): File {
     if (!placeholder || !placeholder.startsWith('Formato nombre archivo:')) {
       return file;
-    }
+    } 
 
     const afterColon = placeholder.replace('Formato nombre archivo:', '').trim();
     const prefixMatch = afterColon.match(/^(.+?)\s+apellido/i);

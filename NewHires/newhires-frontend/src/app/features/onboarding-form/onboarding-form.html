@@ -19,7 +19,6 @@
 
           @if (!loading && !isSubmitted) {
             <form [formGroup]="dynamicForm" (ngSubmit)="onSubmit()">
-              
               @for (field of fields; track field.id) {
                 <div class="mb-3">
                   <label class="form-label fw-bold small text-secondary">
