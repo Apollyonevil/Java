@@ -139,3 +139,68 @@
     </div>
   </div>
 }
+
+<hr class="my-5 border-2 opacity-10">
+
+<div class="row pb-5">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0">Gestión de Administradores</h5>
+        <button class="btn btn-light btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr class="small text-uppercase">
+              <th>Usuario</th>
+              <th>Estado</th>
+              <th class="text-end px-4">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of adminUsers; track user.id) {
+              <tr>
+                <td class="small fw-bold">{{ user.username }}</td>
+                <td><span class="badge bg-success" style="font-size: 0.7rem;">Activo</span></td>
+                <td class="text-end px-4">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" (click)="editUser(user)">Editar</button>
+                    <button class="btn btn-outline-danger" (click)="deleteUser(user.id)">✕</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (editingUser) {
+  <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-secondary text-white border-0">
+          <h5 class="modal-title fw-bold">{{ editingUser.id ? 'Editar' : 'Nuevo' }} Administrador</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="editingUser = null"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Usuario</label>
+            <input class="form-control" [(ngModel)]="editingUser.username" placeholder="nombre de usuario">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Contraseña {{ editingUser.id ? '(dejar vacío para no cambiar)' : '' }}</label>
+            <input class="form-control" type="password" [(ngModel)]="editingUser.password" placeholder="contraseña">
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0">
+          <button class="btn btn-link text-muted text-decoration-none" (click)="editingUser = null">Cancelar</button>
+          <button class="btn btn-secondary px-4" (click)="saveUser()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

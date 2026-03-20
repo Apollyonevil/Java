@@ -73,4 +73,23 @@ private getAdminHeaders(): { headers: HttpHeaders } {
   sendOnboardingEmail(employeeId: string): Observable<any> {
     return this.http.post(`${this.adminUrl}/send-email/${employeeId}`, {}, this.getAdminHeaders());
   }
-}
+
+  //MÉTODO PARA CREAR/EDITAR ADMINS
+    private readonly usersUrl = 'http://localhost:8080/api/admin/users';
+
+  getAdminUsers(): Observable<any[]> {
+    return this.http.get<any[]>(this.usersUrl, this.getAdminHeaders());
+  }
+
+  createAdminUser(username: string, password: string): Observable<any> {
+    return this.http.post(this.usersUrl, { username, password }, this.getAdminHeaders());
+  }
+
+  updateAdminUser(id: string, username: string, password: string): Observable<any> {
+    return this.http.put(`${this.usersUrl}/${id}`, { username, password }, this.getAdminHeaders());
+  }
+
+  deleteAdminUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.usersUrl}/${id}`, this.getAdminHeaders());
+  }
+  }

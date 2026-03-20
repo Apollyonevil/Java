@@ -14,24 +14,21 @@ import { AuthService } from '../../core/services/auth';
 export class AdminDashboardComponent implements OnInit {
   fields: FieldDefinition[] = [];
   submissions: Submission[] = [];
+  adminUsers: any[] = [];
   loading: boolean = false;
   isGenerating: boolean = false;
   sendingEmails: { [key: string]: boolean } = {};
   editingField: any = null;
+  editingUser: any = null;
   optionsText: string = '';
   newCandidateName: string = '';
   newCandidateEmail: string = '';
 
-constructor(
-  private formService: FormService,
-  private cdr: ChangeDetectorRef,
-  private authService: AuthService
-) {}
-
-// Método logout:
-logout() {
-  this.authService.logout();
-}
+  constructor(
+    private formService: FormService,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.refreshData();
@@ -40,6 +37,7 @@ logout() {
   refreshData() {
     this.loadFormStructure();
     this.loadSubmissions();
+    this.loadAdminUsers();
   }
 
   loadFormStructure() {
@@ -62,6 +60,15 @@ logout() {
           const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
           return dateB - dateA;
         });
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  loadAdminUsers() {
+    this.formService.getAdminUsers().subscribe({
+      next: (data) => {
+        this.adminUsers = data;
         this.cdr.markForCheck();
       }
     });
@@ -95,7 +102,7 @@ logout() {
       const index = this.fields.findIndex(f => f.id === this.editingField.id);
       this.editingField.sortOrder = index !== -1 ? index : this.fields.length;
     }
-    
+
     const request$ = this.editingField.id
       ? this.formService.updateField(this.editingField)
       : this.formService.saveField(this.editingField);
@@ -121,15 +128,6 @@ logout() {
       }
     });
   }
-
-    deleteSubmission(id: string) {
-      if (confirm('¿Eliminar candidato?')) {
-        this.formService.deleteSubmission(id).subscribe(() => {
-          this.submissions = this.submissions.filter(s => s.id !== id);
-          this.cdr.markForCheck();
-        });
-      }
-    }
 
   editField(field: FieldDefinition) {
     this.editingField = { ...field };
@@ -160,6 +158,15 @@ logout() {
     }
   }
 
+  deleteSubmission(id: string) {
+    if (confirm('¿Eliminar candidato?')) {
+      this.formService.deleteSubmission(id).subscribe(() => {
+        this.submissions = this.submissions.filter(s => s.id !== id);
+        this.cdr.markForCheck();
+      });
+    }
+  }
+
   sendEmail(id: string) {
     if (this.sendingEmails[id]) return;
     this.sendingEmails[id] = true;
@@ -182,5 +189,42 @@ logout() {
   addNewField() {
     this.editingField = { label: '', type: 'text', required: false, sortOrder: this.fields.length };
     this.optionsText = '';
+  }
+
+  addNewUser() {
+    this.editingUser = { username: '', password: '' };
+  }
+
+  editUser(user: any) {
+    this.editingUser = { ...user, password: '' };
+  }
+
+  saveUser() {
+    if (!this.editingUser.username) return;
+
+    const request$ = this.editingUser.id
+      ? this.formService.updateAdminUser(this.editingUser.id, this.editingUser.username, this.editingUser.password)
+      : this.formService.createAdminUser(this.editingUser.username, this.editingUser.password);
+
+    request$.subscribe({
+      next: () => {
+        this.editingUser = null;
+        this.loadAdminUsers();
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  deleteUser(id: string) {
+    if (confirm('¿Eliminar administrador?')) {
+      this.formService.deleteAdminUser(id).subscribe(() => {
+        this.adminUsers = this.adminUsers.filter(u => u.id !== id);
+        this.cdr.markForCheck();
+      });
+    }
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }
