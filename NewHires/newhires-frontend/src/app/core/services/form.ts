@@ -54,6 +54,19 @@ private getAdminHeaders(): { headers: HttpHeaders } {
     return this.http.get<Submission[]>(`${this.adminUrl}/submissions`, this.getAdminHeaders());
   }
 
+  getSubmissionDetail(id: string): Observable<any> {
+  return this.http.get(`${this.adminUrl}/submissions/${id}/detail`, this.getAdminHeaders());
+}
+
+  getFileUrl(filename: string): string {
+    const credentials = this.authService.getCredentials();
+    return `${this.adminUrl}/files/${encodeURIComponent(filename)}`;
+  }
+
+  getAdminUrl(): string {
+  return this.adminUrl;
+}
+
   updateField(field: any): Observable<FieldDefinition> {
     const body = {
       label: field.label,

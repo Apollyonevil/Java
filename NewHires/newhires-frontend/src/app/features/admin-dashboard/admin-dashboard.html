@@ -88,14 +88,12 @@
                     </td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-brand" (click)="viewDetail(sub.id!)">Ver</button>
                         <button class="btn btn-outline-brand" (click)="sendEmail(sub.id!)" [disabled]="sendingEmails[sub.id!]">
                           {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
                         </button>
                         <button class="btn btn-outline-secondary" (click)="renewToken(sub.id!)">↺ Renovar</button>
                         <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
-                        @if (sub.status === 'SUBMITTED' || sub.status === 'PENDING_REVIEW') {
-                          <button class="btn btn-outline-secondary" (click)="openRejectModal(sub.id!)">✕ Rechazar</button>
-                        }
                         <button class="btn btn-outline-secondary" (click)="deleteSubmission(sub.id!)">✕</button>
                         </div>
                     </td>
@@ -350,6 +348,50 @@
           <button class="btn btn-danger px-4" (click)="confirmReject()" [disabled]="!rejectReason">
             Confirmar Rechazo
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (submissionDetail) {
+  <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header modal-header-brand border-0">
+          <h5 class="modal-title fw-bold">{{ submissionDetail.candidateName }}</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="submissionDetail = null"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <small class="text-muted">{{ submissionDetail.email }}</small>
+            <span class="badge bg-secondary ms-2" style="font-size:0.7rem;">{{ submissionDetail.status }}</span>
+          </div>
+          <ul class="list-group list-group-flush">
+            @for (field of submissionDetail.fields; track field.label) {
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <div>
+                  <small class="text-muted d-block">{{ field.label }}</small>
+                  @if (!field.isFile) {
+                    <span class="fw-bold small">{{ field.value }}</span>
+                  }
+                </div>
+                @if (field.isFile) {
+                  <button class="btn btn-outline-brand btn-sm" (click)="downloadFile(field.value)">
+                    ⬇ Descargar
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+        <div class="modal-footer bg-light border-0">
+          <button class="btn btn-link text-muted text-decoration-none" (click)="submissionDetail = null">Cerrar</button>
+          @if (submissionDetail.status === 'SUBMITTED' || submissionDetail.status === 'PENDING_REVIEW') {
+            <button class="btn btn-danger px-4" (click)="submissionDetail = null; openRejectModal(selectedSubmission!)">
+              ✕ Rechazar
+            </button>
+          }
         </div>
       </div>
     </div>

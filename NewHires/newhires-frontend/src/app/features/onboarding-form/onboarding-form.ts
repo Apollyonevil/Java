@@ -76,25 +76,24 @@ export class OnboardingFormComponent implements OnInit {
   }
 
   onFileChange(event: any, fieldId: string, placeholder: string, originalType: string) {
-    const file = event.target.files[0];
-    if (!file) return;
+  const file = event.target.files[0];
+  if (!file) return;
 
-    const validationError = this.validateFileType(file, originalType);
-    if (validationError) {
-      this.fileErrors[fieldId] = validationError;
-      event.target.value = '';
-      this.dynamicForm.get(fieldId)?.setValue('');
-      this.fileMap.delete(fieldId);
-      this.cdr.markForCheck();
-      return;
-    }
-
-    delete this.fileErrors[fieldId];
-    const renamedFile = this.renameFile(file, placeholder);
-    this.fileMap.set(fieldId, renamedFile);
-    this.dynamicForm.get(fieldId)?.setValue(renamedFile.name);
+  const validationError = this.validateFileType(file, originalType);
+  if (validationError) {
+    this.fileErrors[fieldId] = validationError;
+    event.target.value = '';
+    this.dynamicForm.get(fieldId)?.setValue('');
+    this.fileMap.delete(fieldId);
     this.cdr.markForCheck();
+    return;
   }
+
+  delete this.fileErrors[fieldId];
+  this.fileMap.set(fieldId, file); // guardamos el original sin renombrar
+  this.dynamicForm.get(fieldId)?.setValue(file.name);
+  this.cdr.markForCheck();
+  } 
 
   private validateFileType(file: File, originalType: string): string | null {
     const fileName = file.name.toLowerCase();
@@ -121,41 +120,53 @@ export class OnboardingFormComponent implements OnInit {
     return '*';
   }
 
-  private renameFile(file: File, placeholder: string): File {
-    if (!placeholder || !placeholder.startsWith('Formato nombre archivo:')) {
-      return file;
-    }
-
-    const afterColon = placeholder.replace('Formato nombre archivo:', '').trim();
-    const prefixMatch = afterColon.match(/^(.+?)\s+apellido/i);
-    const prefix = prefixMatch ? prefixMatch[1].trim().toUpperCase() : '';
-
-    const { nombre, apellidos } = this.getNombreYApellidos();
-    const nombreFormateado = apellidos && nombre
-      ? `${apellidos}, ${nombre}`
-      : (apellidos || nombre || 'candidato');
-    const extension = file.name.split('.').pop();
-
-    const nuevoNombre = prefix
-      ? `${prefix} ${nombreFormateado}.${extension}`
-      : `${nombreFormateado}.${extension}`;
-
-    return new File([file], nuevoNombre, { type: file.type });
+private renameFile(file: File, placeholder: string): File {
+  if (!placeholder || !placeholder.startsWith('Formato nombre archivo:')) {
+    return file;
   }
 
-  private getNombreYApellidos(): { nombre: string, apellidos: string } {
-    const nombreFieldId = 'bafb0b5c-212e-11f1-8314-a6ac6c94ec55';
-    const apellidosFieldId = '5400ca90-5376-433d-9977-416786a83cac';
+  const afterColon = placeholder.replace('Formato nombre archivo:', '').trim();
+  const prefixMatch = afterColon.match(/^(.+?)\s+apellido/i);
+  const prefix = prefixMatch ? prefixMatch[1].trim().toUpperCase() : '';
 
-    const nombre = this.dynamicForm.get(nombreFieldId)?.value?.trim() || '';
-    const apellidos = this.dynamicForm.get(apellidosFieldId)?.value?.trim() || '';
+  const { nombre, apellidos } = this.getNombreYApellidos();
+  
+  // Formato: PREFIJO apellidos nombre (sin coma, con espacio)
+  const nombreFormateado = apellidos && nombre
+    ? `${apellidos} ${nombre}`
+    : (apellidos || nombre || 'candidato');
+    
+  const extension = file.name.split('.').pop();
+
+  const nuevoNombre = prefix
+    ? `${prefix} ${nombreFormateado}.${extension}`
+    : `${nombreFormateado}.${extension}`;
+
+  return new File([file], nuevoNombre, { type: file.type });
+}
+
+  private getNombreYApellidos(): { nombre: string, apellidos: string } {
+    const nombreField = this.fields.find(f => f.label.toLowerCase() === 'nombre');
+    const apellidosField = this.fields.find(f => f.label.toLowerCase() === 'apellidos');
+
+    const nombre = nombreField ? this.dynamicForm.get(nombreField.id)?.value?.trim() || '' : '';
+    const apellidos = apellidosField ? this.dynamicForm.get(apellidosField.id)?.value?.trim() || '' : '';
 
     return { nombre, apellidos };
   }
 
-  onSubmit() {
+    onSubmit() {
     if (this.dynamicForm.valid) {
       this.loading = true;
+
+      // Renombramos todos los archivos justo antes de enviar
+      const renamedFileMap = new Map<string, File>();
+      this.fileMap.forEach((file, fieldId) => {
+        const field = this.fields.find(f => f.id === fieldId);
+        const placeholder = field?.placeholder || '';
+        const renamedFile = this.renameFile(file, placeholder);
+        renamedFileMap.set(fieldId, renamedFile);
+      });
 
       const textResponses = Object.keys(this.dynamicForm.value)
         .filter(key => !this.fileMap.has(key))
@@ -164,7 +175,7 @@ export class OnboardingFormComponent implements OnInit {
           value: this.dynamicForm.value[key]
         }));
 
-      this.formService.submitForm(this.token, textResponses, this.fileMap).subscribe({
+      this.formService.submitForm(this.token, textResponses, renamedFileMap).subscribe({
         next: () => {
           this.isSubmitted = true;
           this.loading = false;

@@ -27,6 +27,10 @@ export class AdminDashboardComponent implements OnInit {
   newCandidateEmail: string = '';
   newVersionDescription: string = '';
   activeTab: string = 'candidatos';
+  rejectingSubmissionId: string | null = null;
+  rejectReason: string = '';
+  selectedSubmission: any = null;
+  submissionDetail: any = null;
 
   constructor(
     private formService: FormService,
@@ -104,107 +108,101 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  rejectingSubmissionId: string | null = null;
-rejectReason: string = '';
-
-openRejectModal(id: string) {
-  this.rejectingSubmissionId = id;
-  this.rejectReason = '';
-}
-
-confirmReject() {
-  if (!this.rejectingSubmissionId || !this.rejectReason) return;
-  
-  this.formService.rejectSubmission(this.rejectingSubmissionId, this.rejectReason).subscribe({
-    next: (updated) => {
-      const index = this.submissions.findIndex(s => s.id === this.rejectingSubmissionId);
-      if (index !== -1) {
-        const newSubmissions = [...this.submissions];
-        newSubmissions[index] = updated;
-        this.submissions = newSubmissions;
-      }
-      this.rejectingSubmissionId = null;
-      this.rejectReason = '';
-      this.cdr.markForCheck();
-    }
-  });
-}
-
- saveField() {
-  if (!this.editingField) return;
-  this.loading = true;
-
-  if (this.editingField.type === 'SELECT' && this.optionsText) {
-    this.editingField.options = this.optionsText.split(',').map((o: string) => o.trim());
+  openRejectModal(id: string) {
+    this.rejectingSubmissionId = id;
+    this.rejectReason = '';
   }
 
-  if (this.editingField.sortOrder == null) {
-    const index = this.fields.findIndex(f => f.id === this.editingField.id);
-    this.editingField.sortOrder = index !== -1 ? index : this.fields.length;
-  }
+  confirmReject() {
+    if (!this.rejectingSubmissionId || !this.rejectReason) return;
 
-  const request$ = this.editingField.id
-    ? this.formService.updateField(this.editingField)
-    : this.formService.saveField(this.editingField);
-
-  request$.subscribe({
-    next: (savedField) => {
-      const index = this.fields.findIndex(f => f.id === savedField.id);
-      if (index !== -1) {
-        const newFields = [...this.fields];
-        newFields[index] = savedField;
-        this.fields = newFields;
-      } else {
-        this.fields = [...this.fields, savedField];
+    this.formService.rejectSubmission(this.rejectingSubmissionId, this.rejectReason).subscribe({
+      next: (updated) => {
+        const index = this.submissions.findIndex(s => s.id === this.rejectingSubmissionId);
+        if (index !== -1) {
+          const newSubmissions = [...this.submissions];
+          newSubmissions[index] = updated;
+          this.submissions = newSubmissions;
+        }
+        this.rejectingSubmissionId = null;
+        this.rejectReason = '';
+        this.cdr.markForCheck();
       }
-      this.editingField = null;
-      this.optionsText = '';
-      this.loading = false;
-      this.loadFormVersions(); 
-      this.cdr.markForCheck();
-    },
-    error: (err) => {
-      this.loading = false;
-      console.error(err);
-    }
-  });
-}
-
-moveField(index: number, direction: 'up' | 'down') {
-  const newIndex = direction === 'up' ? index - 1 : index + 1;
-  if (newIndex < 0 || newIndex >= this.fields.length) return;
-
-  const list = [...this.fields];
-  [list[index], list[newIndex]] = [list[newIndex], list[index]];
-
-  list.forEach((field, i) => {
-    const updated = { ...field, sortOrder: i };
-    this.formService.updateField(updated).subscribe();
-    list[i] = updated;
-  });
-
-  this.fields = list;
-  this.loadFormVersions(); 
-  this.cdr.markForCheck();
-}
-
-deleteField(id: string) {
-  if (confirm('¿Eliminar?')) {
-    this.formService.deleteField(id).subscribe(() => {
-      this.fields = this.fields.filter(f => f.id !== id);
-      this.loadFormVersions(); 
-      this.cdr.markForCheck();
     });
   }
-}
+
+  saveField() {
+    if (!this.editingField) return;
+    this.loading = true;
+
+    if (this.editingField.type === 'SELECT' && this.optionsText) {
+      this.editingField.options = this.optionsText.split(',').map((o: string) => o.trim());
+    }
+
+    if (this.editingField.sortOrder == null) {
+      const index = this.fields.findIndex(f => f.id === this.editingField.id);
+      this.editingField.sortOrder = index !== -1 ? index : this.fields.length;
+    }
+
+    const request$ = this.editingField.id
+      ? this.formService.updateField(this.editingField)
+      : this.formService.saveField(this.editingField);
+
+    request$.subscribe({
+      next: (savedField) => {
+        const index = this.fields.findIndex(f => f.id === savedField.id);
+        if (index !== -1) {
+          const newFields = [...this.fields];
+          newFields[index] = savedField;
+          this.fields = newFields;
+        } else {
+          this.fields = [...this.fields, savedField];
+        }
+        this.editingField = null;
+        this.optionsText = '';
+        this.loading = false;
+        this.loadFormVersions();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+      }
+    });
+  }
 
   editField(field: FieldDefinition) {
     this.editingField = { ...field };
     this.optionsText = field.options ? field.options.join(', ') : '';
   }
 
+  moveField(index: number, direction: 'up' | 'down') {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= this.fields.length) return;
 
+    const list = [...this.fields];
+    [list[index], list[newIndex]] = [list[newIndex], list[index]];
 
+    list.forEach((field, i) => {
+      const updated = { ...field, sortOrder: i };
+      this.formService.updateField(updated).subscribe();
+      list[i] = updated;
+    });
+
+    this.fields = list;
+    this.loadFormVersions();
+    this.cdr.markForCheck();
+  }
+
+  deleteField(id: string) {
+    if (confirm('¿Eliminar?')) {
+      this.formService.deleteField(id).subscribe(() => {
+        this.fields = this.fields.filter(f => f.id !== id);
+        this.loadFormVersions();
+        this.cdr.markForCheck();
+      });
+    }
+  }
 
   deleteSubmission(id: string) {
     if (confirm('¿Eliminar candidato?')) {
@@ -213,6 +211,33 @@ deleteField(id: string) {
         this.cdr.markForCheck();
       });
     }
+  }
+
+  viewDetail(id: string) {
+    this.formService.getSubmissionDetail(id).subscribe({
+      next: (detail) => {
+        this.selectedSubmission = id;
+        this.submissionDetail = detail;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  downloadFile(filename: string) {
+    const credentials = this.authService.getCredentials();
+    const url = `${this.formService.getAdminUrl()}/files/${encodeURIComponent(filename)}`;
+
+    fetch(url, {
+      headers: { 'Authorization': `Basic ${credentials}` }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
   }
 
   sendEmail(id: string) {
@@ -302,18 +327,17 @@ deleteField(id: string) {
     });
   }
 
-    activateVersion(id: string) {
-      if (confirm('¿Activar esta versión? El formulario se restaurará a este estado.')) {
-        this.formService.activateFormVersion(id).subscribe({
-          next: () => {
-            this.loadFormVersions();
-            this.loadFormStructure();
-            this.cdr.markForCheck();
-          }
-        });
-      }
+  activateVersion(id: string) {
+    if (confirm('¿Activar esta versión? El formulario se restaurará a este estado.')) {
+      this.formService.activateFormVersion(id).subscribe({
+        next: () => {
+          this.loadFormVersions();
+          this.loadFormStructure();
+          this.cdr.markForCheck();
+        }
+      });
     }
-
+  }
 
   deleteVersion(id: string) {
     if (confirm('¿Eliminar esta versión?')) {
@@ -322,7 +346,7 @@ deleteField(id: string) {
           this.formVersions = this.formVersions.filter(v => v.id !== id);
           this.cdr.markForCheck();
         },
-        error: (err) => {
+        error: () => {
           alert('No se puede eliminar la versión activa');
         }
       });
@@ -332,5 +356,4 @@ deleteField(id: string) {
   logout() {
     this.authService.logout();
   }
-
 }
