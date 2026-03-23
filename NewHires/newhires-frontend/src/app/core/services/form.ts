@@ -86,6 +86,10 @@ private getAdminHeaders(): { headers: HttpHeaders } {
     return this.http.delete<void>(`${this.adminUrl}/submissions/${id}`, this.getAdminHeaders());
   }
 
+  rejectSubmission(id: string, reason: string): Observable<any> {
+  return this.http.post(`${this.adminUrl}/submissions/${id}/reject`, { reason }, this.getAdminHeaders());
+}
+
   sendOnboardingEmail(employeeId: string): Observable<any> {
     return this.http.post(`${this.adminUrl}/send-email/${employeeId}`, {}, this.getAdminHeaders());
   }
@@ -130,5 +134,6 @@ private getAdminHeaders(): { headers: HttpHeaders } {
   deleteFormVersion(id: string): Observable<void> {
     return this.http.delete<void>(`${this.versionsUrl}/${id}`, this.getAdminHeaders());
   }
+  
 
 }

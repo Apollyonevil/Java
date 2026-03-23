@@ -104,6 +104,32 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  rejectingSubmissionId: string | null = null;
+rejectReason: string = '';
+
+openRejectModal(id: string) {
+  this.rejectingSubmissionId = id;
+  this.rejectReason = '';
+}
+
+confirmReject() {
+  if (!this.rejectingSubmissionId || !this.rejectReason) return;
+  
+  this.formService.rejectSubmission(this.rejectingSubmissionId, this.rejectReason).subscribe({
+    next: (updated) => {
+      const index = this.submissions.findIndex(s => s.id === this.rejectingSubmissionId);
+      if (index !== -1) {
+        const newSubmissions = [...this.submissions];
+        newSubmissions[index] = updated;
+        this.submissions = newSubmissions;
+      }
+      this.rejectingSubmissionId = null;
+      this.rejectReason = '';
+      this.cdr.markForCheck();
+    }
+  });
+}
+
  saveField() {
   if (!this.editingField) return;
   this.loading = true;

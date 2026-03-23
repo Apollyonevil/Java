@@ -16,13 +16,27 @@ import java.util.UUID;
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerPostInvite {
+public class AdminWebControllerPostInviteRenew {
 
-    private final InviteCandidateUseCase inviteCandidateUseCase;
+    private final SubmissionRepository submissionRepository;
+    private final NotificationPort notificationPort;
 
-    @PostMapping("/invite")
-    public ResponseEntity<Submission> invite(@RequestBody InviteRequest request) {
-        Submission submission = inviteCandidateUseCase.execute(request.getCandidateName(), request.getEmail());
+    @PostMapping("/submissions/{id}/renew")
+    public ResponseEntity<Submission> renewToken(@PathVariable UUID id) {
+        Submission submission = submissionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
+
+        String newToken = UUID.randomUUID().toString();
+        submission.setToken(newToken);
+        submission.setExpiresAt(LocalDateTime.now().plusHours(48));
+        submissionRepository.save(submission);
+
+        notificationPort.sendInvitation(
+            submission.getEmail(),
+            submission.getCandidateName(),
+            newToken
+        );
+
         return ResponseEntity.ok(submission);
     }
 
