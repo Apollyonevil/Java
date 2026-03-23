@@ -2,7 +2,9 @@ package com.civica.newhires.forms.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.forms.domain.model.Submission;
 import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
+import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaCandidateRepository;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaSubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,11 +18,23 @@ import java.util.UUID;
 public class SubmissionPersistenceAdapter implements SubmissionRepository {
 
     private final JpaSubmissionRepository submissionRepo;
-    private final FormPersistenceMapper mapper; 
+    private final JpaCandidateRepository candidateRepo;
+    private final FormPersistenceMapper mapper;
 
     @Override
     public void save(Submission submission) {
-        submissionRepo.save(mapper.toEntity(submission));
+        // Primero guardamos o recuperamos el candidato
+        CandidateEntity candidate = candidateRepo.findByEmail(submission.getEmail())
+                .orElseGet(() -> {
+                    CandidateEntity newCandidate = new CandidateEntity();
+                    newCandidate.setId(submission.getEmployeeId());
+                    newCandidate.setCandidateName(submission.getCandidateName());
+                    newCandidate.setEmail(submission.getEmail());
+                    newCandidate.setEmployeeId(submission.getEmployeeId());
+                    return candidateRepo.save(newCandidate);
+                });
+
+        submissionRepo.save(mapper.toEntity(submission, candidate));
     }
 
     @Override
@@ -30,7 +44,7 @@ public class SubmissionPersistenceAdapter implements SubmissionRepository {
 
     @Override
     public Optional<Submission> findByEmployeeId(UUID employeeId) {
-        return submissionRepo.findByEmployeeId(employeeId).map(mapper::toDomain);
+        return submissionRepo.findByCandidateEmployeeId(employeeId).map(mapper::toDomain);
     }
 
     @Override
@@ -40,7 +54,7 @@ public class SubmissionPersistenceAdapter implements SubmissionRepository {
                 .toList();
     }
 
-        @Override
+    @Override
     public void deleteById(UUID id) {
         submissionRepo.deleteById(id);
     }

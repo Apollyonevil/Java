@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface JpaSubmissionRepository extends JpaRepository<SubmissionEntity, UUID> {
-    Optional<SubmissionEntity> findByEmployeeId(UUID employeeId);
+    Optional<SubmissionEntity> findByCandidateEmployeeId(UUID employeeId);
     void deleteById(UUID id);
     Optional<SubmissionEntity> findByToken(String token);
 }

@@ -16,15 +16,9 @@ public class SubmissionEntity {
     @Column(name = "id", length = 36, columnDefinition = "VARCHAR(36)")
     private UUID id;
 
-    @JdbcTypeCode(Types.VARCHAR)
-    @Column(name = "employee_id", length = 36, columnDefinition = "VARCHAR(36)")
-    private UUID employeeId;
-
-    @Column(name = "candidate_name")
-    private String candidateName;
-
-    @Column(name = "email")
-    private String email;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "candidate_id", nullable = false)
+    private CandidateEntity candidate;
 
     @Column(name = "token")
     private String token;
@@ -33,7 +27,7 @@ public class SubmissionEntity {
     private LocalDateTime submittedAt;
 
     @Column(name = "expires_at")
-    private LocalDateTime expiresAt; // <-- añadido
+    private LocalDateTime expiresAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
@@ -42,14 +36,8 @@ public class SubmissionEntity {
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
-    public UUID getEmployeeId() { return employeeId; }
-    public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
-
-    public String getCandidateName() { return candidateName; }
-    public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public CandidateEntity getCandidate() { return candidate; }
+    public void setCandidate(CandidateEntity candidate) { this.candidate = candidate; }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
