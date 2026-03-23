@@ -112,4 +112,23 @@ private getAdminHeaders(): { headers: HttpHeaders } {
   deleteAdminUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.usersUrl}/${id}`, this.getAdminHeaders());
   }
+
+  private readonly versionsUrl = 'http://localhost:8080/api/admin/versions';
+
+  getFormVersions(): Observable<any[]> {
+    return this.http.get<any[]>(this.versionsUrl, this.getAdminHeaders());
   }
+
+  createFormVersion(createdBy: string, description: string): Observable<any> {
+    return this.http.post(this.versionsUrl, { createdBy, description }, this.getAdminHeaders());
+  }
+
+  activateFormVersion(id: string): Observable<any> {
+    return this.http.post(`${this.versionsUrl}/${id}/activate`, {}, this.getAdminHeaders());
+  }
+
+  deleteFormVersion(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.versionsUrl}/${id}`, this.getAdminHeaders());
+  }
+
+}
