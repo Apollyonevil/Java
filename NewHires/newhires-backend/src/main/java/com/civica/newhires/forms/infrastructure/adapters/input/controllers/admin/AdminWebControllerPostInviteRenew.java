@@ -1,7 +1,6 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
 import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.domain.ports.input.InviteCandidateUseCase;
 import com.civica.newhires.forms.domain.ports.output.NotificationPort;
 import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,5 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldValueEntity;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
-import com.civica.newhires.forms.domain.model.Submission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -20,18 +14,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminSubmissionDetailControllerDownload {
-
-    private final SubmissionRepository submissionRepository;
-    private final JpaFieldValueRepository fieldValueRepository;
-    private final JpaFieldDefinitionRepository fieldDefinitionRepository;
 
     @Value("${storage.location}")
     private String storageLocation;

@@ -1,6 +1,5 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
 import lombok.RequiredArgsConstructor;
 

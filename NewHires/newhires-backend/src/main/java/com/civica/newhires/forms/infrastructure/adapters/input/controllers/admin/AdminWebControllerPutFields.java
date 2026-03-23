@@ -20,17 +20,17 @@ public class AdminWebControllerPutFields {
     private final ManageFieldsUseCase manageFieldsUseCase;
 
 
-@PutMapping("/fields/{id}")
-public ResponseEntity<FieldDefinition> updateField(@PathVariable UUID id, @RequestBody FieldRequest request) {
-    FieldDefinition field = new FieldDefinition(
-        id,
-        request.label(),
-        FieldType.valueOf(request.type()),
-        request.required(),
-        request.placeholder(),
-        request.options(),
-        request.sortOrder()
-    );
-    return ResponseEntity.ok(manageFieldsUseCase.updateField(id, field));
-}
+    @PutMapping("/fields/{id}")
+    public ResponseEntity<FieldDefinition> updateField(@PathVariable UUID id, @RequestBody FieldRequest request) {
+        FieldDefinition field = new FieldDefinition(
+            id,
+            request.label(),
+            FieldType.valueOf(request.type()),
+            request.required(),
+            request.placeholder(),
+            request.options(),
+            request.sortOrder()
+        );
+        return ResponseEntity.ok(manageFieldsUseCase.updateField(id, field));
+    }
 }
