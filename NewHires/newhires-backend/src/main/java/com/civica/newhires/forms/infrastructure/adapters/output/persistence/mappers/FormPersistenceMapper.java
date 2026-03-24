@@ -2,11 +2,12 @@ package com.civica.newhires.forms.infrastructure.adapters.output.persistence.map
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldValue;
-import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldValueEntity;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.CandidateEntity;
+import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
+
 import org.springframework.stereotype.Component;
 
 @Component

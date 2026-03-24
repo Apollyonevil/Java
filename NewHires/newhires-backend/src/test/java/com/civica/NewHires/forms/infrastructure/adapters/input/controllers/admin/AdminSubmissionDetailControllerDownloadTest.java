@@ -8,6 +8,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin.AdminSubmissionDetailControllerDownload;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;

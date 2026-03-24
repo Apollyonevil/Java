@@ -1,10 +1,11 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.domain.model.SubmissionStatus;
-import com.civica.newhires.forms.domain.ports.input.InviteCandidateUseCase;
-import com.civica.newhires.forms.domain.ports.output.NotificationPort;
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.model.SubmissionStatus;
+import com.civica.newhires.submissions.domain.ports.input.InviteCandidateUseCase;
+import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin.AdminWebControllerPostInviteReject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

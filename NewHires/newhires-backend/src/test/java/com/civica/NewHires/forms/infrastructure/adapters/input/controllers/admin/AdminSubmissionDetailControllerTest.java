@@ -1,11 +1,12 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldValueEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin.AdminSubmissionDetailController;
 import com.civica.newhires.forms.domain.model.FieldType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

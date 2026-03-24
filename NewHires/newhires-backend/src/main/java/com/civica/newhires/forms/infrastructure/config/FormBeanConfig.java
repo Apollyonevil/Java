@@ -5,6 +5,9 @@ import com.civica.newhires.forms.application.service.*;
 import com.civica.newhires.forms.domain.ports.input.*;
 import com.civica.newhires.forms.domain.ports.output.*;
 import com.civica.newhires.forms.domain.service.FormDomainService;
+import com.civica.newhires.submissions.application.service.SubmitFormService;
+import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.context.annotation.Bean;
@@ -49,10 +52,6 @@ public MultipartConfigElement multipartConfigElement() {
         );
     }
 
-    @Bean
-    public GetSubmissionsUseCase getSubmissionsUseCase(SubmissionRepository submissionRepository) {
-        return new GetSubmissionsService(submissionRepository);
-    }
 
     @Bean
     public ManageFieldsUseCase manageFieldsUseCase(
@@ -74,13 +73,6 @@ public MultipartConfigElement multipartConfigElement() {
             return mapper;
         }
 
-    @Bean
-    public InviteCandidateUseCase inviteCandidateUseCase(
-            SubmissionRepository submissionRepository,
-            UserIdentityPort userIdentityPort,
-            NotificationPort notificationPort) {
-        return new InviteCandidateService(submissionRepository, userIdentityPort, notificationPort);
-    }
 
     
 }

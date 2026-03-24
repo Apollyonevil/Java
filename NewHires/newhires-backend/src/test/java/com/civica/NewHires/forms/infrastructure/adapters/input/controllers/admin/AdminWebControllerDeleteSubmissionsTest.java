@@ -1,12 +1,14 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin.AdminWebControllerDeleteSubmissions;
 
 import java.util.UUID;
 

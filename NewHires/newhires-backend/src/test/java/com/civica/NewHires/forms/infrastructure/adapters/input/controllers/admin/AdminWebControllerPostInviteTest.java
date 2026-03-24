@@ -1,7 +1,9 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.domain.ports.input.InviteCandidateUseCase;
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.ports.input.InviteCandidateUseCase;
+import com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin.AdminWebControllerPostInvite;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

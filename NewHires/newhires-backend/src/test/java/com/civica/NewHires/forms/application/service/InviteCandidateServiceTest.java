@@ -1,8 +1,9 @@
 package com.civica.newhires.forms.application.service;
 
-import com.civica.newhires.forms.domain.model.Submission;
-import com.civica.newhires.forms.domain.model.SubmissionStatus;
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.application.service.InviteCandidateService;
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.model.SubmissionStatus;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 import com.civica.newhires.auth.domain.ports.output.UserIdentityPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class InviteCandidateServiceTest {
     private UserIdentityPort userIdentityPort;
 
     @Mock
-    private com.civica.newhires.forms.domain.ports.output.NotificationPort notificationPort;
+    private com.civica.newhires.submissions.domain.ports.output.NotificationPort notificationPort;
 
     @InjectMocks
     private InviteCandidateService inviteCandidateService;

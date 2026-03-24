@@ -1,9 +1,9 @@
 package com.civica.newhires.auth.infrastructure.adapters.output.identity;
 
-import com.civica.newhires.forms.domain.ports.output.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import com.civica.newhires.auth.domain.ports.output.UserIdentityPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
 import java.util.Optional;
 import java.util.UUID;

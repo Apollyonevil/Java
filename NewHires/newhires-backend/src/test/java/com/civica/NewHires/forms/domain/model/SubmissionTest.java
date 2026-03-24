@@ -1,6 +1,10 @@
 package com.civica.newhires.forms.domain.model;
 
 import org.junit.jupiter.api.Test;
+
+import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.model.SubmissionStatus;
+
 import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDateTime;
 import java.util.UUID;

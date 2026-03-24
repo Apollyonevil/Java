@@ -1,5 +1,4 @@
-package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
-
+package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.ports.input.GetSubmissionsUseCase;
 
@@ -10,18 +9,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerGetData {
+public class AdminWebControllerGetSubmissions {
+
 
     private final GetSubmissionsUseCase getSubmissionsUseCase;
 
 
-    @GetMapping("/data")
-    public ResponseEntity<List<Submission>> getDashboardData() {
+    @GetMapping("/submissions")
+    public ResponseEntity<List<Submission>> getAll() {
         return ResponseEntity.ok(getSubmissionsUseCase.execute());
     }
+
+
 }
