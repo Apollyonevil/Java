@@ -19,7 +19,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AdminWebControllerPostFields.class)
+@WebMvcTest(AdminWebControllerCreateField.class)
 class AdminWebControllerPostFieldsTest {
 
     @Autowired

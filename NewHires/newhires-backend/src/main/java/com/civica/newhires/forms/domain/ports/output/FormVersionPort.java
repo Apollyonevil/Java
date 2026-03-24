@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface FormVersionRepository {
+public interface FormVersionPort {
     FormVersion save(FormVersion version);
     Optional<FormVersion> findById(UUID id);
     Optional<FormVersion> findActive();

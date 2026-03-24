@@ -2,8 +2,8 @@ package com.civica.newhires.forms.application.service;
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldType;
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
-import com.civica.newhires.forms.domain.ports.output.FormVersionRepository;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
+import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,10 +20,10 @@ import static org.mockito.Mockito.*;
 class FieldManagementServiceTest {
 
     @Mock
-    private FormRepository formRepository;
+    private FormPort formRepository;
 
     @Mock
-    private FormVersionRepository formVersionRepository;
+    private FormVersionPort formVersionRepository;
 
     @InjectMocks
     private FieldManagementService fieldManagementService;

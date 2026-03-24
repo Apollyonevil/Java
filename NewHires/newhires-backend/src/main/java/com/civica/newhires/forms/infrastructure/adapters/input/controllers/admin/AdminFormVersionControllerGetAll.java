@@ -6,19 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerPMActivate {
+public class AdminFormVersionControllerGetAll {
 
     private final ManageFormVersionsUseCase manageFormVersionsUseCase;
 
-    @PostMapping("/{id}/activate")
-    public ResponseEntity<FormVersion> activateVersion(@PathVariable UUID id) {
-        return ResponseEntity.ok(manageFormVersionsUseCase.activateVersion(id));
+    @GetMapping
+    public ResponseEntity<List<FormVersion>> getAll() {
+        return ResponseEntity.ok(manageFormVersionsUseCase.getAllVersions());
     }
 
     public record VersionRequest(String createdBy, String description) {}

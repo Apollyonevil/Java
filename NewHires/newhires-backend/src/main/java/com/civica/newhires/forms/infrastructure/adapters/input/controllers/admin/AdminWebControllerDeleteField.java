@@ -12,7 +12,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerDeleteMapping {
+public class AdminWebControllerDeleteField {
 
     private final ManageFieldsUseCase manageFieldsUseCase;
 

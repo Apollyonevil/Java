@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerPostFields {
+public class AdminWebControllerCreateField {
 
     private final ManageFieldsUseCase manageFieldsUseCase;
 

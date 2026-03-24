@@ -3,7 +3,7 @@ package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admi
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldType;
 import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
-import com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin.AdminWebControllerPostFields.FieldRequest;
+import com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin.AdminWebControllerCreateField.FieldRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerPutFields {
+public class AdminWebControllerUpdateFields {
 
     private final ManageFieldsUseCase manageFieldsUseCase;
 

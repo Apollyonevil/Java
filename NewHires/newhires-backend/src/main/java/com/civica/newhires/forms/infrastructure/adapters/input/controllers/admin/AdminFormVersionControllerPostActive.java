@@ -6,20 +6,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerGMActive {
+public class AdminFormVersionControllerPostActive {
 
     private final ManageFormVersionsUseCase manageFormVersionsUseCase;
 
-
-    @GetMapping("/active")
-    public ResponseEntity<FormVersion> getActive() {
-        return manageFormVersionsUseCase.getActiveVersion()
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<FormVersion> activateVersion(@PathVariable UUID id) {
+        return ResponseEntity.ok(manageFormVersionsUseCase.activateVersion(id));
     }
 
     public record VersionRequest(String createdBy, String description) {}

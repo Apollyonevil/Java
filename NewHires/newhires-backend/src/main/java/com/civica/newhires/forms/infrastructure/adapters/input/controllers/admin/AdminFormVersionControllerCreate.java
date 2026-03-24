@@ -6,20 +6,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerGM {
+public class AdminFormVersionControllerCreate {
 
     private final ManageFormVersionsUseCase manageFormVersionsUseCase;
 
-    @GetMapping
-    public ResponseEntity<List<FormVersion>> getAll() {
-        return ResponseEntity.ok(manageFormVersionsUseCase.getAllVersions());
+
+    @PostMapping
+    public ResponseEntity<FormVersion> createVersion(@RequestBody VersionRequest request) {
+        return ResponseEntity.ok(manageFormVersionsUseCase.createVersion(
+                request.createdBy(),
+                request.description()
+        ));
     }
 
     public record VersionRequest(String createdBy, String description) {}
+
+    
 }

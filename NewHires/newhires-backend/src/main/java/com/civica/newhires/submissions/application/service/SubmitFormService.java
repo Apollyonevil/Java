@@ -6,8 +6,8 @@ import com.civica.newhires.forms.application.dto.FileInput;
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldValue;
 import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
 import com.civica.newhires.forms.domain.ports.output.FileStoragePort;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
 import com.civica.newhires.forms.domain.service.FormDomainService;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
@@ -28,7 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SubmitFormService implements SubmitFormUseCase {
 
-    private final FormRepository formRepository; 
+    private final FormPort formRepository; 
     private final SubmissionRepository submissionRepository; 
     private final UserIdentityPort userIdentityPort;
     private final FileStoragePort fileStoragePort;

@@ -1,8 +1,8 @@
 package com.civica.newhires.forms.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
-import com.civica.newhires.forms.domain.model.FieldValue; 
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
+import com.civica.newhires.forms.domain.model.FieldValue;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository; // Importante
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class FormPersistenceAdapter implements FormRepository {
+public class FormPersistenceAdapter implements FormPort {
 
     private final JpaFieldDefinitionRepository definitionRepo;
     private final JpaFieldValueRepository valueRepo; 

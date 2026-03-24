@@ -2,8 +2,8 @@ package com.civica.newhires.forms.application.service;
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
-import com.civica.newhires.forms.domain.ports.output.FormVersionRepository;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
+import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FieldManagementService implements ManageFieldsUseCase {
 
-    private final FormRepository formRepository;
-    private final FormVersionRepository formVersionRepository;
+    private final FormPort formRepository;
+    private final FormVersionPort formVersionRepository;
 
     @Override
     public FieldDefinition createField(FieldDefinition field) {

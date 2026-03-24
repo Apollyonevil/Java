@@ -5,7 +5,7 @@ import com.civica.newhires.forms.domain.model.FieldValue;
 import java.util.List;
 import java.util.UUID;
 
-public interface FormRepository {
+public interface FormPort {
     List<FieldDefinition> findAllFieldDefinitions(); 
     FieldDefinition findDefinitionById(UUID id);
     FieldDefinition saveDefinition(FieldDefinition definition);

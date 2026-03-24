@@ -2,7 +2,7 @@ package com.civica.newhires.forms.application.service;
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.ports.input.GetFormStructureUseCase;
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service; 
 
@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetFormStructureService implements GetFormStructureUseCase {
 
-    private final FormRepository formRepository;
+    private final FormPort formRepository;
 
     @Override
     public List<FieldDefinition> execute() {

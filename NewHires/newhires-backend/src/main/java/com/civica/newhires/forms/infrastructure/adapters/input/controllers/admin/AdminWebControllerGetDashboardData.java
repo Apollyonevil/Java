@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminWebControllerGetData {
+public class AdminWebControllerGetDashboardData {
 
     private final GetSubmissionsUseCase getSubmissionsUseCase;
 

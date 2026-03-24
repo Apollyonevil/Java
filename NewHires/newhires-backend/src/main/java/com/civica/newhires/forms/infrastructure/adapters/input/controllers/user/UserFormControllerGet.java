@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/forms")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+
 public class UserFormControllerGet {
 
     private final GetFormStructureUseCase getFormStructureUseCase;

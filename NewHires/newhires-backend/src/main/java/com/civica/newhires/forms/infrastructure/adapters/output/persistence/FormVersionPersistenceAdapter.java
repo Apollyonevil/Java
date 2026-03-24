@@ -2,7 +2,7 @@ package com.civica.newhires.forms.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.model.FormVersionField;
-import com.civica.newhires.forms.domain.ports.output.FormVersionRepository;
+import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionFieldEntity;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class FormVersionPersistenceAdapter implements FormVersionRepository {
+public class FormVersionPersistenceAdapter implements FormVersionPort {
 
     private final JpaFormVersionRepository versionRepo;
     private final JpaFieldDefinitionRepository fieldRepo;

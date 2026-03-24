@@ -4,8 +4,8 @@ import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.model.FormVersionField;
 import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
-import com.civica.newhires.forms.domain.ports.output.FormRepository;
-import com.civica.newhires.forms.domain.ports.output.FormVersionRepository;
+import com.civica.newhires.forms.domain.ports.output.FormPort;
+import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +20,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class FormVersionService implements ManageFormVersionsUseCase {
 
-    private final FormVersionRepository formVersionRepository;
-    private final FormRepository formRepository;
+    private final FormVersionPort formVersionRepository;
+    private final FormPort formRepository;
 
     @Override
     @Transactional

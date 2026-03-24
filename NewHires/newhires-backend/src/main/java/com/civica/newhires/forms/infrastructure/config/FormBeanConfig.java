@@ -36,7 +36,7 @@ public MultipartConfigElement multipartConfigElement() {
 
     @Bean
     public SubmitFormUseCase submitFormUseCase(
-            FormRepository formRepo,
+            FormPort formRepo,
             SubmissionRepository submissionRepo,
             UserIdentityPort identity,
             FileStoragePort storage,
@@ -55,13 +55,13 @@ public MultipartConfigElement multipartConfigElement() {
 
     @Bean
     public ManageFieldsUseCase manageFieldsUseCase(
-        FormRepository formRepository,
-        FormVersionRepository formVersionRepository) {
+        FormPort formRepository,
+        FormVersionPort formVersionRepository) {
     return new FieldManagementService(formRepository, formVersionRepository);
     }
 
     @Bean
-    public GetFormStructureUseCase getFormStructureUseCase(FormRepository formRepository) {
+    public GetFormStructureUseCase getFormStructureUseCase(FormPort formRepository) {
         return new GetFormStructureService(formRepository);
     }
 

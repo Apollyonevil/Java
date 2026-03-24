@@ -10,20 +10,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerPM {
+public class AdminFormVersionControllerGetActive {
 
     private final ManageFormVersionsUseCase manageFormVersionsUseCase;
 
 
-    @PostMapping
-    public ResponseEntity<FormVersion> createVersion(@RequestBody VersionRequest request) {
-        return ResponseEntity.ok(manageFormVersionsUseCase.createVersion(
-                request.createdBy(),
-                request.description()
-        ));
+    @GetMapping("/active")
+    public ResponseEntity<FormVersion> getActive() {
+        return manageFormVersionsUseCase.getActiveVersion()
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     public record VersionRequest(String createdBy, String description) {}
-
-    
 }
