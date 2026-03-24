@@ -12,7 +12,7 @@ import java.util.UUID;
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerPostActive {
+public class AdminFormVersionControllerFormVersionsPostActive {
 
     private final ManageFormVersionsUseCase manageFormVersionsUseCase;
 
