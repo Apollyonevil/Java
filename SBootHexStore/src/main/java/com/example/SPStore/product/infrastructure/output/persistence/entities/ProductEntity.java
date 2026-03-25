@@ -36,7 +36,7 @@ public class ProductEntity {
         this.user = user;
     }
 
-    // Getters y Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

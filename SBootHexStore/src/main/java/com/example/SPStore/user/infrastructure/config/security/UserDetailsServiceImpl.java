@@ -17,7 +17,7 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserFindByEmailInputPort userFindByEmailInputPort; // Usamos el puerto, no el repositorio directamente
+    private UserFindByEmailInputPort userFindByEmailInputPort; 
 
     @Autowired
     HttpSession session;
@@ -30,7 +30,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            // Guardamos el ID en sesión para que los controladores lo usen (como tenías antes)
             session.setAttribute("iduser", user.getId());
             
             return org.springframework.security.core.userdetails.User.builder()

@@ -1,7 +1,5 @@
 package com.example.SPStore.order.infrastructure.input.controllers;
 
-import com.example.SPStore.order.domain.model.Order;
-import com.example.SPStore.orderdetail.domain.model.OrderDetails;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

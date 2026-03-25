@@ -13,7 +13,6 @@ public class OrderDetailBeanConfig {
     @Bean
     public OrderDetailsInputPort orderDetailsInputPort(
             IOrderDetailsPersistencePort orderDetailsPersistencePort) {
-        // Registra el servicio de detalles de pedido
         return new OrderDetailsService(orderDetailsPersistencePort);
     }
 }

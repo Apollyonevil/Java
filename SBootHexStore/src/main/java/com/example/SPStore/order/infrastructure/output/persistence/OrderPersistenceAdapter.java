@@ -35,7 +35,6 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
             System.out.println("DEBUG: Se han recibido " + orderEntity.getDetail().size() + " detalles para guardar.");
             for (OrderDetailsEntity dt : orderEntity.getDetail()) {
                 dt.setOrder(orderEntity); 
-                // Verificamos si el producto está llegando al detalle
                 if (dt.getProduct() != null) {
                     System.out.println("DEBUG: Detalle con Producto ID: " + dt.getProduct().getId());
                 } else {
@@ -46,7 +45,6 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
             System.out.println("DEBUG: ¡ALERTA! La lista de detalles (getDetail()) es NULL.");
         }
 
-        // Usamos saveAndFlush para forzar a Hibernate a sincronizar con la DB inmediatamente
         OrderEntity savedOrder = orderRepository.saveAndFlush(orderEntity);
         System.out.println("DEBUG: Orden guardada con ID: " + savedOrder.getId());
         
@@ -67,7 +65,6 @@ public class OrderPersistenceAdapter implements IOrderPersistencePort {
 
     @Override
     public List<Order> findByUser(User user) {
-        // Usamos el mapeo de usuario para la consulta
         return orderRepository.findByUser(userMapper.toEntity(user)).stream()
                 .map(orderMapper::toDomain)
                 .collect(Collectors.toList());

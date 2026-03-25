@@ -30,7 +30,7 @@ public class ProductUpdateController {
         ProductDTO pDTO = productFindByIdInputPort.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        product.setId(id); // Aseguramos que el ID es el de la URL
+        product.setId(id);
 
         if (file == null || file.isEmpty()) {
             product.setImage(pDTO.getImage());

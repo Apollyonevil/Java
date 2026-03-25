@@ -1,6 +1,6 @@
-package com.example.SPStore.order.domain.model; // Ajusta el package a su nueva ruta
+package com.example.SPStore.order.domain.model; 
 
-import java.time.LocalDateTime; // Mejor que java.util.Date
+import java.time.LocalDateTime; 
 import java.util.ArrayList;
 import java.util.List;
 import com.example.SPStore.user.domain.model.User; 
@@ -13,7 +13,7 @@ public class Order {
     private LocalDateTime dateReceipt;
     private double total;
 
-    private User user; // Ahora Java ya sabe qué es "User"
+    private User user; 
     private List<OrderDetails> detail = new ArrayList<>();
     public Order() {
     }
@@ -28,7 +28,7 @@ public class Order {
 
  
 
-    // Getters y Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     

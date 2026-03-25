@@ -30,6 +30,6 @@ public class ProductDeleteController {
             upload.deleteImage(pDTO.getImage());
         }
         productDeleteInputPort.delete(id);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build(); 
     }
 }

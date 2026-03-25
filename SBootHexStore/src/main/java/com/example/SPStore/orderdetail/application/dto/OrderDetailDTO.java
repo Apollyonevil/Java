@@ -6,12 +6,12 @@ public class OrderDetailDTO {
     private double amount;
     private double price;
     private double total;
-    private Integer productId; // Solo el ID para referencia
-    private String productName; // Nombre para mostrar en la tabla
+    private Integer productId; 
+    private String productName; 
 
     public OrderDetailDTO() {}
 
-    // Getters y Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

@@ -36,7 +36,7 @@ public class OrderDetailMapper {
         domain.setPrice(entity.getPrice());
         domain.setTotal(entity.getTotal());
         
-        // AÑADE ESTO: Para que el dominio tenga la referencia del producto
+
         if (entity.getProduct() != null) {
             com.example.SPStore.product.domain.model.Product product = new com.example.SPStore.product.domain.model.Product();
             product.setId(entity.getProduct().getId());

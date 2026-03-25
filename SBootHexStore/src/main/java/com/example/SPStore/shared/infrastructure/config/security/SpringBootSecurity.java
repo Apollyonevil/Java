@@ -17,7 +17,6 @@ public class SpringBootSecurity {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Permitimos explícitamente la raíz y recursos para evitar el redireccionamiento inmediato
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/vendor/**").permitAll()
                 .requestMatchers("/user/login", "/user/register", "/user/save", "/user/access").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
@@ -26,9 +25,7 @@ public class SpringBootSecurity {
             )
             .formLogin(login -> login
             .loginPage("/user/login")
-            // Esta es la URL interna donde Spring escucha el POST del formulario
             .loginProcessingUrl("/user/login") 
-            // Esta es la URL a la que Spring te manda DESPUÉS de validar (es un GET)
             .defaultSuccessUrl("/user/access", true) 
             .permitAll()
 )

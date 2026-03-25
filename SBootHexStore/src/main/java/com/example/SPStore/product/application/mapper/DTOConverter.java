@@ -12,7 +12,7 @@ import com.example.SPStore.orderdetail.domain.model.*;
 
 public class DTOConverter {
 
-    // 1. De Producto a ProductDTO
+
     public static ProductDTO toProductDTO(Product product) {
         if (product == null) return null;
         ProductDTO dto = new ProductDTO();
@@ -25,7 +25,6 @@ public class DTOConverter {
         return dto;
     }
 
-    // 2. De Usuario a UserDTO
     public static UserDTO toUserDTO(User user) {
         if (user == null) return null;
         UserDTO dto = new UserDTO();
@@ -38,7 +37,7 @@ public class DTOConverter {
         return dto;
     }
 
-    // 3. De Detalle de Orden a OrderDetailDTO
+
     public static OrderDetailDTO toOrderDetailDTO(OrderDetails detail) {
         if (detail == null) return null;
         OrderDetailDTO dto = new OrderDetailDTO();
@@ -55,7 +54,7 @@ public class DTOConverter {
         return dto;
     }
 
-    // 4. De Orden a OrderResponseDTO (CORREGIDO)
+
     public static OrderResponseDTO toOrderResponseDTO(Order order) {
         if (order == null) return null;
         OrderResponseDTO dto = new OrderResponseDTO();
@@ -72,7 +71,7 @@ public class DTOConverter {
         return dto;
     }
 
-    // 5. De ProductDTO a Producto
+
     public static Product toProduct(ProductDTO dto) {
         if (dto == null) return null;
         Product product = new Product();
@@ -85,7 +84,7 @@ public class DTOConverter {
         return product;
     }
 
-    // 6. De UserDTO a Usuario
+  
     public static User toUser(UserDTO dto) {
         if (dto == null) return null;
         User user = new User();

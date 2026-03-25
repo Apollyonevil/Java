@@ -2,7 +2,6 @@ package com.example.SPStore.order.infrastructure.output.persistence.mappers;
 
 import com.example.SPStore.order.domain.model.Order;
 import com.example.SPStore.orderdetail.infrastructure.output.persistence.mappers.OrderDetailMapper;
-import com.example.SPStore.orderdetail.domain.model.OrderDetails;
 import com.example.SPStore.user.domain.model.User; 
 import com.example.SPStore.order.infrastructure.output.persistence.entities.OrderEntity;
 import com.example.SPStore.user.infrastructure.output.persistence.entities.UserEntity; 
@@ -28,14 +27,13 @@ public class OrderMapper {
         entity.setDateCreation(domain.getDateCreation());
         entity.setTotal(domain.getTotal());
 
-        // Mapeo ligero del Usuario (solo ID para persistencia)
         if (domain.getUser() != null) {
             UserEntity userEntity = new UserEntity();
             userEntity.setId(domain.getUser().getId()); 
             entity.setUser(userEntity);
         }
 
-        // Mapeo de la lista de detalles
+
         if (domain.getDetails() != null) {
             entity.setDetail(domain.getDetails().stream()
                     .map(detailMapper::toEntity) 
@@ -54,16 +52,15 @@ public class OrderMapper {
         domain.setDateCreation(entity.getDateCreation());
         domain.setTotal(entity.getTotal());
         
-        // RECONSTRUCCIÓN DEL USUARIO: Importante para que el dominio tenga el ID del cliente
+  
         if (entity.getUser() != null) {
             User userDomain = new User();
             userDomain.setId(entity.getUser().getId());
-            // Si tu UserEntity tiene nombre, podrías pasarlo aquí para el DTO final
             userDomain.setName(entity.getUser().getName()); 
             domain.setUser(userDomain);
         }
 
-        // Mapeo de la lista de detalles de vuelta al dominio
+
         if (entity.getDetail() != null) {
             domain.setDetails(entity.getDetail().stream()
                 .map(detailMapper::toDomain)

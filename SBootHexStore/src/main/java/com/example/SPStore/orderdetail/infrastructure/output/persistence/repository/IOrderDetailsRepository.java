@@ -2,8 +2,7 @@ package com.example.SPStore.orderdetail.infrastructure.output.persistence.reposi
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List; // Importante añadir esta importación
-
+import java.util.List; 
 import com.example.SPStore.orderdetail.infrastructure.output.persistence.entities.OrderDetailsEntity;
 
 @Repository

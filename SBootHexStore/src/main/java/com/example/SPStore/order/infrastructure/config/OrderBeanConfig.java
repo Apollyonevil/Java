@@ -9,7 +9,6 @@ import com.example.SPStore.order.domain.ports.in.OrderFindByIdInputPort;
 import com.example.SPStore.order.domain.ports.in.OrderFindByUserInputPort;
 import com.example.SPStore.order.domain.ports.in.OrderRegistrationInputPort;
 import com.example.SPStore.order.domain.ports.out.IOrderPersistencePort;
-import com.example.SPStore.orderdetail.domain.ports.out.IOrderDetailsPersistencePort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

@@ -24,7 +24,7 @@ public class OrderDetails {
         this.total = total;
     }
 
-    // Getters y Setters
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

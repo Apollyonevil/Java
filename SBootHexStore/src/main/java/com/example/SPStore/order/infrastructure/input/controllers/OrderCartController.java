@@ -35,7 +35,7 @@ public class OrderCartController {
         Product product = DTOConverter.toProduct(productDTO);
 
         if (amount > product.getAmount()) {
-            return ResponseEntity.badRequest().build(); // 400 si no hay stock
+            return ResponseEntity.badRequest().build(); 
         }
 
         boolean isPresent = details.stream().anyMatch(p -> p.getProduct().getId().equals(id));
@@ -62,6 +62,6 @@ public class OrderCartController {
         session.setAttribute("cart", details);
         session.setAttribute("order", order);
 
-        return ResponseEntity.ok().build(); // 200 OK
+        return ResponseEntity.ok().build(); 
     }
 }

@@ -30,20 +30,20 @@ public class ProductPersistenceAdapter implements IProductPersistencePort {
 
     @Override
     public Optional<Product> findById(Integer id) {
-        // Usamos el mapper inyectado para transformar el resultado
+
         return productRepository.findById(id).map(productMapper::toDomain);
     }
 
     @Override
     public List<Product> findAll() {
         return productRepository.findAll().stream()
-                .map(productMapper::toDomain) // Usamos el mapper inyectado
+                .map(productMapper::toDomain) 
                 .collect(Collectors.toList());
     }
 
     @Override
     public void update(Product product) {
-        // Para actualizar, convertimos a entity y guardamos
+   
         ProductEntity entity = productMapper.toEntity(product);
         productRepository.save(entity);
     }

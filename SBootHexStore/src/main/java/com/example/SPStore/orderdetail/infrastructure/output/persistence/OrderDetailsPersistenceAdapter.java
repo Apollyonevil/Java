@@ -25,7 +25,6 @@ public class OrderDetailsPersistenceAdapter implements IOrderDetailsPersistenceP
         return mapper.toDomain(repository.save(mapper.toEntity(orderDetail)));
     }
 
-    // AÑADIMOS LA IMPLEMENTACIÓN DEL MÉTODO
     @Override
     public List<OrderDetails> findByOrderId(Integer orderId) {
         return repository.findByOrderId(orderId).stream()

@@ -44,6 +44,6 @@ public class ProductSaveController {
         }
         
         productSaveInputPort.save(product);
-        return new ResponseEntity<>(product, HttpStatus.CREATED); // 201
+        return new ResponseEntity<>(product, HttpStatus.CREATED); 
     }
 }

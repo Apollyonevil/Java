@@ -18,11 +18,11 @@ public class OrderDetailsEntity {
     private double total;
    
     @ManyToOne
-    @JoinColumn(name = "order_id") // Este es el nombre de la columna en la DB
+    @JoinColumn(name = "order_id")
     private OrderEntity order;
 
     @ManyToOne
-    private ProductEntity product; // Referencia a la Entity
+    private ProductEntity product;
 
 
     public OrderDetailsEntity(){

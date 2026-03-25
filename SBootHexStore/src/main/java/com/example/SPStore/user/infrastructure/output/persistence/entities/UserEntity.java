@@ -22,7 +22,7 @@ public class UserEntity {
     private String type;
     private String password;
 
-    // IMPORTANTE: Aquí usamos ProductEntity y OrderEntity
+
     @OneToMany(mappedBy = "user")
     private List<ProductEntity> products; 
 

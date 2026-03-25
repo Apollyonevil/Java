@@ -5,12 +5,11 @@ public class UserDTO {
     private String name;
     private String email;
     private String address;
-    private String phone; // Agregado
+    private String phone; 
     private String type;
 
     public UserDTO() {}
 
-    // Getters y Setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

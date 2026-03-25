@@ -1,6 +1,6 @@
 package com.example.SPStore.order.infrastructure.output.persistence.entities;
 
-import java.time.LocalDateTime; // Actualizado: Coincide con el dominio
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.*;
 
@@ -15,8 +15,8 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String num;
-    private LocalDateTime dateCreation; // Actualizado
-    private LocalDateTime dateReceipt;  // Actualizado
+    private LocalDateTime dateCreation; 
+    private LocalDateTime dateReceipt;  
     private double total;
 
     @ManyToOne
@@ -28,7 +28,7 @@ public class OrderEntity {
     public OrderEntity() {
     }
 
-    // Constructor actualizado con LocalDateTime
+
     public OrderEntity(Integer id, String num, LocalDateTime dateCreation, LocalDateTime dateReceipt, double total) {
         this.id = id;
         this.num = num;
@@ -37,7 +37,7 @@ public class OrderEntity {
         this.total = total;
     }
 
-    // Getters y Setters actualizados
+   
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     

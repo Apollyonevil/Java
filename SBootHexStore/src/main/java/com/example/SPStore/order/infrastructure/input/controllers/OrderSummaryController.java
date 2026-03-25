@@ -22,14 +22,14 @@ public class OrderSummaryController {
     public ResponseEntity<Map<String, Object>> getOrderSummary(HttpSession session) {
         Object idUser = session.getAttribute("iduser");
         if (idUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // 401
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); 
         }
 
         var details = session.getAttribute("cart");
         var order = session.getAttribute("order");
 
         if (details == null) {
-            return ResponseEntity.badRequest().build(); // 400 si no hay carrito
+            return ResponseEntity.badRequest().build(); 
         }
 
         User user = userFindByIdInputPort.findById(Integer.parseInt(idUser.toString()))
