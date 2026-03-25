@@ -22,7 +22,7 @@ public class FieldDefinition {
         this.sortOrder = sortOrder; 
     }
 
-    // Getters existentes...
+
     public UUID getId() { return id; }
     public String getLabel() { return label; }
     public FieldType getType() { return type; }
@@ -30,7 +30,7 @@ public class FieldDefinition {
     public String getPlaceholder() { return placeholder; }
     public List<String> getOptions() { return options; }
     
-    // Nuevo Getter
+
     public Integer getSortOrder() { return sortOrder; }
 
     public boolean isFileField() {

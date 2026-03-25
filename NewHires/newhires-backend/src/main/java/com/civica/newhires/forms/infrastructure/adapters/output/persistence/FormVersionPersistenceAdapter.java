@@ -37,10 +37,10 @@ public class FormVersionPersistenceAdapter implements FormVersionPort {
         entity.setDescription(version.getDescription());
         entity.setActive(version.isActive());
 
-        // Guardamos primero la versión sin campos
+
         FormVersionEntity saved = versionRepo.save(entity);
 
-        // Luego construimos y asignamos los campos
+
         if (version.getFields() != null) {
             List<FormVersionFieldEntity> fieldEntities = version.getFields().stream()
                     .map(vf -> {

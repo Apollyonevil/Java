@@ -9,11 +9,11 @@ public class Submission {
     private final String candidateName;
     private final String email;
     private final LocalDateTime submittedAt;
-    private LocalDateTime expiresAt; // <-- añadido sin final
+    private LocalDateTime expiresAt;
     private String token;
     private SubmissionStatus status;
 
-    // Constructor para NUEVAS INVITACIONES
+
     public Submission(UUID employeeId, String candidateName, String email, String token) {
         this.id = UUID.randomUUID();
         this.employeeId = employeeId;
@@ -21,11 +21,10 @@ public class Submission {
         this.email = email;
         this.token = token;
         this.submittedAt = LocalDateTime.now();
-        this.expiresAt = LocalDateTime.now().plusHours(48); // <-- caduca en 48h
+        this.expiresAt = LocalDateTime.now().plusHours(48);
         this.status = SubmissionStatus.PENDING_INVITE;
     }
 
-    // Constructor completo para cargar de BD
     public Submission(UUID id, UUID employeeId, String candidateName, String email,
                       String token, LocalDateTime submittedAt, LocalDateTime expiresAt, SubmissionStatus status) {
         this.id = id;

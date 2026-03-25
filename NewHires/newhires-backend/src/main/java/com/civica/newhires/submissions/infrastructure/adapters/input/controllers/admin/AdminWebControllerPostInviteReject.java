@@ -37,7 +37,7 @@ public ResponseEntity<Submission> rejectSubmission(
     submission.setExpiresAt(LocalDateTime.now().plusHours(48));
     submissionRepository.save(submission);
 
-    // Enviamos email con motivo y nuevo enlace
+
     try {
         notificationPort.sendRejectionNotice(submission.getEmail(), request.reason());
         Thread.sleep(1500);

@@ -43,7 +43,7 @@ public class FormVersionService implements ManageFormVersionsUseCase {
             ))
             .collect(Collectors.toList());
 
-    // Desactivamos todas las versiones anteriores
+
     formVersionRepository.deactivateAll();
 
     FormVersion version = new FormVersion(
@@ -52,7 +52,7 @@ public class FormVersionService implements ManageFormVersionsUseCase {
             null,
             createdBy,
             description,
-            true, // <-- se activa directamente
+            true,
             versionFields
     );
 
@@ -65,18 +65,15 @@ public FormVersion activateVersion(UUID versionId) {
     FormVersion version = formVersionRepository.findById(versionId)
             .orElseThrow(() -> new RuntimeException("Versión no encontrada: " + versionId));
 
-    // IDs de campos que pertenecen a esta versión
     List<UUID> versionFieldIds = version.getFields().stream()
             .map(vf -> vf.getField().getId())
             .collect(Collectors.toList());
 
-    // Eliminamos campos que NO están en esta versión
     List<FieldDefinition> currentFields = formRepository.findAllFieldDefinitions();
     currentFields.stream()
             .filter(f -> !versionFieldIds.contains(f.getId()))
             .forEach(f -> formRepository.deleteDefinition(f.getId()));
 
-    // Restauramos el orden de los campos de la versión
     version.getFields().forEach(versionField -> {
         FieldDefinition updated = new FieldDefinition(
             versionField.getField().getId(),

@@ -34,8 +34,6 @@ public class UserIdentityAdapter implements UserIdentityPort {
 
     @Override
     public void registerPendingInvite(String name, String email, String token) {
-        // Ya no necesitamos hacer nada aquí porque la Submission
-        // se crea en InviteCandidateService
         System.out.println("Invitación registrada para: " + email);
     }
 }

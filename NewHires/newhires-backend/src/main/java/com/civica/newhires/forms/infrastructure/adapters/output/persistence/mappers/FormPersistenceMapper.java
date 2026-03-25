@@ -49,7 +49,7 @@ public class FormPersistenceMapper {
         return entity;
     }
 
-    // Ahora toDomain lee los datos del candidato a través de la relación
+
     public Submission toDomain(SubmissionEntity entity) {
         if (entity == null) return null;
         CandidateEntity candidate = entity.getCandidate();
@@ -65,7 +65,7 @@ public class FormPersistenceMapper {
         );
     }
 
-    // toEntity ahora recibe el CandidateEntity ya persistido
+
     public SubmissionEntity toEntity(Submission domain, CandidateEntity candidate) {
         if (domain == null) return null;
         SubmissionEntity entity = new SubmissionEntity();
