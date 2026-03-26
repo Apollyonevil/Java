@@ -1,6 +1,6 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseDelete;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,7 +22,7 @@ class AdminWebControllerDeleteMappingTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ManageFieldsUseCase manageFieldsUseCase;
+    private ManageFieldsUseCaseDelete manageFieldsUseCase;
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")

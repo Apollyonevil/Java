@@ -1,7 +1,7 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
-import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseCreate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminFormVersionControllerCreate {
 
-    private final ManageFormVersionsUseCase manageFormVersionsUseCase;
+    private final ManageFormVersionsUseCaseCreate manageFormVersionsUseCase;
 
 
     @PostMapping

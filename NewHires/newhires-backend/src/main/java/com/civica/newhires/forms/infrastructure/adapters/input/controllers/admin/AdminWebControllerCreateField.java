@@ -2,7 +2,7 @@ package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admi
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldType;
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseCreate;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import java.util.List;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminWebControllerCreateField {
 
-    private final ManageFieldsUseCase manageFieldsUseCase;
+    private final ManageFieldsUseCaseCreate manageFieldsUseCase;
 
     public record FieldRequest(
     String label,

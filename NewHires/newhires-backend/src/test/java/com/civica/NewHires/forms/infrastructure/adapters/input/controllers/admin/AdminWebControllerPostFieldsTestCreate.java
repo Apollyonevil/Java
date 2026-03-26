@@ -2,7 +2,7 @@ package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admi
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldType;
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseCreate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -14,33 +14,33 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AdminWebControllerUpdateFields.class)
-class AdminWebControllerPutFieldsTest {
+@WebMvcTest(AdminWebControllerCreateField.class)
+class AdminWebControllerPostFieldsTestCreate {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ManageFieldsUseCase manageFieldsUseCase;
+    private ManageFieldsUseCaseCreate manageFieldsUseCase;
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
-    void deberiaActualizarCampoCorrectamente() throws Exception {
-        UUID id = UUID.randomUUID();
-        FieldDefinition field = new FieldDefinition(id, "Nombre actualizado", FieldType.TEXT, true, null, null, 0);
-        when(manageFieldsUseCase.updateField(eq(id), any())).thenReturn(field);
+    void deberiaCrearCampoCorrectamente() throws Exception {
+        FieldDefinition field = new FieldDefinition(
+            UUID.randomUUID(), "Nombre", FieldType.TEXT, true, null, null, 0
+        );
+        when(manageFieldsUseCase.createField(any())).thenReturn(field);
 
-        mockMvc.perform(put("/api/admin/forms/fields/{id}", id)
+        mockMvc.perform(post("/api/admin/forms/fields")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"label\":\"Nombre actualizado\",\"type\":\"TEXT\",\"required\":true,\"placeholder\":null,\"options\":null,\"sortOrder\":0}"))
+                .content("{\"label\":\"Nombre\",\"type\":\"TEXT\",\"required\":true,\"placeholder\":null,\"options\":null,\"sortOrder\":0}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.label").value("Nombre actualizado"));
+                .andExpect(jsonPath("$.label").value("Nombre"));
     }
 }

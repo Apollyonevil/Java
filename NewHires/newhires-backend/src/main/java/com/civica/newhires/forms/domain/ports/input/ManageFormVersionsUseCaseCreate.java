@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface ManageFormVersionsUseCase {
+public interface ManageFormVersionsUseCaseCreate {
     FormVersion createVersion(String createdBy, String description);
-    FormVersion activateVersion(UUID versionId);
-    List<FormVersion> getAllVersions();
-    Optional<FormVersion> getActiveVersion();
-    void deleteVersion(UUID versionId);
+
 }

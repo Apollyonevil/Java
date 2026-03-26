@@ -1,7 +1,7 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
-import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseGetAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,7 +23,7 @@ class AdminFormVersionControllerGMTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private ManageFormVersionsUseCase manageFormVersionsUseCase;
+    private ManageFormVersionsUseCaseGetAll manageFormVersionsUseCase;
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")

@@ -1,7 +1,7 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
-import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseGetAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.List;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminFormVersionControllerGetAll {
 
-    private final ManageFormVersionsUseCase manageFormVersionsUseCase;
+    private final ManageFormVersionsUseCaseGetAll manageFormVersionsUseCase;
 
     @GetMapping
     public ResponseEntity<List<FormVersion>> getAll() {

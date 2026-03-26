@@ -2,7 +2,7 @@ package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admi
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FieldType;
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseUpdate;
 import com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin.AdminWebControllerCreateField.FieldRequest;
 
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminWebControllerUpdateFields {
 
-    private final ManageFieldsUseCase manageFieldsUseCase;
+    private final ManageFieldsUseCaseUpdate manageFieldsUseCase;
 
 
     @PutMapping("/fields/{id}")

@@ -1,7 +1,7 @@
 package com.civica.newhires.forms.application.service;
 
 import com.civica.newhires.forms.domain.model.FieldDefinition;
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseUpdate;
 import com.civica.newhires.forms.domain.ports.output.FormPort;
 import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 
@@ -10,16 +10,10 @@ import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class FieldManagementService implements ManageFieldsUseCase {
+public class FieldManagementServiceUpdate implements ManageFieldsUseCaseUpdate {
 
     private final FormPort formRepository;
     private final FormVersionPort formVersionRepository;
-
-    @Override
-    public FieldDefinition createField(FieldDefinition field) {
-        formVersionRepository.deactivateAll();
-        return formRepository.saveDefinition(field);
-    }
 
     @Override
     @Transactional
@@ -45,9 +39,4 @@ public class FieldManagementService implements ManageFieldsUseCase {
         return saved;
     }
 
-    @Override
-    public void deleteField(UUID id) {
-        formVersionRepository.deactivateAll();
-        formRepository.deleteDefinition(id);
-    }
 }

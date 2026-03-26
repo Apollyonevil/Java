@@ -54,10 +54,24 @@ public MultipartConfigElement multipartConfigElement() {
 
 
     @Bean
-    public ManageFieldsUseCase manageFieldsUseCase(
+    public ManageFieldsUseCaseCreate manageFieldsUseCaseCreate(
         FormPort formRepository,
         FormVersionPort formVersionRepository) {
-    return new FieldManagementService(formRepository, formVersionRepository);
+    return new FieldManagementServiceCreate(formRepository, formVersionRepository);
+    }
+
+    @Bean
+    public ManageFieldsUseCaseUpdate manageFieldsUseCaseUpdate(
+        FormPort formRepository,
+        FormVersionPort formVersionRepository) {
+    return new FieldManagementServiceUpdate(formRepository, formVersionRepository);
+    }
+
+    @Bean
+    public ManageFieldsUseCaseDelete manageFieldsUseCaseDelete(
+        FormPort formRepository,
+        FormVersionPort formVersionRepository) {
+    return new FieldManagementServiceDelete(formRepository, formVersionRepository);
     }
 
     @Bean

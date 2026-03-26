@@ -29,7 +29,12 @@ class FormVersionServiceTest {
     private FormPort formRepository;
 
     @InjectMocks
-    private FormVersionService formVersionService;
+    private FormVersionServiceCreate formVersionServiceCreate;
+    @InjectMocks
+    private FormVersionServiceActivate formVersionServiceActivate;
+    @InjectMocks
+    private FormVersionServiceDelete formVersionServiceDelete;
+
 
     @Test
     void deberiaCrearVersionConCamposActuales() {
@@ -41,7 +46,7 @@ class FormVersionServiceTest {
         when(formVersionRepository.findAll()).thenReturn(List.of());
         when(formVersionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        FormVersion result = formVersionService.createVersion("admin", "Primera versión");
+        FormVersion result = formVersionServiceCreate.createVersion("admin", "Primera versión");
 
         assertNotNull(result);
         assertEquals(1, result.getVersionNumber());
@@ -58,7 +63,7 @@ class FormVersionServiceTest {
         when(formRepository.findAllFieldDefinitions()).thenReturn(List.of());
         when(formVersionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
-        FormVersion result = formVersionService.activateVersion(versionId);
+        FormVersion result = formVersionServiceActivate.activateVersion(versionId);
 
         assertTrue(result.isActive());
         verify(formVersionRepository, times(1)).deactivateAll();
@@ -69,7 +74,7 @@ class FormVersionServiceTest {
         UUID id = UUID.randomUUID();
         when(formVersionRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> formVersionService.activateVersion(id));
+        assertThrows(RuntimeException.class, () -> formVersionServiceActivate.activateVersion(id));
     }
 
     @Test
@@ -78,6 +83,6 @@ class FormVersionServiceTest {
         FormVersion version = new FormVersion(id, 1, null, "admin", "v1", true, List.of());
         when(formVersionRepository.findById(id)).thenReturn(Optional.of(version));
 
-        assertThrows(RuntimeException.class, () -> formVersionService.deleteVersion(id));
+        assertThrows(RuntimeException.class, () -> formVersionServiceDelete.deleteVersion(id));
     }
 }

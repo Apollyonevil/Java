@@ -1,6 +1,6 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFieldsUseCaseDelete;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminWebControllerDeleteField {
 
-    private final ManageFieldsUseCase manageFieldsUseCase;
+    private final ManageFieldsUseCaseDelete manageFieldsUseCase;
 
 
 

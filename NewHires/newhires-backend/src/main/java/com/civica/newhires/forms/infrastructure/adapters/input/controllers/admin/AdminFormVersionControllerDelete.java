@@ -1,6 +1,6 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseDelete;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminFormVersionControllerDelete {
 
-    private final ManageFormVersionsUseCase manageFormVersionsUseCase;
+    private final ManageFormVersionsUseCaseDelete manageFormVersionsUseCase;
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVersion(@PathVariable UUID id) {

@@ -1,7 +1,7 @@
 package com.civica.newhires.forms.infrastructure.adapters.input.controllers.admin;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
-import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCase;
+import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseActivate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,9 @@ import java.util.UUID;
 @RequestMapping("/api/admin/versions")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
-public class AdminFormVersionControllerFormVersionsPostActive {
+public class AdminFormVersionControllerFormVersionsActivate {
 
-    private final ManageFormVersionsUseCase manageFormVersionsUseCase;
+    private final ManageFormVersionsUseCaseActivate manageFormVersionsUseCase;
 
     @PostMapping("/{id}/activate")
     public ResponseEntity<FormVersion> activateVersion(@PathVariable UUID id) {

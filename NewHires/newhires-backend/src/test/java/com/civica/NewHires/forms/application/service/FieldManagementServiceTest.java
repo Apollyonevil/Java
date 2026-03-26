@@ -26,7 +26,13 @@ class FieldManagementServiceTest {
     private FormVersionPort formVersionRepository;
 
     @InjectMocks
-    private FieldManagementService fieldManagementService;
+    private FieldManagementServiceCreate fieldManagementServiceCreate;
+
+    @InjectMocks
+    private FieldManagementServiceUpdate fieldManagementServiceUpdate;
+
+    @InjectMocks
+    private FieldManagementServiceDelete fieldManagementServiceDelete;
 
     private FieldDefinition campoEjemplo() {
         return new FieldDefinition(
@@ -40,7 +46,7 @@ class FieldManagementServiceTest {
         FieldDefinition campo = campoEjemplo();
         when(formRepository.saveDefinition(any())).thenReturn(campo);
 
-        FieldDefinition result = fieldManagementService.createField(campo);
+        FieldDefinition result = fieldManagementServiceCreate.createField(campo);
 
         assertNotNull(result);
         assertEquals("Nombre", result.getLabel());
@@ -52,7 +58,7 @@ class FieldManagementServiceTest {
         FieldDefinition campo = campoEjemplo();
         when(formRepository.saveDefinition(any())).thenReturn(campo);
 
-        fieldManagementService.createField(campo);
+        fieldManagementServiceCreate.createField(campo);
 
         verify(formVersionRepository, times(1)).deactivateAll();
     }
@@ -60,14 +66,14 @@ class FieldManagementServiceTest {
     @Test
     void deberiaEliminarCampo() {
         UUID id = UUID.randomUUID();
-        fieldManagementService.deleteField(id);
+        fieldManagementServiceDelete.deleteField(id);
         verify(formRepository, times(1)).deleteDefinition(id);
     }
 
     @Test
     void deberiaDesactivarVersionesAlEliminarCampo() {
         UUID id = UUID.randomUUID();
-        fieldManagementService.deleteField(id);
+        fieldManagementServiceDelete.deleteField(id);
         verify(formVersionRepository, times(1)).deactivateAll();
     }
 }
