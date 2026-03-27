@@ -13,7 +13,6 @@ import { AuthService } from '../../core/services/auth';
   styleUrls: ['./admin-dashboard.css']
 })
 export class AdminDashboardComponent implements OnInit {
-  // Variables de estado
   fields: FieldDefinition[] = [];
   submissions: Submission[] = [];
   adminUsers: any[] = [];
@@ -21,8 +20,6 @@ export class AdminDashboardComponent implements OnInit {
   loading: boolean = false;
   isGenerating: boolean = false;
   sendingEmails: { [key: string]: boolean } = {};
-  
-  // Variables auxiliares para edición
   editingField: any = null;
   editingUser: any = null;
   optionsText: string = '';
@@ -30,13 +27,10 @@ export class AdminDashboardComponent implements OnInit {
   newCandidateEmail: string = '';
   newVersionDescription: string = '';
   activeTab: string = 'candidatos';
-  
-  // Modales y Detalles
   rejectingSubmissionId: string | null = null;
   rejectReason: string = '';
   selectedSubmission: any = null;
   submissionDetail: any = null;
-  showRejectModal: boolean = false; // Añadido para facilitar control en tests
 
   constructor(
     private formService: FormService,
@@ -48,13 +42,6 @@ export class AdminDashboardComponent implements OnInit {
     this.refreshData();
   }
 
-  // --- Navegación ---
-  setActiveTab(tab: string) {
-    this.activeTab = tab;
-    this.cdr.markForCheck();
-  }
-
-  // --- Carga de Datos ---
   refreshData() {
     this.loadFormStructure();
     this.loadSubmissions();
@@ -105,15 +92,11 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // --- Gestión de Candidatos e Invitaciones ---
   generateInvitation() {
-    if (!this.newCandidateEmail || this.isGenerating) return;
+    if (!this.newCandidateName || !this.newCandidateEmail || this.isGenerating) return;
     this.isGenerating = true;
 
-    // Fallback de nombre para evitar errores si el campo está vacío
-    const name = this.newCandidateName || 'Candidato';
-
-    this.formService.createInvitation(name, this.newCandidateEmail).subscribe({
+    this.formService.createInvitation(this.newCandidateName, this.newCandidateEmail).subscribe({
       next: (newSub) => {
         this.submissions = [newSub, ...this.submissions];
         this.newCandidateName = '';
@@ -125,16 +108,27 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  openRejectModal(submission: any) {
-    // Ajustado para aceptar tanto ID como objeto completo (compatibilidad con tests)
-    if (typeof submission === 'string') {
-      this.rejectingSubmissionId = submission;
-      this.selectedSubmission = this.submissions.find(s => s.id === submission);
-    } else {
-      this.rejectingSubmissionId = submission.id;
-      this.selectedSubmission = submission;
-    }
-    this.showRejectModal = true;
+  approveSubmission(id: string) {
+  if (confirm('¿Confirmar aprobación de la documentación?')) {
+    this.formService.approveSubmission(id).subscribe({
+      next: (updated) => {
+        const index = this.submissions.findIndex(s => s.id === id);
+        if (index !== -1) {
+          const newSubmissions = [...this.submissions];
+          newSubmissions[index] = updated;
+          this.submissions = newSubmissions;
+        }
+        this.submissionDetail = null; // Cerramos el detalle si estaba abierto
+        this.cdr.markForCheck();
+        alert('Candidato aprobado correctamente');
+      },
+      error: (err) => console.error('Error al aprobar:', err)
+    });
+  }
+}
+
+  openRejectModal(id: string) {
+    this.rejectingSubmissionId = id;
     this.rejectReason = '';
   }
 
@@ -150,41 +144,10 @@ export class AdminDashboardComponent implements OnInit {
           this.submissions = newSubmissions;
         }
         this.rejectingSubmissionId = null;
-        this.showRejectModal = false;
         this.rejectReason = '';
         this.cdr.markForCheck();
       }
     });
-  }
-
-  deleteSubmission(id: string) {
-    if (confirm('¿Eliminar candidato?')) {
-      this.formService.deleteSubmission(id).subscribe(() => {
-        this.submissions = this.submissions.filter(s => s.id !== id);
-        this.cdr.markForCheck();
-      });
-    }
-  }
-
-  viewDetail(id: string) {
-    this.formService.getSubmissionDetail(id).subscribe({
-      next: (detail) => {
-        this.selectedSubmission = id;
-        this.submissionDetail = detail;
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
-  // --- Configuración del Formulario ---
-  addNewField() {
-    this.editingField = { label: '', type: 'TEXT', required: false, sortOrder: this.fields.length };
-    this.optionsText = '';
-  }
-
-  editField(field: FieldDefinition) {
-    this.editingField = { ...field };
-    this.optionsText = field.options ? field.options.join(', ') : '';
   }
 
   saveField() {
@@ -193,6 +156,11 @@ export class AdminDashboardComponent implements OnInit {
 
     if (this.editingField.type === 'SELECT' && this.optionsText) {
       this.editingField.options = this.optionsText.split(',').map((o: string) => o.trim());
+    }
+
+    if (this.editingField.sortOrder == null) {
+      const index = this.fields.findIndex(f => f.id === this.editingField.id);
+      this.editingField.sortOrder = index !== -1 ? index : this.fields.length;
     }
 
     const request$ = this.editingField.id
@@ -215,8 +183,16 @@ export class AdminDashboardComponent implements OnInit {
         this.loadFormVersions();
         this.cdr.markForCheck();
       },
-      error: () => { this.loading = false; }
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+      }
     });
+  }
+
+  editField(field: FieldDefinition) {
+    this.editingField = { ...field };
+    this.optionsText = field.options ? field.options.join(', ') : '';
   }
 
   moveField(index: number, direction: 'up' | 'down') {
@@ -238,7 +214,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   deleteField(id: string) {
-    if (confirm('¿Eliminar campo?')) {
+    if (confirm('¿Eliminar?')) {
       this.formService.deleteField(id).subscribe(() => {
         this.fields = this.fields.filter(f => f.id !== id);
         this.loadFormVersions();
@@ -247,7 +223,85 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // --- Gestión de Usuarios Admin ---
+  deleteSubmission(id: string) {
+    if (confirm('¿Eliminar candidato?')) {
+      this.formService.deleteSubmission(id).subscribe(() => {
+        this.submissions = this.submissions.filter(s => s.id !== id);
+        this.cdr.markForCheck();
+      });
+    }
+  }
+
+  viewDetail(id: string) {
+    this.formService.getSubmissionDetail(id).subscribe({
+      next: (detail) => {
+        this.selectedSubmission = id;
+        this.submissionDetail = detail;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  downloadFile(filename: string) {
+    const credentials = this.authService.getCredentials();
+    const url = `${this.formService.getAdminUrl()}/files/${encodeURIComponent(filename)}`;
+
+    fetch(url, {
+      headers: { 'Authorization': `Basic ${credentials}` }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+  }
+
+  sendEmail(id: string) {
+    if (this.sendingEmails[id]) return;
+    this.sendingEmails[id] = true;
+    this.formService.sendOnboardingEmail(id).subscribe({
+      next: () => {
+        this.sendingEmails[id] = false;
+        alert('Email enviado');
+        this.cdr.markForCheck();
+      },
+      error: () => { this.sendingEmails[id] = false; }
+    });
+  }
+
+  copyTokenLink(token: string) {
+    const url = `${window.location.origin}/onboarding?token=${token}`;
+    navigator.clipboard.writeText(url);
+    alert('Link copiado');
+  }
+
+  isExpired(expiresAt: string): boolean {
+    return new Date(expiresAt) < new Date();
+  }
+
+  renewToken(id: string) {
+    this.formService.renewToken(id).subscribe({
+      next: (updated) => {
+        const index = this.submissions.findIndex(s => s.id === id);
+        if (index !== -1) {
+          const newSubmissions = [...this.submissions];
+          newSubmissions[index] = updated;
+          this.submissions = newSubmissions;
+          this.cdr.markForCheck();
+          alert('Token renovado y email enviado');
+        }
+      }
+    });
+  }
+
+  addNewField() {
+    this.editingField = { label: '', type: 'TEXT', required: false, sortOrder: this.fields.length };
+    this.optionsText = '';
+  }
+
   addNewUser() {
     this.editingUser = { username: '', password: '' };
   }
@@ -281,7 +335,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // --- Versiones del Formulario ---
   createVersion() {
     if (!this.newVersionDescription) return;
     this.formService.createFormVersion('admin', this.newVersionDescription).subscribe({
@@ -294,7 +347,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   activateVersion(id: string) {
-    if (confirm('¿Activar esta versión? El formulario actual se sobrescribirá.')) {
+    if (confirm('¿Activar esta versión? El formulario se restaurará a este estado.')) {
       this.formService.activateFormVersion(id).subscribe({
         next: () => {
           this.loadFormVersions();
@@ -306,72 +359,17 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   deleteVersion(id: string) {
-    if (confirm('¿Eliminar versión?')) {
+    if (confirm('¿Eliminar esta versión?')) {
       this.formService.deleteFormVersion(id).subscribe({
         next: () => {
           this.formVersions = this.formVersions.filter(v => v.id !== id);
           this.cdr.markForCheck();
         },
-        error: () => alert('No se puede eliminar la versión activa')
+        error: () => {
+          alert('No se puede eliminar la versión activa');
+        }
       });
     }
-  }
-
-  // --- Utilidades ---
-  downloadFile(filename: string) {
-    const credentials = this.authService.getCredentials();
-    const url = `${this.formService.getAdminUrl()}/files/${encodeURIComponent(filename)}`;
-
-    fetch(url, {
-      headers: { 'Authorization': `Basic ${credentials}` }
-    })
-    .then(res => res.blob())
-    .then(blob => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    });
-  }
-
-  sendEmail(id: string) {
-    if (this.sendingEmails[id]) return;
-    this.sendingEmails[id] = true;
-    this.formService.sendOnboardingEmail(id).subscribe({
-      next: () => {
-        this.sendingEmails[id] = false;
-        alert('Email enviado correctamente');
-        this.cdr.markForCheck();
-      },
-      error: () => { this.sendingEmails[id] = false; }
-    });
-  }
-
-  copyTokenLink(token: string) {
-    const url = `${window.location.origin}/onboarding?token=${token}`;
-    navigator.clipboard.writeText(url).then(() => alert('Enlace copiado al portapapeles'));
-  }
-
-  isExpired(expiresAt: string): boolean {
-    return new Date(expiresAt) < new Date();
-  }
-
-  renewToken(id: string) {
-    this.formService.renewToken(id).subscribe({
-      next: (updated) => {
-        const index = this.submissions.findIndex(s => s.id === id);
-        if (index !== -1) {
-          const newSubmissions = [...this.submissions];
-          newSubmissions[index] = updated;
-          this.submissions = newSubmissions;
-          this.cdr.markForCheck();
-          alert('Token renovado e invitación reenviada');
-        }
-      }
-    });
   }
 
   logout() {

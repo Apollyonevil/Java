@@ -4,6 +4,7 @@ public enum SubmissionStatus {
     PENDING_INVITE,  
     SUBMITTED,       
     PENDING_REVIEW, 
-    COMPLETED,       
+    COMPLETED,
+    APPROVED,       
     REJECTED       
 }

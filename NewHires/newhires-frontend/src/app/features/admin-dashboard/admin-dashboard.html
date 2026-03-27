@@ -373,13 +373,16 @@
                 <div>
                   <small class="text-muted d-block">{{ field.label }}</small>
                   @if (!field.isFile) {
-                    <span class="fw-bold small">{{ field.value }}</span>
+                    <span class="fw-bold small">{{ field.value || 'Sin respuesta' }}</span>
                   }
                 </div>
-                @if (field.isFile) {
+
+                @if (field.isFile && field.value) {
                   <button class="btn btn-outline-brand btn-sm" (click)="downloadFile(field.value)">
                     ⬇ Descargar
                   </button>
+                } @else if (field.isFile && !field.value) {
+                  <span class="text-muted small italic">No adjuntado</span>
                 }
               </li>
             }
@@ -387,7 +390,12 @@
         </div>
         <div class="modal-footer bg-light border-0">
           <button class="btn btn-link text-muted text-decoration-none" (click)="submissionDetail = null">Cerrar</button>
+          
           @if (submissionDetail.status === 'SUBMITTED' || submissionDetail.status === 'PENDING_REVIEW') {
+            <button class="btn btn-success px-4 me-2" (click)="approveSubmission(selectedSubmission!)">
+              ✓ Aprobar
+            </button>
+
             <button class="btn btn-danger px-4" (click)="submissionDetail = null; openRejectModal(selectedSubmission!)">
               ✕ Rechazar
             </button>

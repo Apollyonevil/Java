@@ -42,6 +42,7 @@ public class AdminSubmissionDetailController {
         }).collect(Collectors.toList());
 
         return ResponseEntity.ok(new SubmissionDetailResponse(
+            submission.getId(),
             submission.getCandidateName(),
             submission.getEmail(),
             submission.getStatus().name(),
@@ -50,6 +51,7 @@ public class AdminSubmissionDetailController {
     }
 
     public record SubmissionDetailResponse(
+        UUID id,
         String candidateName,
         String email,
         String status,

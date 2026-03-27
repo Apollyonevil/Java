@@ -160,6 +160,36 @@ public class EmailNotificationAdapter implements NotificationPort {
     }
 
     @Override
+    public void sendApprovalNotice(String toEmail, String candidateName) {
+        String body = """
+            <h2 style="color:#28a745; margin:0 0 16px 0; font-size:20px;">¡Documentación aprobada!</h2>
+            <p style="color:%s; line-height:1.6; margin:0 0 24px 0;">
+                Hola <strong>%s</strong>, nos alegra informarte de que tu documentación ha sido revisada 
+                y **aprobada correctamente**. Todo está listo para continuar con tu proceso de incorporación.
+            </p>
+            <table width="100%%" cellpadding="0" cellspacing="0" style="background-color:#f4faf6; border-left:4px solid #28a745; border-radius:0 6px 6px 0; margin-bottom:24px;">
+                <tr>
+                    <td style="padding:20px 24px;">
+                        <p style="margin:0; color:#1e7e34; font-size:14px; line-height:1.6;">
+                            ✅ Validación completada<br>
+                            🎉 ¡Bienvenido/a oficialmente al equipo!
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <p style="color:%s; line-height:1.6; margin:0 0 8px 0;">
+                En breve, el equipo de RRHH se pondrá en contacto contigo para indicarte los siguientes pasos 
+                respecto a tu primer día.
+            </p>
+            <p style="color:%s; font-size:13px; margin:0;">
+                ¡Estamos deseando verte en las oficinas de Cívica!
+            </p>
+            """.formatted(GRAY, candidateName, GRAY, GRAY);
+
+        sendHtmlEmail(toEmail, "¡Documentación Aprobada! - Cívica", "Proceso de Incorporación", body);
+    }
+
+    @Override
     public void sendRejectionNotice(String toEmail, String reason) {
         String body = """
             <h2 style="color:#dc3545; margin:0 0 16px 0; font-size:20px;">Documentación rechazada</h2>

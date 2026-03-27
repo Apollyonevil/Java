@@ -22,10 +22,10 @@ public class AdminWebControllerPostEmail {
 
 
 
-    @PostMapping("/send-email/{employeeId}")
-    public ResponseEntity<Void> sendManualEmail(@PathVariable UUID employeeId) {
-        Submission submission = submissionRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + employeeId));
+    @PostMapping("/send-email/{id}") // Cambiado de {employeeId} a {id} para consistencia
+    public ResponseEntity<Void> sendManualEmail(@PathVariable UUID id) {
+        Submission submission = submissionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
         
         notificationPort.sendInvitation(
             submission.getEmail(),
