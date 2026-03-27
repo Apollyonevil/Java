@@ -1,12 +1,9 @@
 package com.civica.newhires.auth.infrastructure.adapters.input.controllers;
 
+import com.civica.newhires.auth.application.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import com.civica.newhires.auth.infrastructure.persistence.repository.AdminUserRepository;
-
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -14,14 +11,11 @@ import com.civica.newhires.auth.infrastructure.persistence.repository.AdminUserR
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminUserControllerDelete {
 
-    private final AdminUserRepository adminUserRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AdminUserService adminUserService;
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        adminUserRepository.deleteById(id);
+        adminUserService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-    public record UserRequest(String username, String password) {}
 }

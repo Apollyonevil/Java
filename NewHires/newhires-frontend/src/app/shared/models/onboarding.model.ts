@@ -1,5 +1,5 @@
 export interface Invitation {
-  token: string;      // El UUID que enviamos por email
+  token: string;   
   email: string;
   expiryDate: Date;
   isUsed: boolean;

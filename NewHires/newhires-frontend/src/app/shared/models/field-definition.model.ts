@@ -1,10 +1,10 @@
 export interface FieldDefinition {
-  id: string;           // UUID string, no number
+  id: string;          
   label: string;
-  type: string;         // "TEXT", "NUMBER", "SELECT", "PDF", "JPG"
+  type: string;        
   required: boolean;
   placeholder?: string;
-  options?: string[];   // el backend devuelve string[], no objetos
+  options?: string[];  
   sortOrder?: number;
 }
 

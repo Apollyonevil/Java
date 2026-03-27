@@ -1,4 +1,4 @@
-/* Paleta */
+
 :host {
   --brand-orange: #ff5038;
   --brand-orange-light: #ff6b54;
@@ -7,7 +7,6 @@
   --brand-gray-light: #f8f9fa;
 }
 
-/* Header */
 .admin-header {
   border-bottom: 2px solid var(--brand-orange);
   padding-bottom: 1rem;
@@ -41,7 +40,6 @@
   background: transparent !important;
 }
 
-/* Botón cerrar sesión */
 .btn-logout {
   color: var(--brand-orange) !important;
   border-color: var(--brand-orange) !important;
@@ -52,7 +50,6 @@
   color: white !important;
 }
 
-/* Cards */
 .card {
   border-radius: 8px !important;
   border: 1px solid #e9ecef !important;
@@ -68,7 +65,6 @@ background: linear-gradient(90deg, #b4b2b2 20%, #d0aa7b 100%) !important;
   color: white !important;
 }
 
-/* Invitación */
 .invite-card {
   border-left: 4px solid var(--brand) !important;
   border-top: none !important;
@@ -80,7 +76,6 @@ background: linear-gradient(90deg, #b4b2b2 20%, #d0aa7b 100%) !important;
   color: var(--brand) !important;
 }
 
-/* Botones principales */
 .btn-brand {
   background-color: var(--brand-orange) !important;
   border-color: var(--brand-orange) !important;
@@ -102,7 +97,6 @@ background: linear-gradient(90deg, #b4b2b2 20%, #d0aa7b 100%) !important;
   color: white !important;
 }
 
-/* Badges de estado */
 .badge-pending {
   background-color: var(--brand-gray) !important;
   color: white !important;
@@ -113,7 +107,6 @@ background: linear-gradient(90deg, #b4b2b2 20%, #d0aa7b 100%) !important;
   color: white !important;
 }
 
-/* Modal */
 .modal-header-brand {
   background-color: var(--brand-orange) !important;
   color: white !important;
@@ -124,12 +117,10 @@ background: linear-gradient(90deg, #b4b2b2 20%, #d0aa7b 100%) !important;
   color: white !important;
 }
 
-/* Spinner */
 .spinner-border {
   color: var(--brand-orange) !important;
 }
 
-/* Form controls focus */
 .form-control:focus,
 .form-select:focus {
   border-color: var(--brand-orange) !important;

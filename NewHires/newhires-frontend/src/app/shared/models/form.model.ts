@@ -21,6 +21,6 @@ export interface Submission {
   employeeId?: string;
   status: string;
   submittedAt?: string;
-  expiresAt?: string;  // <-- añade esto
+  expiresAt?: string;  
   token?: string;
 }

@@ -1,12 +1,10 @@
 package com.civica.newhires.auth.infrastructure.adapters.input.controllers;
 
+import com.civica.newhires.auth.application.dto.AdminUserDTO;
+import com.civica.newhires.auth.application.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import com.civica.newhires.auth.infrastructure.persistence.entities.AdminUserEntity;
-import com.civica.newhires.auth.infrastructure.persistence.repository.AdminUserRepository;
 
 import java.util.List;
 
@@ -16,12 +14,10 @@ import java.util.List;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminUserControllerGet {
 
-    private final AdminUserRepository adminUserRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AdminUserService adminUserService;
 
     @GetMapping
-    public ResponseEntity<List<AdminUserEntity>> getAll() {
-        return ResponseEntity.ok(adminUserRepository.findAll());
+    public ResponseEntity<List<AdminUserDTO>> getAll() {
+        return ResponseEntity.ok(adminUserService.getAllUsers());
     }
-
 }

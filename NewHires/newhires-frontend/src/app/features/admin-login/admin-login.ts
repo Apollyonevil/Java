@@ -1,4 +1,3 @@
-// src/app/features/admin-login/admin-login.ts
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -62,7 +61,7 @@ export class AdminLoginComponent {
     const credentials = btoa(`${this.username}:${this.password}`);
     const headers = new HttpHeaders({ 'Authorization': `Basic ${credentials}` });
 
-    // Verificamos las credenciales contra el backend
+  
     this.http.get('http://localhost:8080/api/admin/forms/submissions', { headers }).subscribe({
       next: () => {
         this.authService.login(this.username, this.password);

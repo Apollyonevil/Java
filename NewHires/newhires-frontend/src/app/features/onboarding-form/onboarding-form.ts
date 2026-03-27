@@ -90,7 +90,7 @@ export class OnboardingFormComponent implements OnInit {
   }
 
   delete this.fileErrors[fieldId];
-  this.fileMap.set(fieldId, file); // guardamos el original sin renombrar
+  this.fileMap.set(fieldId, file); 
   this.dynamicForm.get(fieldId)?.setValue(file.name);
   this.cdr.markForCheck();
   } 
@@ -131,7 +131,6 @@ private renameFile(file: File, placeholder: string): File {
 
   const { nombre, apellidos } = this.getNombreYApellidos();
   
-  // Formato: PREFIJO apellidos nombre (sin coma, con espacio)
   const nombreFormateado = apellidos && nombre
     ? `${apellidos} ${nombre}`
     : (apellidos || nombre || 'candidato');
@@ -159,7 +158,6 @@ private renameFile(file: File, placeholder: string): File {
     if (this.dynamicForm.valid) {
       this.loading = true;
 
-      // Renombramos todos los archivos justo antes de enviar
       const renamedFileMap = new Map<string, File>();
       this.fileMap.forEach((file, fieldId) => {
         const field = this.fields.find(f => f.id === fieldId);

@@ -5,14 +5,12 @@ import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 import com.civica.newhires.auth.domain.ports.output.UserIdentityPort;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
