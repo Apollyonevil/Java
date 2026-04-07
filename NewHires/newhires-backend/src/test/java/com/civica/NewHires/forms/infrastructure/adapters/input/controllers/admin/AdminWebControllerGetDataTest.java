@@ -29,7 +29,8 @@ class AdminWebControllerGetDataTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void deberiaObtenerDashboardData() throws Exception {
-        Submission submission = new Submission(UUID.randomUUID(), "Juan", "juan@test.com", "token");
+        Submission submission = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
+        
         when(getSubmissionsUseCase.execute()).thenReturn(List.of(submission));
 
         mockMvc.perform(get("/api/admin/forms/data"))

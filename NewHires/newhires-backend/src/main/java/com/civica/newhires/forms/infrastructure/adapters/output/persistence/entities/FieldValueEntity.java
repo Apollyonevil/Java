@@ -15,6 +15,9 @@ public class FieldValueEntity {
     private UUID fieldDefinitionId;
     private UUID employeeId;
 
+    private UUID submissionId;
+    private UUID fileResourceId;
+
     @Column(columnDefinition = "TEXT") 
     private String value;
 }

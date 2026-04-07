@@ -1,6 +1,9 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
+import com.civica.newhires.submissions.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
+import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
+import com.civica.newhires.submissions.domain.ports.output.CandidateRepository;
 import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
@@ -9,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -19,6 +21,8 @@ import java.util.UUID;
 public class AdminWebControllerPostInviteRenew {
 
     private final SubmissionRepository submissionRepository;
+    private final CandidateRepository candidateRepository;
+    private final AccessTokenRepository accessTokenRepository;
     private final NotificationPort notificationPort;
 
     @PostMapping("/submissions/{id}/renew")
@@ -26,28 +30,19 @@ public class AdminWebControllerPostInviteRenew {
         Submission submission = submissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
 
-        String newToken = UUID.randomUUID().toString();
-        submission.setToken(newToken);
-        submission.setExpiresAt(LocalDateTime.now().plusHours(48));
-        submissionRepository.save(submission);
+        var candidate = candidateRepository.findById(submission.getCandidateId())
+                .orElseThrow(() -> new RuntimeException("Candidato no encontrado: " + submission.getCandidateId()));
+
+        accessTokenRepository.invalidateAllBySubmissionId(submission.getId());
+        AccessToken newToken = new AccessToken(submission.getId());
+        accessTokenRepository.save(newToken);
 
         notificationPort.sendInvitation(
-            submission.getEmail(),
-            submission.getCandidateName(),
-            newToken
+            candidate.getEmail(),
+            candidate.getCandidateName(),
+            newToken.getToken()
         );
 
         return ResponseEntity.ok(submission);
-    }
-
-    public static class InviteRequest {
-        private String candidateName;
-        private String email;
-
-        public InviteRequest() {}
-        public String getCandidateName() { return candidateName; }
-        public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
     }
 }

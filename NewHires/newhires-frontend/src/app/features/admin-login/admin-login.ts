@@ -62,16 +62,18 @@ export class AdminLoginComponent {
     const headers = new HttpHeaders({ 'Authorization': `Basic ${credentials}` });
 
   
-    this.http.get('http://localhost:8080/api/admin/forms/submissions', { headers }).subscribe({
-      next: () => {
-        this.authService.login(this.username, this.password);
-        this.router.navigate(['/admin']);
-        this.loading = false;
-      },
-      error: () => {
-        this.error = true;
-        this.loading = false;
-      }
-    });
+this.http.get('http://localhost:8080/api/admin/forms/submissions', { headers }).subscribe({
+  next: () => {
+    localStorage.setItem('username', this.username); 
+
+    this.authService.login(this.username, this.password);
+    this.router.navigate(['/admin']);
+    this.loading = false;
+  },
+  error: () => {
+    this.error = true;
+    this.loading = false;
+  }
+});
   }
 }

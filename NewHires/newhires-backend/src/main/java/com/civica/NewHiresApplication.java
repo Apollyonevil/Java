@@ -10,4 +10,6 @@ public class NewHiresApplication {
         SpringApplication.run(NewHiresApplication.class, args);
     }
 
+    
+
 }

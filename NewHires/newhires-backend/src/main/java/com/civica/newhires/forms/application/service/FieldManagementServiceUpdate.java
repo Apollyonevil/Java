@@ -26,8 +26,10 @@ public class FieldManagementServiceUpdate implements ManageFieldsUseCaseUpdate {
             field.getType(),
             field.isRequired(),
             field.getPlaceholder(),
+            field.getFileNamingPrefix(),
             field.getOptions(),
-            field.getSortOrder()
+            field.getSortOrder(),
+            field.isActive()
         );
         formVersionRepository.deactivateAll();
         FieldDefinition saved = formRepository.saveDefinition(updatedField);
@@ -38,5 +40,4 @@ public class FieldManagementServiceUpdate implements ManageFieldsUseCaseUpdate {
 
         return saved;
     }
-
 }

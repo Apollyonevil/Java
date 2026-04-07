@@ -21,8 +21,10 @@ public class FormPersistenceMapper {
             entity.getType(),
             entity.isRequired(),
             entity.getPlaceholder(),
+            entity.getFileNamingPrefix(),
             entity.getOptions(),
-            entity.getSortOrder()
+            entity.getSortOrder(),
+            entity.isActive()
         );
     }
 
@@ -34,8 +36,10 @@ public class FormPersistenceMapper {
         entity.setType(domain.getType());
         entity.setRequired(domain.isRequired());
         entity.setPlaceholder(domain.getPlaceholder());
+        entity.setFileNamingPrefix(domain.getFileNamingPrefix());
         entity.setOptions(domain.getOptions());
         entity.setSortOrder(domain.getSortOrder());
+        entity.setActive(domain.isActive());
         return entity;
     }
 
@@ -45,35 +49,30 @@ public class FormPersistenceMapper {
         entity.setId(domain.getId());
         entity.setFieldDefinitionId(domain.getFieldDefinitionId());
         entity.setEmployeeId(domain.getEmployeeId());
+        entity.setSubmissionId(domain.getSubmissionId());
         entity.setValue(domain.getValue());
+        entity.setFileResourceId(domain.getFileResourceId());
         return entity;
     }
-
 
     public Submission toDomain(SubmissionEntity entity) {
         if (entity == null) return null;
         CandidateEntity candidate = entity.getCandidate();
         return new Submission(
             entity.getId(),
+            candidate != null ? candidate.getId() : null,
             candidate != null ? candidate.getEmployeeId() : null,
-            candidate != null ? candidate.getCandidateName() : null,
-            candidate != null ? candidate.getEmail() : null,
-            entity.getToken(),
             entity.getSubmittedAt(),
-            entity.getExpiresAt(),
             entity.getStatus()
         );
     }
-
 
     public SubmissionEntity toEntity(Submission domain, CandidateEntity candidate) {
         if (domain == null) return null;
         SubmissionEntity entity = new SubmissionEntity();
         entity.setId(domain.getId());
         entity.setCandidate(candidate);
-        entity.setToken(domain.getToken());
         entity.setSubmittedAt(domain.getSubmittedAt());
-        entity.setExpiresAt(domain.getExpiresAt());
         entity.setStatus(domain.getStatus());
         return entity;
     }

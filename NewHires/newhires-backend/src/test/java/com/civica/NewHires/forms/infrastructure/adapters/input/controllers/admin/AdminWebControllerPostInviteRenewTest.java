@@ -37,7 +37,7 @@ class AdminWebControllerPostInviteRenewTest {
     @WithMockUser(username = "admin", roles = "ADMIN")
     void deberiaRenovarTokenCorrectamente() throws Exception {
         UUID id = UUID.randomUUID();
-        Submission submission = new Submission(UUID.randomUUID(), "Juan", "juan@test.com", "token-viejo");
+        Submission submission = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
         when(submissionRepository.findById(id)).thenReturn(Optional.of(submission));
         doNothing().when(notificationPort).sendInvitation(any(), any(), any());
 

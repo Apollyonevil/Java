@@ -19,7 +19,6 @@ public class AdminWebControllerUpdateFields {
 
     private final ManageFieldsUseCaseUpdate manageFieldsUseCase;
 
-
     @PutMapping("/fields/{id}")
     public ResponseEntity<FieldDefinition> updateField(@PathVariable UUID id, @RequestBody FieldRequest request) {
         FieldDefinition field = new FieldDefinition(
@@ -28,8 +27,10 @@ public class AdminWebControllerUpdateFields {
             FieldType.valueOf(request.type()),
             request.required(),
             request.placeholder(),
+            request.fileNamingPrefix(),
             request.options(),
-            request.sortOrder()
+            request.sortOrder(),
+            true
         );
         return ResponseEntity.ok(manageFieldsUseCase.updateField(id, field));
     }

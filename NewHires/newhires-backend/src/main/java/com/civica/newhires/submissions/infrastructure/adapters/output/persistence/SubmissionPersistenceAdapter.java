@@ -24,16 +24,8 @@ public class SubmissionPersistenceAdapter implements SubmissionRepository {
 
     @Override
     public void save(Submission submission) {
-        // Primero guardamos o recuperamos el candidato
-        CandidateEntity candidate = candidateRepo.findByEmail(submission.getEmail())
-                .orElseGet(() -> {
-                    CandidateEntity newCandidate = new CandidateEntity();
-                    newCandidate.setId(submission.getEmployeeId());
-                    newCandidate.setCandidateName(submission.getCandidateName());
-                    newCandidate.setEmail(submission.getEmail());
-                    newCandidate.setEmployeeId(submission.getEmployeeId());
-                    return candidateRepo.save(newCandidate);
-                });
+        CandidateEntity candidate = candidateRepo.findById(submission.getCandidateId())
+                .orElseThrow(() -> new RuntimeException("Candidato no encontrado: " + submission.getCandidateId()));
 
         submissionRepo.save(mapper.toEntity(submission, candidate));
     }
@@ -62,6 +54,6 @@ public class SubmissionPersistenceAdapter implements SubmissionRepository {
 
     @Override
     public Optional<Submission> findByToken(String token) {
-        return submissionRepo.findByToken(token).map(mapper::toDomain);
+        return Optional.empty();
     }
 }

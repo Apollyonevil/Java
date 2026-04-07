@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AdminWebControllerGetSubmissions.class)
 @AutoConfigureMockMvc(addFilters = false)
-// Añadimos public para asegurar que el test runner lo vea
+
 public class AdminWebControllerGetSubmissionsTest {
 
     @Autowired 
@@ -31,9 +31,7 @@ public class AdminWebControllerGetSubmissionsTest {
 
     @Test
     public void debeRetornarListaDeSubmissions() throws Exception {
-        UUID empId = UUID.randomUUID();
-        // Nota: Asegúrate de que el constructor de Submission sea (UUID, String, String, String)
-        Submission sub = new Submission(empId, "Candidato Test", "test@test.com", "token123");
+    Submission sub = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
         
         when(getSubmissionsUseCase.execute()).thenReturn(List.of(sub));
 

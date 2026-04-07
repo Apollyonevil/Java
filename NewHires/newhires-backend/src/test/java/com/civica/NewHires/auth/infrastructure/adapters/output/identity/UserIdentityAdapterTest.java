@@ -28,7 +28,9 @@ public class UserIdentityAdapterTest {
         // Arrange
         String token = "abc-123";
         UUID expectedId = UUID.randomUUID();
-        Submission mockSub = new Submission(expectedId, "Pepe", "pepe@test.com", token);
+        UUID candidateId = UUID.randomUUID();
+        UUID employeeId = UUID.randomUUID();
+        Submission mockSub = new Submission(candidateId, employeeId, token);
         
         when(submissionRepository.findByToken(token)).thenReturn(Optional.of(mockSub));
 

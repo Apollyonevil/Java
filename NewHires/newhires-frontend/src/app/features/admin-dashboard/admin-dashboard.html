@@ -1,12 +1,13 @@
 <div class="container-fluid mt-4 px-4">
 
-  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center admin-header">
     <h4 class="admin-title mb-0">Panel de Administración</h4>
-    <button class="btn btn-sm btn-logout" (click)="logout()">Cerrar sesión</button>
+    <div class="d-flex align-items-center gap-3">
+      <span class="small text-muted">Usuario: <strong>{{currentUser}}</strong></span>
+      <button class="btn btn-sm btn-logout" (click)="logout()">Cerrar sesión</button>
+    </div>
   </div>
 
-  <!-- Pestañas -->
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'candidatos'" (click)="activeTab = 'candidatos'" style="cursor:pointer">
@@ -23,14 +24,15 @@
         Versiones del formulario
       </a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'administradores'" (click)="activeTab = 'administradores'" style="cursor:pointer">
-        Gestión de Administradores
-      </a>
-    </li>
+    @if (isAdminPrincipal()) {
+      <li class="nav-item">
+        <a class="nav-link" [class.active]="activeTab === 'administradores'" (click)="activeTab = 'administradores'" style="cursor:pointer">
+          Gestión de Empleados
+        </a>
+      </li>
+    }
   </ul>
 
-  <!-- Pestaña Candidatos -->
   @if (activeTab === 'candidatos') {
     <div class="row mb-5">
       <div class="col-12">
@@ -107,7 +109,6 @@
     </div>
   }
 
-  <!-- Pestaña Formulario -->
   @if (activeTab === 'formulario') {
     <div class="row pb-5">
       <div class="col-12">
@@ -146,8 +147,7 @@
     </div>
   }
 
-  <!-- Pestaña Versiones -->
-    @if (activeTab === 'versiones') {
+  @if (activeTab === 'versiones') {
     <div class="row pb-5">
       <div class="col-12">
         <div class="card shadow-sm mb-4 invite-card">
@@ -218,13 +218,12 @@
     </div>
   }
 
-  <!-- Pestaña Administradores -->
-  @if (activeTab === 'administradores') {
+  @if (activeTab === 'administradores' && isAdminPrincipal()) {
     <div class="row pb-5">
       <div class="col-12">
         <div class="card shadow-sm">
           <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
-            <h5 class="mb-0">Gestión de Administradores</h5>
+            <h5 class="mb-0">Gestión de Empleados</h5>
             <button class="btn btn-brand btn-sm" (click)="addNewUser()">+ Añadir Usuario</button>
           </div>
           <div class="table-responsive">
@@ -232,7 +231,7 @@
               <thead class="table-light">
                 <tr class="small text-uppercase">
                   <th>Usuario</th>
-                  <th>Estado</th>
+                  <th>Rol</th>
                   <th class="text-end px-4">Acciones</th>
                 </tr>
               </thead>
@@ -240,11 +239,15 @@
                 @for (user of adminUsers; track user.id) {
                   <tr>
                     <td class="small fw-bold">{{ user.username }}</td>
-                    <td><span class="badge bg-secondary" style="font-size: 0.7rem;">Activo</span></td>
+                    <td>
+                      <span class="badge" [class.bg-brand]="user.role === 'ADMIN'" [class.bg-secondary]="user.role !== 'ADMIN'" style="font-size: 0.7rem;">
+                        {{ user.role }}
+                      </span>
+                    </td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-brand" (click)="editUser(user)">Editar</button>
-                        <button class="btn btn-outline-secondary" (click)="deleteUser(user.id)">✕</button>
+                        <button class="btn btn-outline-secondary" (click)="deleteUser(user.id)" [disabled]="user.username === 'admin'">✕</button>
                       </div>
                     </td>
                   </tr>
@@ -259,7 +262,6 @@
 
 </div>
 
-<!-- Modal Editar Campo -->
 @if (editingField) {
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">
@@ -301,7 +303,6 @@
   </div>
 }
 
-<!-- Modal Editar Usuario -->
 @if (editingUser) {
   <div class="modal d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
     <div class="modal-dialog modal-dialog-centered">
@@ -314,6 +315,13 @@
           <div class="mb-3">
             <label class="form-label small fw-bold">Usuario</label>
             <input class="form-control" [(ngModel)]="editingUser.username" placeholder="nombre de usuario">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Rol asignado</label>
+            <select class="form-select" [(ngModel)]="editingUser.role">
+              <option value="ADMIN">ADMIN (Acceso total)</option>
+              <option value="EMPLOYEE">EMPLOYEE (Solo candidatos)</option>
+            </select>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Contraseña {{ editingUser.id ? '(dejar vacío para no cambiar)' : '' }}</label>

@@ -34,7 +34,6 @@ export class FormService {
   submitForm(token: string, textResponses: any[], files: Map<string, File>): Observable<void> {
     const formData = new FormData();
     formData.append('token', token);
-    // IMPORTANTE: Mantenemos el Blob para el JSON de respuestas
     formData.append('responses', new Blob([JSON.stringify(textResponses)], {
       type: 'application/json'
     }));
@@ -97,31 +96,32 @@ export class FormService {
     return this.http.delete<void>(`${this.adminUrl}/submissions/${id}`, this.getAdminHeaders());
   }
 
-  // --- GESTIÓN DE USUARIOS ---
+  // --- GESTIÓN DE USUARIOS (MODIFICADO CON ROLE) ---
 
   getAdminUsers(): Observable<any[]> { 
     return this.http.get<any[]>(this.usersUrl, this.getAdminHeaders()); 
   }
 
-  createAdminUser(username: string, password: string): Observable<any> { 
-    return this.http.post(this.usersUrl, { username, password }, this.getAdminHeaders()); 
+  // Ahora acepta 3 argumentos
+  createAdminUser(username: string, password: string, role: string): Observable<any> { 
+    return this.http.post(this.usersUrl, { username, password, role }, this.getAdminHeaders()); 
   }
 
-  updateAdminUser(id: string, username: string, password: string): Observable<any> { 
-    return this.http.put(`${this.usersUrl}/${id}`, { username, password }, this.getAdminHeaders()); 
+  // Ahora acepta 4 argumentos
+  updateAdminUser(id: string, username: string, password: string, role: string): Observable<any> { 
+    return this.http.put(`${this.usersUrl}/${id}`, { username, password, role }, this.getAdminHeaders()); 
   }
 
   deleteAdminUser(id: string): Observable<void> { 
     return this.http.delete<void>(`${this.usersUrl}/${id}`, this.getAdminHeaders()); 
   }
 
-  // --- GESTIÓN DE VERSIONES (CORREGIDO) ---
+  // --- GESTIÓN DE VERSIONES ---
 
   getFormVersions(): Observable<any[]> { 
     return this.http.get<any[]>(this.versionsUrl, this.getAdminHeaders()); 
   }
 
-  // Restaurado a 2 argumentos para que coincida con tu AdminDashboardComponent
   createFormVersion(createdBy: string, description: string): Observable<any> { 
     return this.http.post(this.versionsUrl, { createdBy, description }, this.getAdminHeaders()); 
   }

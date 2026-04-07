@@ -1,6 +1,7 @@
 package com.civica.newhires.auth.application.dto;
 
-public record AdminUserRequest(
+public record EmployeeRequest(
     String username,
-    String password
+    String password,
+    String role
 ) {}

@@ -37,7 +37,7 @@ class AdminWebControllerPostEmailTest {
     @WithMockUser(username = "admin", roles = "ADMIN")
     void deberiaEnviarEmailCorrectamente() throws Exception {
         UUID id = UUID.randomUUID();
-        Submission submission = new Submission(UUID.randomUUID(), "Juan", "juan@test.com", "token123");
+        Submission submission = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
         when(submissionRepository.findById(id)).thenReturn(Optional.of(submission));
         doNothing().when(notificationPort).sendInvitation(any(), any(), any());
 
