@@ -1,4 +1,4 @@
-package com.civica.newhires.submissions.domain.ports.output;
+package com.civica.newhires.notification.domain.ports.output;
 
 public interface NotificationPort {
     void sendSubmissionConfirmation(String toEmail, String candidateName);

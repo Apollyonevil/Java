@@ -1,15 +1,18 @@
-package com.civica.newhires.notification.infrastructure.adapters.output.notification;
+package com.civica.newhires.notification.infrastructure.adapters.output.mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
+import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 
+@Slf4j
 @Component("formsEmailNotificationAdapter")
 @RequiredArgsConstructor
 public class EmailNotificationAdapter implements NotificationPort {
@@ -37,20 +40,17 @@ public class EmailNotificationAdapter implements NotificationPort {
                     <tr>
                         <td align="center">
                             <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <!-- Header -->
                                 <tr>
                                     <td style="background-color:%s; padding: 30px 40px; text-align:center;">
                                         <h1 style="color:#ffffff; margin:0; font-size:24px; font-weight:700; letter-spacing:1px;">Cívica</h1>
                                         <p style="color:rgba(255,255,255,0.85); margin:8px 0 0 0; font-size:13px;">%s</p>
                                     </td>
                                 </tr>
-                                <!-- Body -->
                                 <tr>
                                     <td style="padding: 40px;">
                                         %s
                                     </td>
                                 </tr>
-                                <!-- Footer -->
                                 <tr>
                                     <td style="background-color:%s; padding: 20px 40px; text-align:center;">
                                         <p style="color:%s; margin:0; font-size:12px;">© 2026 Cívica · Este es un mensaje automático, por favor no respondas a este email.</p>
@@ -65,7 +65,12 @@ public class EmailNotificationAdapter implements NotificationPort {
             """.formatted(ORANGE, title, body, LIGHT, GRAY);
     }
 
-    private void sendHtmlEmail(String to, String subject, String title, String body) {
+    /**
+     * Enviamos de forma asíncrona para no bloquear el hilo principal.
+     * Capturamos la excepción aquí para que el error de red no afecte a la lógica de negocio.
+     */
+    @Async
+    protected void sendHtmlEmail(String to, String subject, String title, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -73,9 +78,13 @@ public class EmailNotificationAdapter implements NotificationPort {
             helper.setFrom("rrhh@civica.com");
             helper.setSubject(subject);
             helper.setText(buildEmail(title, body), true);
+            
             mailSender.send(message);
+            log.info("✅ Email enviado correctamente a: {}", to);
         } catch (MessagingException e) {
-            throw new RuntimeException("Error enviando email", e);
+            log.error("❌ Error al construir el mensaje de email para {}: {}", to, e.getMessage());
+        } catch (Exception e) {
+            log.error("⚠️ Error inesperado al enviar el email a {}: {}", to, e.getMessage());
         }
     }
 

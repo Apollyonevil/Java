@@ -1,8 +1,8 @@
 package com.civica.newhires.submissions.application.service;
 
+import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.ports.input.InviteCandidateUseCase;
-import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

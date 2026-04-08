@@ -9,11 +9,11 @@ import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
 import com.civica.newhires.forms.domain.ports.output.FileStoragePort;
 import com.civica.newhires.forms.domain.ports.output.FormPort;
 import com.civica.newhires.forms.domain.service.FormDomainService;
+import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
 import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
-import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -91,15 +91,6 @@ public class SubmitFormService implements SubmitFormUseCase {
         accessToken.markAsUsed();
         accessTokenRepository.save(accessToken);
 
-        try {
-            notificationPort.sendSubmissionConfirmation(employeeEmail, employeeName);
-            Thread.sleep(1500);
-            notificationPort.sendAdminNotification("rrhh@civica.com", employeeName);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (Exception e) {
-            System.err.println("⚠️ Email no enviado: " + e.getMessage());
-        }
     }
 
     private UUID parseUuid(Object id) {

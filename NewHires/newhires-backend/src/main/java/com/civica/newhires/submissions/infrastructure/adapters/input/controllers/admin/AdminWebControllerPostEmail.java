@@ -1,7 +1,7 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
+import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.model.Submission;
-import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
