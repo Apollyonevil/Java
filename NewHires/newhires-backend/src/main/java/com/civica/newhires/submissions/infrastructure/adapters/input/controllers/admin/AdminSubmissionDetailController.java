@@ -1,11 +1,11 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldValueEntity;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldValueEntity;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

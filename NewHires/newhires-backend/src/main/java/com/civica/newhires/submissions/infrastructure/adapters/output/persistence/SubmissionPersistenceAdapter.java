@@ -1,6 +1,10 @@
 package com.civica.newhires.submissions.infrastructure.adapters.output.persistence;
 
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.AccessTokenEntity;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaAccessTokenRepository;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaCandidateRepository;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFormVersionRepository;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 
 @Component
 @RequiredArgsConstructor

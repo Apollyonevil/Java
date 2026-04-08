@@ -3,6 +3,8 @@ package com.civica.newhires.forms.infrastructure.adapters.output.persistence.ent
 import jakarta.persistence.*;
 import java.util.UUID;
 
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
+
 @Entity
 @Table(name = "form_version_fields")
 public class FormVersionFieldEntity {

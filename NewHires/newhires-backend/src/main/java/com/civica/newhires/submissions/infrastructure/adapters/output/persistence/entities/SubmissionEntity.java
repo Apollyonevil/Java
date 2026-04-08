@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 
 @Entity
 @Table(name = "submissions")

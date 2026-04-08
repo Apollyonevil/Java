@@ -1,19 +1,19 @@
 package com.civica.newhires.submissions.application.service;
 
-import com.civica.newhires.auth.domain.ports.output.UserIdentityPort;
-import com.civica.newhires.forms.application.dto.FieldResponseDTO;
-import com.civica.newhires.forms.application.dto.FileInput;
-import com.civica.newhires.forms.domain.model.FieldDefinition;
-import com.civica.newhires.forms.domain.model.FieldValue;
-import com.civica.newhires.forms.domain.ports.input.SubmitFormUseCase;
-import com.civica.newhires.forms.domain.ports.output.FileStoragePort;
-import com.civica.newhires.forms.domain.ports.output.FormPort;
-import com.civica.newhires.forms.domain.service.FormDomainService;
+import com.civica.newhires.employee.domain.ports.output.UserIdentityPort;
+import com.civica.newhires.fields.domain.service.FormDomainService;
+import com.civica.newhires.fields.application.dto.FieldResponseDTO;
+import com.civica.newhires.fields.domain.model.FieldDefinition;
+import com.civica.newhires.fields.domain.model.FieldValue;
+import com.civica.newhires.fields.domain.ports.input.SubmitFormUseCase;
+import com.civica.newhires.fields.domain.ports.output.FormPort;
 import com.civica.newhires.notification.domain.ports.output.NotificationPort;
-import com.civica.newhires.submissions.domain.model.AccessToken;
+import com.civica.newhires.candidates.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
-import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
+import com.civica.newhires.candidates.domain.ports.output.AccessTokenRepository;
+import com.civica.newhires.documents.application.dto.FileInput;
+import com.civica.newhires.documents.domain.ports.output.FileStoragePort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
 import lombok.RequiredArgsConstructor;
