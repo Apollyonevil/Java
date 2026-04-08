@@ -5,20 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface JpaAccessTokenRepository extends JpaRepository<AccessTokenEntity, UUID> {
-
+public interface JpaAccessTokenRepository extends JpaRepository<AccessTokenEntity, Long> {
+    
     Optional<AccessTokenEntity> findByToken(String token);
 
-    List<AccessTokenEntity> findAllBySubmissionId(UUID submissionId);
+    // Nota el "_" para indicar que busque dentro del objeto submission el campo id
+    Optional<AccessTokenEntity> findFirstBySubmission_IdAndUsedFalseOrderByExpiresAtDesc(UUID submissionId);
 
-    Optional<AccessTokenEntity> findFirstBySubmissionIdAndUsedFalseOrderByExpiresAtDesc(UUID submissionId);
+    List<AccessTokenEntity> findAllBySubmission_Id(UUID submissionId);
 
     @Modifying
     @Query("UPDATE AccessTokenEntity a SET a.used = true WHERE a.submission.id = :submissionId")

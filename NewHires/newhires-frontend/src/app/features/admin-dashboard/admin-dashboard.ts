@@ -21,7 +21,7 @@ export class AdminDashboardComponent implements OnInit {
   isGenerating: boolean = false;
   sendingEmails: { [key: string]: boolean } = {};
   editingField: any = null;
-  editingUser: any = null; // Ahora incluirá el campo 'role'
+  editingUser: any = null;
   optionsText: string = '';
   newCandidateName: string = '';
   newCandidateEmail: string = '';
@@ -32,8 +32,9 @@ export class AdminDashboardComponent implements OnInit {
   selectedSubmission: any = null;
   submissionDetail: any = null;
   
-  // NUEVO: Para identificar al usuario actual
+  // Sincronizado con AuthService (sessionStorage)
   currentUser: string = '';
+  currentRole: string = '';
 
   constructor(
     private formService: FormService,
@@ -42,20 +43,29 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Obtenemos el usuario del localStorage (asegúrate de guardarlo al hacer login)
-    this.currentUser = localStorage.getItem('username') || '';
+    // CAMBIO CLAVE: Usar sessionStorage en lugar de localStorage
+    this.currentUser = sessionStorage.getItem('username') || '';
+    this.currentRole = sessionStorage.getItem('role') || '';
+    
+    // Si no hay usuario, forzamos logout para evitar pantalla vacía
+    if (!this.currentUser) {
+      this.authService.logout();
+      return;
+    }
+
     this.refreshData();
   }
 
-  // NUEVO: Verifica si es el administrador principal
+  // Verifica si es administrador principal o tiene rol ADMIN
   isAdminPrincipal(): boolean {
-    return this.currentUser === 'admin';
+    return this.currentRole === 'ADMIN' || this.currentUser === 'admin';
   }
 
   refreshData() {
     this.loadFormStructure();
     this.loadSubmissions();
-    // Solo cargamos usuarios si tenemos permiso
+    
+    // Solo cargamos la lista de empleados si es ADMIN
     if (this.isAdminPrincipal()) {
       this.loadAdminUsers();
     }
@@ -105,21 +115,30 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  generateInvitation() {
-    if (!this.newCandidateName || !this.newCandidateEmail || this.isGenerating) return;
-    this.isGenerating = true;
+generateInvitation() {
+  if (!this.newCandidateName || !this.newCandidateEmail || this.isGenerating) return;
+  this.isGenerating = true;
 
-    this.formService.createInvitation(this.newCandidateName, this.newCandidateEmail).subscribe({
-      next: (newSub) => {
-        this.submissions = [newSub, ...this.submissions];
+  this.formService.createInvitation(
+    this.newCandidateName, 
+    this.newCandidateEmail
+  ).subscribe({
+    next: () => {
+      // En lugar de añadirlo a mano, esperamos un momento y refrescamos
+      setTimeout(() => {
+        this.loadSubmissions(); // Recargamos la lista real de la DB
         this.newCandidateName = '';
         this.newCandidateEmail = '';
         this.isGenerating = false;
         this.cdr.markForCheck();
-      },
-      error: () => { this.isGenerating = false; }
-    });
-  }
+      }, 500); // 500ms es suficiente para que el commit de DB termine
+    },
+    error: () => { 
+      this.isGenerating = false;
+      alert('Error al generar la invitación. Inténtalo de nuevo.');
+    }
+  });
+}
 
   approveSubmission(id: string) {
     if (confirm('¿Confirmar aprobación de la documentación?')) {
@@ -315,7 +334,6 @@ export class AdminDashboardComponent implements OnInit {
     this.optionsText = '';
   }
 
-  // MODIFICADO: Añadimos rol por defecto
   addNewUser() {
     this.editingUser = { username: '', password: '', role: 'EMPLOYEE' };
   }
@@ -324,7 +342,6 @@ export class AdminDashboardComponent implements OnInit {
     this.editingUser = { ...user, password: '' };
   }
 
-  // MODIFICADO: Se asume que el service ahora acepta el objeto completo con role
   saveUser() {
     if (!this.editingUser.username) return;
 

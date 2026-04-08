@@ -9,7 +9,6 @@ import com.civica.newhires.submissions.infrastructure.adapters.output.persistenc
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -34,22 +33,26 @@ public class SubmissionStatusHistoryPersistenceAdapter implements SubmissionStat
 
         SubmissionStatusHistoryEntity saved = historyRepo.save(entity);
 
-        return history; 
+        // Devolvemos el objeto mapeado desde la entidad guardada
+        return new SubmissionStatusHistory(
+            saved.getId(),
+            saved.getSubmission().getId(),
+            saved.getStatus(),
+            saved.getChangedAt(),
+            saved.getChangedBy()
+        );
     }
 
-        @Override
-        public List<SubmissionStatusHistory> findAllBySubmissionId(UUID submissionId) {
-            return historyRepo.findBySubmissionId(submissionId).stream()
-                    .map(entity -> {
-                        // En lugar de "new" y "setters", usamos el constructor con todos los parámetros
-                        return new SubmissionStatusHistory(
-                            entity.getId(),
-                            entity.getSubmission().getId(),
-                            entity.getStatus(),
-                            entity.getChangedAt(),
-                            entity.getChangedBy()
-                        );
-                    })
-                    .toList();
-        }
+    @Override
+    public List<SubmissionStatusHistory> findAllBySubmissionId(UUID submissionId) {
+        return historyRepo.findBySubmissionId(submissionId).stream()
+                .map(entity -> new SubmissionStatusHistory(
+                    entity.getId(),
+                    entity.getSubmission().getId(),
+                    entity.getStatus(),
+                    entity.getChangedAt(),
+                    entity.getChangedBy()
+                ))
+                .toList();
+    }
 }

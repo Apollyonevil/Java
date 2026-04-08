@@ -2,44 +2,44 @@ package com.civica.newhires.submissions.domain.model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
 
+@Getter
 public class AccessToken {
-    private final UUID id;
     private final UUID submissionId;
     private final String token;
     private final LocalDateTime expiresAt;
-    private boolean used;
+    private boolean used; // Quitamos el final para poder marcarlo como usado
 
-    public AccessToken(UUID submissionId) {
-        this.id = UUID.randomUUID();
-        this.submissionId = submissionId;
-        this.token = UUID.randomUUID().toString();
-        this.expiresAt = LocalDateTime.now().plusHours(48);
-        this.used = false;
-    }
-
-    public AccessToken(UUID id, UUID submissionId, String token,
-                       LocalDateTime expiresAt, boolean used) {
-        this.id = id;
+    // Constructor completo para el Mapper/Adapter
+    public AccessToken(UUID submissionId, String token, LocalDateTime expiresAt, boolean used) {
         this.submissionId = submissionId;
         this.token = token;
         this.expiresAt = expiresAt;
         this.used = used;
     }
 
-    public void markAsUsed() { this.used = true; }
-
-    public boolean isExpired() {
-        return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    // Constructor de conveniencia para nuevos tokens
+    public AccessToken(UUID submissionId) {
+        this.submissionId = submissionId;
+        this.token = UUID.randomUUID().toString();
+        this.expiresAt = LocalDateTime.now().plusHours(48);
+        this.used = false;
     }
 
+    // --- MÉTODOS QUE SOLUCIONAN TU ERROR ---
+
+    /**
+     * Verifica si el token no ha sido usado y no ha expirado.
+     */
     public boolean isValid() {
-        return !used && !isExpired();
+        return !used && (expiresAt == null || LocalDateTime.now().isBefore(expiresAt));
     }
 
-    public UUID getId() { return id; }
-    public UUID getSubmissionId() { return submissionId; }
-    public String getToken() { return token; }
-    public LocalDateTime getExpiresAt() { return expiresAt; }
-    public boolean isUsed() { return used; }
+    /**
+     * Cambia el estado del token a usado.
+     */
+    public void markAsUsed() {
+        this.used = true;
+    }
 }

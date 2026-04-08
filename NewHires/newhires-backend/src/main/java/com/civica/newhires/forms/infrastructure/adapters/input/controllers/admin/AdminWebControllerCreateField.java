@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/forms")
@@ -19,7 +20,9 @@ public class AdminWebControllerCreateField {
 
     private final ManageFieldsUseCaseCreate manageFieldsUseCase;
 
+    // Record bien definido: Sin métodos ni variables de instancia dentro
     public record FieldRequest(
+        UUID id,
         String label,
         String type,
         boolean required,
@@ -32,9 +35,9 @@ public class AdminWebControllerCreateField {
     @PostMapping("/fields")
     public ResponseEntity<FieldDefinition> saveField(@RequestBody FieldRequest request) {
         FieldDefinition field = new FieldDefinition(
-            null,
+            request.id(), // <--- Cambiado: Si el Front envía ID, lo usamos para editar
             request.label(),
-            FieldType.valueOf(request.type()),
+            FieldType.valueOf(request.type().toUpperCase()), // .toUpperCase() para evitar errores de case
             request.required(),
             request.placeholder(),
             request.fileNamingPrefix(),

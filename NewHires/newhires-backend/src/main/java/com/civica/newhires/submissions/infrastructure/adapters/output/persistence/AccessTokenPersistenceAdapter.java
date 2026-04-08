@@ -10,7 +10,6 @@ import com.civica.newhires.submissions.infrastructure.adapters.output.persistenc
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,12 +22,14 @@ public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
     private final JpaSubmissionRepository submissionRepo;
 
     @Override
+    @Transactional
     public AccessToken save(AccessToken accessToken) {
         SubmissionEntity submission = submissionRepo.findById(accessToken.getSubmissionId())
                 .orElseThrow(() -> new RuntimeException("Submission no encontrada: " + accessToken.getSubmissionId()));
 
-        AccessTokenEntity entity = new AccessTokenEntity();
-        entity.setId(accessToken.getId());
+        AccessTokenEntity entity = accessTokenRepo.findByToken(accessToken.getToken())
+                .orElse(new AccessTokenEntity());
+        
         entity.setSubmission(submission);
         entity.setToken(accessToken.getToken());
         entity.setExpiresAt(accessToken.getExpiresAt());
@@ -45,14 +46,15 @@ public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
 
     @Override
     public Optional<AccessToken> findValidBySubmissionId(UUID submissionId) {
-        return accessTokenRepo
-                .findFirstBySubmissionIdAndUsedFalseOrderByExpiresAtDesc(submissionId)
+        // Llamada corregida con el nombre exacto del método del repo
+        return accessTokenRepo.findFirstBySubmission_IdAndUsedFalseOrderByExpiresAtDesc(submissionId)
                 .map(this::toDomain);
     }
 
     @Override
     public List<AccessToken> findAllBySubmissionId(UUID submissionId) {
-        return accessTokenRepo.findAllBySubmissionId(submissionId)
+        // Llamada corregida con el nombre exacto del método del repo
+        return accessTokenRepo.findAllBySubmission_Id(submissionId)
                 .stream()
                 .map(this::toDomain)
                 .toList();
@@ -65,8 +67,8 @@ public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
     }
 
     private AccessToken toDomain(AccessTokenEntity entity) {
+        // Ahora el constructor de AccessToken coincide con estos parámetros
         return new AccessToken(
-            entity.getId(),
             entity.getSubmission().getId(),
             entity.getToken(),
             entity.getExpiresAt(),

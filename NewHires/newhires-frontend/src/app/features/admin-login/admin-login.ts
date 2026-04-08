@@ -15,7 +15,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
         <div class="col-md-4">
           <div class="card shadow border-0">
             <div class="card-header bg-dark text-white text-center py-3">
-              <h5 class="mb-0">Acceso Administración</h5>
+              <h5 class="mb-0">Acceso Empleados</h5>
             </div>
             <div class="card-body p-4">
               @if (error) {

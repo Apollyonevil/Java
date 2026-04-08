@@ -18,7 +18,7 @@ export interface Submission {
   id?: string;
   candidateName: string;
   email: string;
-  employeeId?: string;
+  employee_id?: string;
   status: string;
   submittedAt?: string;
   expiresAt?: string;  

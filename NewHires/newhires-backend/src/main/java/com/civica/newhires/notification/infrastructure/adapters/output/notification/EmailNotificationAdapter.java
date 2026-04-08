@@ -1,4 +1,4 @@
-package com.civica.newhires.submissions.infrastructure.adapters.output.notification;
+package com.civica.newhires.notification.infrastructure.adapters.output.notification;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

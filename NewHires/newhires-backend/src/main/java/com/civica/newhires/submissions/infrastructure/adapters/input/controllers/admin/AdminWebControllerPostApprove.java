@@ -4,7 +4,6 @@ import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
 import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
-import com.civica.newhires.submissions.domain.ports.output.CandidateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,24 +16,24 @@ import java.util.UUID;
 public class AdminWebControllerPostApprove {
 
     private final SubmissionRepository submissionRepository;
-    private final CandidateRepository candidateRepository;
     private final NotificationPort notificationPort;
 
     @PostMapping("/submissions/{id}/approve")
     public ResponseEntity<Submission> approveSubmission(@PathVariable UUID id) {
-        // Buscamos por el ID de la submission, que es lo que envía Angular
+        // 1. Buscamos la submission. Al recuperarla del adapter, ya trae el nombre y email.
         Submission submission = submissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró la submission con ID: " + id));
-        
-        var candidate = candidateRepository.findById(submission.getCandidateId())
-            .orElseThrow(() -> new RuntimeException("Candidato no encontrado: " + submission.getCandidateId()));
 
+        // 2. Actualizamos el estado
         submission.setStatus(SubmissionStatus.APPROVED);
+        
+        // 3. Guardamos los cambios
         submissionRepository.save(submission);
 
+        // 4. Notificación usando los datos que ya están en el objeto submission
         notificationPort.sendApprovalNotice(
-        candidate.getEmail(), 
-        candidate.getCandidateName()
+            submission.getEmail(), 
+            submission.getCandidateName()
         );
 
         return ResponseEntity.ok(submission);

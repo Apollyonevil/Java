@@ -5,33 +5,56 @@ import java.util.UUID;
 
 public class Submission {
     private final UUID id;
-    private final UUID candidateId;
-    private final UUID employeeId;
+    private final UUID employeeId; 
+    private final String candidateName;
+    private final String email;
     private final LocalDateTime submittedAt;
+    private LocalDateTime expiresAt;
+    private String token;
     private SubmissionStatus status;
 
-    public Submission(UUID candidateId, UUID employeeId) {
-        this.id = UUID.randomUUID();
-        this.candidateId = candidateId;
-        this.employeeId = employeeId;
+    // 1. Constructor para NUEVAS invitaciones
+    public Submission(UUID employeeId, String candidateName, String email, String token) {
+        this.id = UUID.randomUUID(); 
+        this.employeeId = (employeeId != null) ? employeeId : UUID.randomUUID();
+        this.candidateName = candidateName;
+        this.email = email;
+        this.token = token;
         this.submittedAt = LocalDateTime.now();
-        this.status = SubmissionStatus.PENDING_INVITE;
+        this.expiresAt = LocalDateTime.now().plusHours(48); 
+        this.status = SubmissionStatus.PENDING_INVITE; 
     }
 
-    public Submission(UUID id, UUID candidateId, UUID employeeId,
-                      LocalDateTime submittedAt, SubmissionStatus status) {
+    // 2. Constructor para RECONSTRUCCIÓN (El que necesita el Mapper)
+    public Submission(UUID id, UUID employeeId, String candidateName, String email, 
+                      String token, LocalDateTime submittedAt, LocalDateTime expiresAt, 
+                      SubmissionStatus status) {
         this.id = id;
-        this.candidateId = candidateId;
         this.employeeId = employeeId;
+        this.candidateName = candidateName;
+        this.email = email;
+        this.token = token;
         this.submittedAt = submittedAt;
+        this.expiresAt = expiresAt;
         this.status = status;
     }
 
+    // Getters
+    public UUID getId() { return id; }
+    public UUID getEmployeeId() { return employeeId; }
+    public String getCandidateName() { return candidateName; }
+    public String getEmail() { return email; }
+    public String getToken() { return token; }
+    public LocalDateTime getSubmittedAt() { return submittedAt; }
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public SubmissionStatus getStatus() { return status; }
+
+    // Setters
+    public void setToken(String token) { this.token = token; }
+    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
     public void setStatus(SubmissionStatus status) { this.status = status; }
 
-    public UUID getId() { return id; }
-    public UUID getCandidateId() { return candidateId; }
-    public UUID getEmployeeId() { return employeeId; }
-    public LocalDateTime getSubmittedAt() { return submittedAt; }
-    public SubmissionStatus getStatus() { return status; }
+    public boolean isTokenExpired() {
+        return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    }
 }

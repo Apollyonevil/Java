@@ -4,13 +4,13 @@ import com.civica.newhires.submissions.domain.model.Candidate;
 import com.civica.newhires.submissions.domain.ports.output.CandidateRepository;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.repository.JpaCandidateRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -20,10 +20,23 @@ public class CandidatePersistenceAdapter implements CandidateRepository {
 
     @Override
     public Candidate save(Candidate candidate) {
-        CandidateEntity entity = toEntity(candidate);
-        CandidateEntity saved = candidateRepo.save(entity);
-        return toDomain(saved);
+        CandidateEntity entity = new CandidateEntity();
+        entity.setId(candidate.getId()); 
+        entity.setCandidateName(candidate.getCandidateName());
+        entity.setEmail(candidate.getEmail());
+
+        // El flush es vital para que el ID exista antes de crear la submission
+        CandidateEntity saved = candidateRepo.saveAndFlush(entity);
+        
+        return new Candidate(saved.getId(), saved.getCandidateName(), saved.getEmail());
     }
+
+    @Override
+    public Optional<Candidate> findByEmail(String email) {
+        return candidateRepo.findByEmail(email)
+                .map(e -> new Candidate(e.getId(), e.getCandidateName(), e.getEmail()));
+    }
+
 
     @Override
     public Optional<Candidate> findById(UUID id) {
@@ -31,15 +44,11 @@ public class CandidatePersistenceAdapter implements CandidateRepository {
     }
 
     @Override
-    public Optional<Candidate> findByEmail(String email) {
-        return candidateRepo.findByEmail(email).map(this::toDomain);
-    }
-
-    @Override
     public List<Candidate> findAll() {
-        return candidateRepo.findAll().stream()
+        return candidateRepo.findAll()
+                .stream()
                 .map(this::toDomain)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -47,19 +56,10 @@ public class CandidatePersistenceAdapter implements CandidateRepository {
         candidateRepo.deleteById(id);
     }
 
-    private CandidateEntity toEntity(Candidate candidate) {
-        CandidateEntity entity = new CandidateEntity();
-        entity.setId(candidate.getId());
-        entity.setEmployeeId(candidate.getEmployeeId());
-        entity.setCandidateName(candidate.getCandidateName());
-        entity.setEmail(candidate.getEmail());
-        return entity;
-    }
-
     private Candidate toDomain(CandidateEntity entity) {
+        // CRUCIAL: Usamos entity.getId(), nunca generamos un UUID nuevo aquí
         return new Candidate(
             entity.getId(),
-            entity.getEmployeeId(),
             entity.getCandidateName(),
             entity.getEmail()
         );

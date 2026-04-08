@@ -2,7 +2,6 @@ package com.civica.newhires.submissions.infrastructure.adapters.output.persisten
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 
 import java.util.Optional;
