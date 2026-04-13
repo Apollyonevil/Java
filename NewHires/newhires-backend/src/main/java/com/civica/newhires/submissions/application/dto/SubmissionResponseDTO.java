@@ -12,5 +12,6 @@ public record SubmissionResponseDTO(
     String employeeFullName, 
     LocalDateTime createdAt, 
     LocalDateTime submittedAt, 
-    SubmissionStatus status
+    SubmissionStatus status,
+    String token
 ) {}

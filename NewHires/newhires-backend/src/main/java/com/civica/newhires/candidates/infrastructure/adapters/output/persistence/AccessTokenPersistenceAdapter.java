@@ -1,7 +1,7 @@
 package com.civica.newhires.candidates.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.candidates.domain.model.AccessToken;
-import com.civica.newhires.candidates.domain.ports.output.AccessTokenRepository;
+import com.civica.newhires.candidates.domain.ports.output.AccessTokenPort;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.AccessTokenEntity;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaAccessTokenRepository;
@@ -16,28 +16,29 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
+public class AccessTokenPersistenceAdapter implements AccessTokenPort {
 
     private final JpaAccessTokenRepository accessTokenRepo;
     private final JpaSubmissionRepository submissionRepo;
 
-    @Override
-    @Transactional
-    public AccessToken save(AccessToken accessToken) {
-        SubmissionEntity submission = submissionRepo.findById(accessToken.getSubmissionId())
-                .orElseThrow(() -> new RuntimeException("Submission no encontrada: " + accessToken.getSubmissionId()));
+@Override
+@Transactional
+public AccessToken save(AccessToken accessToken) {
+    SubmissionEntity submission = submissionRepo.findById(accessToken.getSubmissionId())
+            .orElseThrow(() -> new RuntimeException("Submission no encontrada: " + accessToken.getSubmissionId()));
 
-        AccessTokenEntity entity = accessTokenRepo.findByToken(accessToken.getToken())
-                .orElse(new AccessTokenEntity());
-        
-        entity.setSubmission(submission);
-        entity.setToken(accessToken.getToken());
-        entity.setExpiresAt(accessToken.getExpiresAt());
-        entity.setUsed(accessToken.isUsed());
+    // Buscar si ya existe para hacer UPDATE, si no existe hacer INSERT
+    AccessTokenEntity entity = accessTokenRepo.findByToken(accessToken.getToken())
+            .orElse(new AccessTokenEntity());
 
-        AccessTokenEntity saved = accessTokenRepo.save(entity);
-        return toDomain(saved);
-    }
+    entity.setSubmission(submission);
+    entity.setToken(accessToken.getToken());
+    entity.setExpiresAt(accessToken.getExpiresAt());
+    entity.setUsed(accessToken.isUsed());
+
+    AccessTokenEntity saved = accessTokenRepo.save(entity);
+    return toDomain(saved);
+}
 
     @Override
     public Optional<AccessToken> findByToken(String token) {
@@ -45,16 +46,23 @@ public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
     }
 
     @Override
-    public Optional<AccessToken> findValidBySubmissionId(UUID submissionId) {
-        // Llamada corregida con el nombre exacto del método del repo
-        return accessTokenRepo.findFirstBySubmission_IdAndUsedFalseOrderByExpiresAtDesc(submissionId)
-                .map(this::toDomain);
+    @Transactional
+    public void deleteBySubmissionId(UUID submissionId) {
+        // Este es el método que acabamos de añadir al JpaAccessTokenRepository con @Query
+        accessTokenRepo.deleteBySubmissionId(submissionId);
     }
 
     @Override
+    public Optional<AccessToken> findValidBySubmissionId(UUID submissionId) {
+        return accessTokenRepo.findValidTokens(submissionId)
+                .stream()
+                .findFirst() // Cogemos el primero (el más reciente por el ORDER BY)
+                .map(this::toDomain);
+    }
+
+        @Override
     public List<AccessToken> findAllBySubmissionId(UUID submissionId) {
-        // Llamada corregida con el nombre exacto del método del repo
-        return accessTokenRepo.findAllBySubmission_Id(submissionId)
+        return accessTokenRepo.findAllBySubmissionId(submissionId) // Nombre corregido
                 .stream()
                 .map(this::toDomain)
                 .toList();
@@ -67,7 +75,6 @@ public class AccessTokenPersistenceAdapter implements AccessTokenRepository {
     }
 
     private AccessToken toDomain(AccessTokenEntity entity) {
-        // Ahora el constructor de AccessToken coincide con estos parámetros
         return new AccessToken(
             entity.getSubmission().getId(),
             entity.getToken(),

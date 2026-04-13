@@ -1,7 +1,7 @@
 package com.civica.newhires.candidates.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.candidates.domain.model.Candidate;
-import com.civica.newhires.candidates.domain.ports.output.CandidateRepository;
+import com.civica.newhires.candidates.domain.ports.output.CandidatePort;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaCandidateRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class CandidatePersistenceAdapter implements CandidateRepository {
+public class CandidatePersistenceAdapter implements CandidatePort {
 
     private final JpaCandidateRepository candidateRepo;
 

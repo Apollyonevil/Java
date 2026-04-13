@@ -2,7 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormService } from '../../core/services/form';
-import { FieldDefinition, Submission } from '../../shared/models/form.model';
+import { FieldDefinition } from '../../shared/models/form.model';
+import { Submission } from '../../shared/models/submission.model';
 import { AuthService } from '../../core/services/auth';
 
 @Component({
@@ -32,7 +33,6 @@ export class AdminDashboardComponent implements OnInit {
   selectedSubmission: any = null;
   submissionDetail: any = null;
   
-  // Sincronizado con AuthService (sessionStorage)
   currentUser: string = '';
   currentRole: string = '';
 
@@ -43,11 +43,9 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // CAMBIO CLAVE: Usar sessionStorage en lugar de localStorage
     this.currentUser = sessionStorage.getItem('username') || '';
     this.currentRole = sessionStorage.getItem('role') || '';
     
-    // Si no hay usuario, forzamos logout para evitar pantalla vacía
     if (!this.currentUser) {
       this.authService.logout();
       return;
@@ -56,7 +54,6 @@ export class AdminDashboardComponent implements OnInit {
     this.refreshData();
   }
 
-  // Verifica si es administrador principal o tiene rol ADMIN
   isAdminPrincipal(): boolean {
     return this.currentRole === 'ADMIN' || this.currentUser === 'admin';
   }
@@ -65,7 +62,6 @@ export class AdminDashboardComponent implements OnInit {
     this.loadFormStructure();
     this.loadSubmissions();
     
-    // Solo cargamos la lista de empleados si es ADMIN
     if (this.isAdminPrincipal()) {
       this.loadAdminUsers();
     }
@@ -88,8 +84,9 @@ export class AdminDashboardComponent implements OnInit {
     this.formService.getAllSubmissions().subscribe({
       next: (data) => {
         this.submissions = [...data].sort((a, b) => {
-          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
-          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+          // Usamos createdAt como fallback si no hay submittedAt
+          const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : new Date(a.createdAt || 0).getTime();
+          const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : new Date(b.createdAt || 0).getTime();
           return dateB - dateA;
         });
         this.cdr.markForCheck();
@@ -115,30 +112,29 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-generateInvitation() {
-  if (!this.newCandidateName || !this.newCandidateEmail || this.isGenerating) return;
-  this.isGenerating = true;
+  generateInvitation() {
+    if (!this.newCandidateName || !this.newCandidateEmail || this.isGenerating) return;
+    this.isGenerating = true;
 
-  this.formService.createInvitation(
-    this.newCandidateName, 
-    this.newCandidateEmail
-  ).subscribe({
-    next: () => {
-      // En lugar de añadirlo a mano, esperamos un momento y refrescamos
-      setTimeout(() => {
-        this.loadSubmissions(); // Recargamos la lista real de la DB
-        this.newCandidateName = '';
-        this.newCandidateEmail = '';
+    this.formService.createInvitation(
+      this.newCandidateName, 
+      this.newCandidateEmail
+    ).subscribe({
+      next: () => {
+        setTimeout(() => {
+          this.loadSubmissions();
+          this.newCandidateName = '';
+          this.newCandidateEmail = '';
+          this.isGenerating = false;
+          this.cdr.markForCheck();
+        }, 500);
+      },
+      error: () => { 
         this.isGenerating = false;
-        this.cdr.markForCheck();
-      }, 500); // 500ms es suficiente para que el commit de DB termine
-    },
-    error: () => { 
-      this.isGenerating = false;
-      alert('Error al generar la invitación. Inténtalo de nuevo.');
-    }
-  });
-}
+        alert('Error al generar la invitación.');
+      }
+    });
+  }
 
   approveSubmission(id: string) {
     if (confirm('¿Confirmar aprobación de la documentación?')) {
@@ -190,35 +186,20 @@ generateInvitation() {
       this.editingField.options = this.optionsText.split(',').map((o: string) => o.trim());
     }
 
-    if (this.editingField.sortOrder == null) {
-      const index = this.fields.findIndex(f => f.id === this.editingField.id);
-      this.editingField.sortOrder = index !== -1 ? index : this.fields.length;
-    }
-
     const request$ = this.editingField.id
       ? this.formService.updateField(this.editingField)
       : this.formService.saveField(this.editingField);
 
     request$.subscribe({
       next: (savedField) => {
-        const index = this.fields.findIndex(f => f.id === savedField.id);
-        if (index !== -1) {
-          const newFields = [...this.fields];
-          newFields[index] = savedField;
-          this.fields = newFields;
-        } else {
-          this.fields = [...this.fields, savedField];
-        }
+        this.loadFormStructure();
         this.editingField = null;
         this.optionsText = '';
         this.loading = false;
         this.loadFormVersions();
         this.cdr.markForCheck();
       },
-      error: (err) => {
-        this.loading = false;
-        console.error(err);
-      }
+      error: () => { this.loading = false; }
     });
   }
 
@@ -241,15 +222,13 @@ generateInvitation() {
     });
 
     this.fields = list;
-    this.loadFormVersions();
     this.cdr.markForCheck();
   }
 
   deleteField(id: string) {
-    if (confirm('¿Eliminar?')) {
+    if (confirm('¿Eliminar campo?')) {
       this.formService.deleteField(id).subscribe(() => {
         this.fields = this.fields.filter(f => f.id !== id);
-        this.loadFormVersions();
         this.cdr.markForCheck();
       });
     }
@@ -274,9 +253,9 @@ generateInvitation() {
     });
   }
 
-  downloadFile(filename: string) {
+  downloadFile(fileResourceId: string) {
     const credentials = this.authService.getCredentials();
-    const url = `${this.formService.getAdminUrl()}/files/${encodeURIComponent(filename)}`;
+    const url = `http://localhost:8080/api/documents/download/${fileResourceId}`;
 
     fetch(url, {
       headers: { 'Authorization': `Basic ${credentials}` }
@@ -285,7 +264,7 @@ generateInvitation() {
     .then(blob => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = filename;
+      link.download = fileResourceId;
       link.click();
       URL.revokeObjectURL(link.href);
     });
@@ -304,13 +283,51 @@ generateInvitation() {
     });
   }
 
-  copyTokenLink(token: string) {
-    const url = `${window.location.origin}/onboarding?token=${token}`;
-    navigator.clipboard.writeText(url);
-    alert('Link copiado');
+  // CORRECCIÓN: Manejo seguro del token para evitar errores de compilación
+  copyTokenLink(token: string | undefined | null) {
+  // 1. Diagnóstico: Abre la consola (F12) y mira qué sale aquí
+  console.log('Intentando copiar token:', token);
+
+  if (!token) {
+    alert('El servidor no ha enviado ningún token para este candidato. Revisa el DTO en el Backend.');
+    return;
   }
 
-  isExpired(expiresAt: string): boolean {
+  const url = `${window.location.origin}/onboarding?token=${token}`;
+
+  // 2. Método moderno
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url)
+      .then(() => alert('¡Link copiado al portapapeles!'))
+      .catch(err => {
+        console.error('Error con navigator.clipboard:', err);
+        this.fallbackCopyTextToClipboard(url);
+      });
+  } else {
+    // 3. Método de respaldo (Fallback) para entornos no seguros (http)
+    this.fallbackCopyTextToClipboard(url);
+  }
+}
+
+// Método "antiguo" pero infalible
+private fallbackCopyTextToClipboard(text: string) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    alert('Link copiado (vía fallback)');
+  } catch (err) {
+    alert('No se pudo copiar el link. Por favor, hazlo manualmente.');
+  }
+  document.body.removeChild(textArea);
+}
+
+  // CORRECCIÓN: Método robusto para el HTML
+  isExpired(expiresAt: string | null | undefined): boolean {
+    if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();
   }
 
@@ -379,7 +396,7 @@ generateInvitation() {
   }
 
   activateVersion(id: string) {
-    if (confirm('¿Activar esta versión? El formulario se restaurará a este estado.')) {
+    if (confirm('¿Activar esta versión?')) {
       this.formService.activateFormVersion(id).subscribe({
         next: () => {
           this.loadFormVersions();

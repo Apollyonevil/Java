@@ -1,34 +1,42 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   login(username: string, password: string): void {
-    // Guardamos las credenciales en Base64 como hacias antes
+    // 1. Preparamos las credenciales
     const credentials = btoa(`${username}:${password}`);
-    sessionStorage.setItem('admin_credentials', credentials);
-    
-    // IMPORTANTE: Guardamos el username y el role para que el Dashboard funcione.
-    // Como es un login local, asignamos ADMIN por defecto o basado en el nombre.
-    sessionStorage.setItem('username', username);
-    
-    if (username.toLowerCase() === 'admin') {
-      sessionStorage.setItem('role', 'ADMIN');
-    } else {
-      sessionStorage.setItem('role', 'EMPLOYEE');
-    }
+    const headers = new HttpHeaders({
+      Authorization: `Basic ${credentials}`
+    });
 
-    // Navegamos al dashboard tras el "login"
-    this.router.navigate(['/admin/dashboard']);
+    // 2. Llamamos al "espejo" que creamos en el Backend
+    // Usamos GET y la ruta que definimos en el AuthController
+    this.http.get<any>('http://localhost:8080/api/auth/me', { headers }).subscribe({
+      next: (user) => {
+        // 3. ¡Ahora sí! Guardamos los datos reales del servidor
+        sessionStorage.setItem('admin_credentials', credentials);
+        sessionStorage.setItem('username', user.username);
+        sessionStorage.setItem('user_id', user.id); // Aquí llega el 8888... real
+        sessionStorage.setItem('role', user.role);
+
+        this.router.navigate(['/admin/dashboard']);
+      },
+      error: (err) => {
+        console.error('Error en el login:', err);
+        alert('Usuario o contraseña incorrectos');
+      }
+    });
   }
 
   logout(): void {
-    sessionStorage.clear(); // Limpiamos todo
+    sessionStorage.clear();
     this.router.navigate(['/admin/login']);
   }
 
@@ -36,7 +44,6 @@ export class AuthService {
     return sessionStorage.getItem('admin_credentials');
   }
 
-  // Este es el método que pedía el Guard
   isAuthenticated(): boolean {
     return !!this.getCredentials();
   }

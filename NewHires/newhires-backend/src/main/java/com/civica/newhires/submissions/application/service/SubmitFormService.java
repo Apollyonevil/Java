@@ -11,36 +11,42 @@ import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.candidates.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
-import com.civica.newhires.candidates.domain.ports.output.AccessTokenRepository;
+import com.civica.newhires.submissions.domain.model.SubmissionStatusHistory;
+import com.civica.newhires.candidates.domain.ports.output.AccessTokenPort;
 import com.civica.newhires.documents.application.dto.FileInput;
-import com.civica.newhires.documents.domain.ports.output.FileStoragePort;
-import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.documents.domain.model.FileResource;
+import com.civica.newhires.documents.domain.ports.input.UploadFileUseCase;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionStatusHistoryPort;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SubmitFormService implements SubmitFormUseCase {
 
     private final FormPort formRepository;
-    private final SubmissionRepository submissionRepository;
-    private final AccessTokenRepository accessTokenRepository;
+    private final SubmissionPort submissionRepository;
+    private final AccessTokenPort accessTokenRepository;
     private final UserIdentityPort userIdentityPort;
-    private final FileStoragePort fileStoragePort;
+    private final UploadFileUseCase uploadFileUseCase; 
     private final FormDomainService formDomainService;
     private final NotificationPort notificationPort;
+    private final SubmissionStatusHistoryPort historyRepository;
 
     @Override
     @Transactional
     public void execute(String token, List<FieldResponseDTO> textResponses, Map<UUID, FileInput> files) {
+        log.info("[SUBMIT] Iniciando procesamiento del formulario con token: {}", token);
 
         AccessToken accessToken = accessTokenRepository.findByToken(token)
                 .filter(AccessToken::isValid)
@@ -49,47 +55,75 @@ public class SubmitFormService implements SubmitFormUseCase {
         UUID employeeId = userIdentityPort.findEmployeeIdByToken(token)
                 .orElseThrow(() -> new RuntimeException("No se encontró employeeId para el token"));
 
-        String employeeEmail = userIdentityPort.findEmailByToken(token)
-                .orElseThrow(() -> new RuntimeException("No se encontró email para el token"));
-
-        String employeeName = userIdentityPort.findNameByToken(token)
-                .orElse(employeeEmail.split("@")[0]);
 
         Submission submission = submissionRepository.findById(accessToken.getSubmissionId())
-                .orElseThrow(() -> new RuntimeException("No se encontró submission para el token: " + token));
+                .orElseThrow(() -> new RuntimeException("No se encontró submission para el ID: " + accessToken.getSubmissionId()));
 
         List<FieldDefinition> definitions = formRepository.findAllFieldDefinitions();
         List<FieldValue> valuesToSave = new ArrayList<>();
 
-        if (textResponses != null) {
+
+        if (textResponses != null && !textResponses.isEmpty()) {
+            log.info("[SUBMIT] Procesando {} respuestas de texto", textResponses.size());
             textResponses.forEach(dto -> {
                 UUID fieldId = parseUuid(dto.fieldDefinitionId());
                 FieldDefinition def = findDefinition(definitions, fieldId);
                 formDomainService.validateField(def, dto.value());
-                valuesToSave.add(new FieldValue(def.getId(), employeeId, submission.getId(), dto.value()));
+                
+                valuesToSave.add(new FieldValue(
+                    def.getId(), 
+                    employeeId, 
+                    submission.getId(), 
+                    dto.value(), 
+                    null
+                ));
             });
         }
 
-        if (files != null) {
+
+        if (files != null && !files.isEmpty()) {
+            log.info("[SUBMIT] Procesando {} archivos", files.size());
             files.forEach((fieldUuid, fileInput) -> {
                 FieldDefinition def = findDefinition(definitions, fieldUuid);
-                try {
-                    String newName = formDomainService.generateFileName(def.getLabel(), fileInput.fileName());
-                    String savedPath = fileStoragePort.save(fileInput.content(), newName);
-                    valuesToSave.add(new FieldValue(def.getId(), employeeId, submission.getId(), savedPath));
-                } catch (IOException e) {
-                    throw new RuntimeException("Error al procesar el archivo: " + def.getLabel(), e);
-                }
+                
+                FileResource resource = uploadFileUseCase.execute(
+                    fileInput.fileName(),
+                    fileInput.contentType(),
+                    (long) fileInput.content().length,
+                    fileInput.content()
+                );
+
+                log.info("[SUBMIT] Archivo '{}' subido con ID recurso: {}", fileInput.fileName(), resource.getId());
+
+                valuesToSave.add(new FieldValue(
+                    def.getId(), 
+                    employeeId, 
+                    submission.getId(), 
+                    null, 
+                    resource.getId()
+                ));
             });
         }
 
-        formRepository.saveValues(valuesToSave);
+        if (!valuesToSave.isEmpty()) {
+            log.info("[SUBMIT] Enviando {} registros a persistencia", valuesToSave.size());
+            formRepository.saveValues(valuesToSave);
+        }
 
-        submission.setStatus(SubmissionStatus.SUBMITTED);
+
+        submission.markAsSubmitted(); 
         submissionRepository.save(submission);
 
         accessToken.markAsUsed();
         accessTokenRepository.save(accessToken);
+
+        historyRepository.save(new SubmissionStatusHistory(
+            submission.getId(),
+            SubmissionStatus.SUBMITTED,
+            "candidato"
+        ));
+        
+        log.info("[SUBMIT] Formulario completado. Submission {} actualizada y token invalidado.", submission.getId());
 
     }
 

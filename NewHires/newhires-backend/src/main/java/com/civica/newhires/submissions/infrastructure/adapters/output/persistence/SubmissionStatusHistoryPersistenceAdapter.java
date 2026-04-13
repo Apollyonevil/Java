@@ -1,7 +1,7 @@
 package com.civica.newhires.submissions.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.submissions.domain.model.SubmissionStatusHistory;
-import com.civica.newhires.submissions.domain.ports.output.SubmissionStatusHistoryRepository;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionStatusHistoryPort;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionStatusHistoryEntity;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.repository.JpaSubmissionRepository;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class SubmissionStatusHistoryPersistenceAdapter implements SubmissionStatusHistoryRepository {
+public class SubmissionStatusHistoryPersistenceAdapter implements SubmissionStatusHistoryPort {
 
     private final JpaSubmissionStatusHistoryRepository historyRepo;
     private final JpaSubmissionRepository submissionRepo;

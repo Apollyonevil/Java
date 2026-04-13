@@ -1,6 +1,7 @@
 package com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers;
 
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.AccessTokenEntity;
 import com.civica.newhires.fields.domain.model.FieldDefinition;
 import com.civica.newhires.fields.domain.model.FieldValue;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
@@ -8,13 +9,14 @@ import com.civica.newhires.fields.infrastructure.adapters.output.persistence.ent
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
 
+import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class FormPersistenceMapper {
 
-    // --- MAPPING DE DEFINICIÓN DE CAMPOS ---
 
     public FieldDefinition toDomain(FieldDefinitionEntity entity) {
         if (entity == null) return null;
@@ -27,14 +29,13 @@ public class FormPersistenceMapper {
             entity.getFileNamingPrefix(),
             entity.getOptions(),
             entity.getSortOrder(),
-            entity.isActive() // Si da error aquí, cámbialo a entity.active o entity.getActive()
+            entity.isActive() 
         );
     }
 
     public FieldDefinitionEntity toEntity(FieldDefinition domain) {
         if (domain == null) return null;
         FieldDefinitionEntity entity = new FieldDefinitionEntity();
-        
         entity.setId(domain.getId());
         entity.setLabel(domain.getLabel());
         entity.setType(domain.getType());
@@ -42,7 +43,6 @@ public class FormPersistenceMapper {
         entity.setPlaceholder(domain.getPlaceholder());
         entity.setFileNamingPrefix(domain.getFileNamingPrefix());
         
-        // CORRECCIÓN CRÍTICA: Aseguramos que las opciones se guarden siempre
         if (domain.getOptions() != null) {
             entity.setOptions(new ArrayList<>(domain.getOptions()));
         } else {
@@ -54,12 +54,10 @@ public class FormPersistenceMapper {
         return entity;
     }
 
-    // --- MAPPING DE VALORES DE RESPUESTA ---
 
     public FieldValueEntity toEntity(FieldValue domain) {
         if (domain == null) return null;
         FieldValueEntity entity = new FieldValueEntity();
-        entity.setId(domain.getId());
         entity.setFieldDefinitionId(domain.getFieldDefinitionId());
         entity.setEmployeeId(domain.getEmployeeId());
         entity.setSubmissionId(domain.getSubmissionId());
@@ -68,33 +66,37 @@ public class FormPersistenceMapper {
         return entity;
     }
 
-    // --- MAPPING DE SUBMISSION ---
 
     public Submission toDomain(SubmissionEntity entity) {
         if (entity == null) return null;
-        CandidateEntity candidate = entity.getCandidate();
         
-        return new Submission(
+        Submission submission = new Submission(
             entity.getId(),
             entity.getEmployeeId(), 
-            candidate != null ? candidate.getCandidateName() : "Candidato Desconocido",
-            candidate != null ? candidate.getEmail() : "Sin Email",
-            entity.getToken(),
+            entity.getCandidate() != null ? entity.getCandidate().getCandidateName() : "Candidato Desconocido",
+            entity.getCandidate() != null ? entity.getCandidate().getEmail() : "Sin Email",
+            entity.getCreatedAt(),
             entity.getSubmittedAt(), 
-            entity.getExpiresAt(),
             entity.getStatus()      
         );
+
+        if (entity.getAccessToken() != null) {
+            submission.setToken(entity.getAccessToken() != null ? entity.getAccessToken().getToken() : null);
+            submission.setExpiresAt(entity.getAccessToken().getExpiresAt());
+        }
+
+        return submission;
     }
 
     public SubmissionEntity toEntity(Submission domain, CandidateEntity candidateEntity) {
         if (domain == null) return null;
         SubmissionEntity entity = new SubmissionEntity();
+        
         entity.setId(domain.getId());
         entity.setCandidate(candidateEntity);
         entity.setEmployeeId(domain.getEmployeeId()); 
-        entity.setToken(domain.getToken());
+        entity.setCreatedAt(domain.getCreatedAt());
         entity.setSubmittedAt(domain.getSubmittedAt());
-        entity.setExpiresAt(domain.getExpiresAt());
         entity.setStatus(domain.getStatus());
         
         return entity;

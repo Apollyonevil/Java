@@ -35,11 +35,9 @@ public class FileSystemStorageAdapter implements FileStoragePort {
         }
 
         Path destinationFile = this.rootLocation.resolve(newName);
-        
-
         Files.write(destinationFile, content);
         
-        return newName; 
+        return destinationFile.toAbsolutePath().toString(); // ← cambio aquí
     }
 
     @Override
