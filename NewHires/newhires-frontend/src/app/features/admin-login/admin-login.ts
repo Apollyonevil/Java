@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-login',
@@ -47,33 +45,18 @@ export class AdminLoginComponent {
   error = false;
   loading = false;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private http: HttpClient
-  ) {}
+  constructor(private authService: AuthService) {}
 
   login() {
     if (!this.username || !this.password) return;
     this.loading = true;
     this.error = false;
 
-    const credentials = btoa(`${this.username}:${this.password}`);
-    const headers = new HttpHeaders({ 'Authorization': `Basic ${credentials}` });
-
-  
-this.http.get('http://localhost:8080/api/admin/forms/submissions', { headers }).subscribe({
-  next: () => {
-    localStorage.setItem('username', this.username); 
-
-    this.authService.login(this.username, this.password);
-    this.router.navigate(['/admin']);
-    this.loading = false;
-  },
-  error: () => {
-    this.error = true;
-    this.loading = false;
-  }
-});
+    this.authService.login(this.username, this.password, {
+      onError: () => {
+        this.error = true;
+        this.loading = false;
+      }
+    });
   }
 }
