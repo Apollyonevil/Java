@@ -18,7 +18,7 @@ import java.util.UUID;
 public class AdminWebControllerPostEmail {
 
     private final SubmissionPort submissionRepository;
-    private final AccessTokenPort accessTokenRepository; // Inyectamos el repositorio de tokens
+    private final AccessTokenPort accessTokenRepository; 
     private final NotificationPort notificationPort;
 
     @PostMapping("/send-email/{id}")

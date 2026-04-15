@@ -21,7 +21,7 @@ public class SubmissionEntity {
     @JoinColumn(name = "candidate_id")
     private CandidateEntity candidate;
 
-    // Relación para poder sacar el token y la caducidad
+
     @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private AccessTokenEntity accessToken;
 

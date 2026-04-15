@@ -12,13 +12,10 @@ public class Submission {
     private LocalDateTime submittedAt;
     private SubmissionStatus status;
 
-    // --- CAMPOS PARA EL FRONTEND (No persisten en la tabla submissions) ---
     private String token;
     private LocalDateTime expiresAt;
 
-    /**
-     * 1. Constructor para NUEVAS invitaciones
-     */
+  
     public Submission(UUID employeeId, String candidateName, String email) {
         this.id = UUID.randomUUID(); // Este será el ID definitivo
         this.employeeId = employeeId;
@@ -28,9 +25,7 @@ public class Submission {
         this.status = SubmissionStatus.PENDING_INVITE; 
     }
 
-    /**
-     * 2. Constructor para RECONSTRUCCIÓN (Mapper)
-     */
+ 
     public Submission(UUID id, UUID employeeId, String candidateName, String email, 
                       LocalDateTime createdAt, LocalDateTime submittedAt, 
                       SubmissionStatus status) {

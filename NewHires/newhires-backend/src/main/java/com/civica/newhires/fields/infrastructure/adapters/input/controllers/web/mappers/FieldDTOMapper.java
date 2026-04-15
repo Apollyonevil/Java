@@ -17,7 +17,8 @@ public class FieldDTOMapper {
             domain.isRequired(),
             domain.getPlaceholder(),
             domain.getOptions(),   
-            domain.getSortOrder()   
+            domain.getSortOrder(),
+            domain.isActive()   
         );
     }
 }

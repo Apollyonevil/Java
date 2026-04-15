@@ -12,4 +12,5 @@ export interface FieldDefinition {
   placeholder?: string;
   options?: string[];
   sortOrder?: number;
+  active: boolean;
 }

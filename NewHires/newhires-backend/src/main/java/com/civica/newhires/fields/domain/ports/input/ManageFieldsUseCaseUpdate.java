@@ -5,5 +5,6 @@ import java.util.UUID;
 
 public interface ManageFieldsUseCaseUpdate {
     FieldDefinition updateField(UUID id, FieldDefinition field);
+    FieldDefinition toggleField(UUID id);
 
 }

@@ -10,8 +10,8 @@ import { AuthService } from '../../core/services/auth';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule, DatePipe],
-  templateUrl: './admin-dashboard.html',
-  styleUrls: ['./admin-dashboard.css']
+  templateUrl: 'admin-dashboard.html',
+  styleUrls: ['admin-dashboard.css']
 })
 export class AdminDashboardComponent implements OnInit {
   fields: FieldDefinition[] = [];
@@ -35,6 +35,10 @@ export class AdminDashboardComponent implements OnInit {
   
   currentUser: string = '';
   currentRole: string = '';
+
+  errorMessage: string = '';
+  showErrorModal: boolean = false;
+  showSuccessMessage: boolean = false;
 
   constructor(
     private formService: FormService,
@@ -84,7 +88,6 @@ export class AdminDashboardComponent implements OnInit {
     this.formService.getAllSubmissions().subscribe({
       next: (data) => {
         this.submissions = [...data].sort((a, b) => {
-          // Usamos createdAt como fallback si no hay submittedAt
           const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : new Date(a.createdAt || 0).getTime();
           const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : new Date(b.createdAt || 0).getTime();
           return dateB - dateA;
@@ -208,31 +211,86 @@ export class AdminDashboardComponent implements OnInit {
     this.optionsText = field.options ? field.options.join(', ') : '';
   }
 
+toggleField(id: string) {
+  this.formService.toggleField(id).subscribe({
+    next: (response) => {
+      // 1. Mapeamos el array creando objetos TOTALMENTE nuevos
+      // Esto fuerza a Angular a re-evaluar todo
+      this.fields = this.fields.map(f => {
+        if (f.id === id) {
+          return { ...f, active: !f.active }; // Copia con el estado invertido
+        }
+        return { ...f }; // Copia exacta
+      });
+
+      console.log('Array actualizado:', this.fields);
+      this.cdr.detectChanges(); // Forzamos la detección de cambios
+    }
+  });
+}
+
+get activeFields(): FieldDefinition[] {
+  return this.fields.filter(f => 
+    (f as any).active == true || (f as any).active == 1 || (f as any).active === undefined
+  );
+}
+
+get inactiveFields(): FieldDefinition[] {
+  return this.fields.filter(f => 
+    (f as any).active == false || (f as any).active == 0
+  );
+}
+
+
   moveField(index: number, direction: 'up' | 'down') {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= this.fields.length) return;
+  const newIndex = direction === 'up' ? index - 1 : index + 1;
+  if (newIndex < 0 || newIndex >= this.activeFields.length) return;
 
-    const list = [...this.fields];
-    [list[index], list[newIndex]] = [list[newIndex], list[index]];
 
-    list.forEach((field, i) => {
-      const updated = { ...field, sortOrder: i };
-      this.formService.updateField(updated).subscribe();
-      list[i] = updated;
-    });
+  const active = [...this.activeFields];
+  [active[index], active[newIndex]] = [active[newIndex], active[index]];
 
-    this.fields = list;
-    this.cdr.markForCheck();
-  }
+  active.forEach((field, i) => {
+    const updated = { ...field, sortOrder: i };
+    this.formService.updateField(updated).subscribe();
+  });
+
+  this.loadFormStructure();
+  this.cdr.markForCheck();
+}
 
   deleteField(id: string) {
-    if (confirm('¿Eliminar campo?')) {
-      this.formService.deleteField(id).subscribe(() => {
-        this.fields = this.fields.filter(f => f.id !== id);
-        this.cdr.markForCheck();
-      });
+  if (!confirm('¿Estás seguro de que deseas eliminar este campo definitivamente?')) return;
+
+  this.formService.deleteField(id).subscribe({
+    next: () => {
+      this.loadFormStructure();
+      alert("Campo eliminado con éxito");
+      this.cdr.markForCheck();
+    },
+    error: (err) => {
+      console.error('Error completo recibido:', err); // Para que lo veas en la consola (F12)
+
+      // Intentamos sacar el mensaje de varias formas según cómo responda Spring
+      let mensajeFinal = "Error desconocido al eliminar";
+
+      if (err.error && typeof err.error === 'object' && err.error.message) {
+        // Caso 1: Spring envía un JSON estándar con campo "message"
+        mensajeFinal = err.error.message;
+      } else if (typeof err.error === 'string') {
+        // Caso 2: El servidor envió solo texto plano
+        mensajeFinal = err.error;
+      } else if (err.message) {
+        // Caso 3: Error de la propia petición HTTP
+        mensajeFinal = err.message;
+      }
+
+      this.errorMessage = mensajeFinal;
+      alert("Atención: " + mensajeFinal);
+      this.cdr.markForCheck();
     }
-  }
+  });
+}
 
   deleteSubmission(id: string) {
     if (confirm('¿Eliminar candidato?')) {
@@ -283,9 +341,8 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  // CORRECCIÓN: Manejo seguro del token para evitar errores de compilación
+
   copyTokenLink(token: string | undefined | null) {
-  // 1. Diagnóstico: Abre la consola (F12) y mira qué sale aquí
   console.log('Intentando copiar token:', token);
 
   if (!token) {
@@ -295,7 +352,7 @@ export class AdminDashboardComponent implements OnInit {
 
   const url = `${window.location.origin}/onboarding?token=${token}`;
 
-  // 2. Método moderno
+
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(url)
       .then(() => alert('¡Link copiado al portapapeles!'))
@@ -304,12 +361,12 @@ export class AdminDashboardComponent implements OnInit {
         this.fallbackCopyTextToClipboard(url);
       });
   } else {
-    // 3. Método de respaldo (Fallback) para entornos no seguros (http)
+
     this.fallbackCopyTextToClipboard(url);
   }
 }
 
-// Método "antiguo" pero infalible
+
 private fallbackCopyTextToClipboard(text: string) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
@@ -325,7 +382,7 @@ private fallbackCopyTextToClipboard(text: string) {
   document.body.removeChild(textArea);
 }
 
-  // CORRECCIÓN: Método robusto para el HTML
+
   isExpired(expiresAt: string | null | undefined): boolean {
     if (!expiresAt) return false;
     return new Date(expiresAt) < new Date();

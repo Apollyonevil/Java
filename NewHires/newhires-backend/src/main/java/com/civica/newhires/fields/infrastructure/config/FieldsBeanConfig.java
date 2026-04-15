@@ -56,7 +56,6 @@ public SubmitFormUseCase submitFormUseCase(
             identity,
             uploadFileUseCase,
             formDomainService,
-            notificationPort,
             historyRepository
         );
     }

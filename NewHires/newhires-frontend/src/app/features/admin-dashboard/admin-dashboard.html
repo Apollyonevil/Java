@@ -119,44 +119,71 @@
     </div>
   }
 
-  @if (activeTab === 'formulario') {
-    <div class="row pb-5">
-      <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
-            <h5 class="mb-0">Configuración de Campos</h5>
-            <button class="btn btn-brand btn-sm" (click)="addNewField()">+ Añadir Campo</button>
-          </div>
-          <div class="card-body p-0">
-            @if (loading) {
-              <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
-            } @else {
+@if (activeTab === 'formulario') {
+  <div class="row pb-5">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header card-header-dark d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0">Configuración de Campos</h5>
+          <button class="btn btn-brand btn-sm" (click)="addNewField()">+ Añadir Campo</button>
+        </div>
+        <div class="card-body p-0">
+          @if (loading) {
+            <div class="text-center py-5"><div class="spinner-border" role="status"></div></div>
+          } @else {
+
+            <!-- Campos ACTIVOS -->
+            <ul class="list-group list-group-flush">
+              @for (field of activeFields; track i; let i = $index) {
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  <div class="d-flex align-items-center">
+                    <span class="badge bg-secondary me-3">#{{i + 1}}</span>
+                    <div>
+                      <strong class="d-block">{{ field.label }}</strong>
+                      <small class="text-muted text-uppercase">{{ field.type }}</small>
+                    </div>
+                  </div>
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
+                    <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === activeFields.length - 1">↓</button>
+                    <button class="btn btn-outline-brand ms-3 px-3" (click)="editField(field)">Editar</button>
+                    <button class="btn btn-outline-warning btn-sm" (click)="toggleField(field.id!)">⏸ Desactivar</button>
+                    <!-- <button class="btn btn-outline-secondary" (click)="deleteField(field.id!)">✕</button> -->
+                  </div>
+                </li>
+              }
+            </ul>
+
+            <!-- Campos INACTIVOS -->
+            @if (inactiveFields.length > 0) {
+              <div class="px-3 pt-3 pb-1">
+                <small class="text-muted fw-bold text-uppercase">Campos desactivados</small>
+              </div>
               <ul class="list-group list-group-flush">
-                @for (field of fields; track i; let i = $index) {
-                  <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                @for (field of inactiveFields; track field.id) {
+                  <li class="list-group-item d-flex justify-content-between align-items-center p-3 bg-light">
                     <div class="d-flex align-items-center">
-                      <span class="badge bg-secondary me-3">#{{i + 1}}</span>
+                      <span class="badge bg-light text-muted border me-3">—</span>
                       <div>
-                        <strong class="d-block">{{ field.label }}</strong>
+                        <strong class="d-block text-muted">{{ field.label }}</strong>
                         <small class="text-muted text-uppercase">{{ field.type }}</small>
                       </div>
                     </div>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-secondary" (click)="moveField(i, 'up')" [disabled]="i === 0">↑</button>
-                      <button class="btn btn-outline-secondary" (click)="moveField(i, 'down')" [disabled]="i === fields.length - 1">↓</button>
-                      <button class="btn btn-outline-brand ms-3 px-3" (click)="editField(field)">Editar</button>
+                      <button class="btn btn-outline-success" (click)="toggleField(field.id!)">▶ Activar</button>
                       <button class="btn btn-outline-secondary" (click)="deleteField(field.id!)">✕</button>
                     </div>
                   </li>
                 }
               </ul>
             }
-          </div>
+
+          }
         </div>
       </div>
     </div>
-  }
-
+  </div>
+}
   @if (activeTab === 'versiones') {
     <div class="row pb-5">
       <div class="col-12">

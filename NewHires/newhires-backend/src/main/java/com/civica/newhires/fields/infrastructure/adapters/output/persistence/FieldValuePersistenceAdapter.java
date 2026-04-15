@@ -1,8 +1,11 @@
 package com.civica.newhires.fields.infrastructure.adapters.output.persistence;
 
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
+import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionFieldEntity;
+import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFormVersionFieldRepository;
 import com.civica.newhires.fields.domain.model.FieldDefinition;
 import com.civica.newhires.fields.domain.model.FieldValue;
 import com.civica.newhires.fields.domain.ports.output.FormPort;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -22,6 +26,7 @@ public class FieldValuePersistenceAdapter implements FormPort {
 
     private final JpaFieldDefinitionRepository definitionRepo;
     private final JpaFieldValueRepository valueRepo; 
+    private final JpaFormVersionFieldRepository versionFieldRepo; 
     private final FormPersistenceMapper mapper;
 
     @Override
@@ -52,14 +57,14 @@ public class FieldValuePersistenceAdapter implements FormPort {
                 .map(mapper::toEntity)
                 .toList();
 
-        // Log de depuración para verificar qué llega a la base de datos
+ 
         entities.forEach(e -> log.info("[DB-SAVE] Preparando insert: Campo={}, Val={}, FileID={}", 
                 e.getFieldDefinitionId(), e.getValue(), e.getFileResourceId()));
 
-        // Guardamos todo el lote
+  
         valueRepo.saveAll(entities);
         
-        // Sincronización inmediata con MariaDB
+      
         valueRepo.flush(); 
         
         log.info("[DB-SAVE] ¡saveAll y flush completados con éxito!");
@@ -68,7 +73,7 @@ public class FieldValuePersistenceAdapter implements FormPort {
     @Override
     @Transactional
     public FieldDefinition saveDefinition(FieldDefinition definition) {
-        // Limpieza de opciones previas si ya existe (para evitar duplicados en actualizaciones)
+   
         definitionRepo.findById(definition.getId()).ifPresent(existing -> {
             existing.getOptions().clear();
             definitionRepo.saveAndFlush(existing);
@@ -82,6 +87,28 @@ public class FieldValuePersistenceAdapter implements FormPort {
     @Override
     @Transactional
     public void deleteDefinition(UUID id) {
+    
+        FieldDefinitionEntity field = definitionRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Campo no encontrado"));
+
+
+        if (field.isActive()) {
+            throw new RuntimeException("No se puede eliminar un campo activo. Desactívalo primero.");
+        }
+
+
+        List<FormVersionFieldEntity> versionsUsingField = versionFieldRepo.findByFieldId(id);
+        
+        if (!versionsUsingField.isEmpty()) {
+    
+            String versionNumbers = versionsUsingField.stream()
+                    .map(vf -> vf.getVersion().getVersionNumber().toString())
+                    .distinct()
+                    .collect(Collectors.joining(", "));
+            
+            throw new RuntimeException("Este campo no se puede borrar porque forma parte de la versión de formulario " + versionNumbers);
+        }
+
         definitionRepo.deleteById(id);
     }
 }

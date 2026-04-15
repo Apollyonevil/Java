@@ -40,4 +40,19 @@ public class FieldManagementServiceUpdate implements ManageFieldsUseCaseUpdate {
 
         return saved;
     }
+
+    @Override
+    @Transactional
+    public FieldDefinition toggleField(UUID id) {
+        FieldDefinition existing = formRepository.findDefinitionById(id);
+        FieldDefinition toggled = new FieldDefinition(
+            existing.getId(), existing.getLabel(), existing.getType(),
+            existing.isRequired(), existing.getPlaceholder(),
+            existing.getFileNamingPrefix(), existing.getOptions(),
+            existing.getSortOrder(),
+            !existing.isActive()
+        );
+        formVersionRepository.deactivateAll();
+        return formRepository.saveDefinition(toggled);
+    }
 }
