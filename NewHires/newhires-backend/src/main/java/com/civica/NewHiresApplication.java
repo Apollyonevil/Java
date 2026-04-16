@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class NewHiresApplication {
     public static void main(String[] args) {
     SpringApplication.run(NewHiresApplication.class, args);
-
+ 
     }
 }

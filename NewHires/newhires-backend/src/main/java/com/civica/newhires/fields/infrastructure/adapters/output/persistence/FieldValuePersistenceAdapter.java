@@ -26,8 +26,8 @@ public class FieldValuePersistenceAdapter implements FormPort {
 
     private final JpaFieldDefinitionRepository definitionRepo;
     private final JpaFieldValueRepository valueRepo; 
-    private final JpaFormVersionFieldRepository versionFieldRepo; 
     private final FormPersistenceMapper mapper;
+    private final JpaFormVersionFieldRepository versionFieldRepo;
 
     @Override
     public List<FieldDefinition> findAllFieldDefinitions() {
@@ -84,29 +84,31 @@ public class FieldValuePersistenceAdapter implements FormPort {
         return mapper.toDomain(savedEntity);
     }
 
+
+
     @Override
     @Transactional
     public void deleteDefinition(UUID id) {
-    
+
         FieldDefinitionEntity field = definitionRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Campo no encontrado"));
 
-
+    
         if (field.isActive()) {
             throw new RuntimeException("No se puede eliminar un campo activo. Desactívalo primero.");
         }
 
-
+    
         List<FormVersionFieldEntity> versionsUsingField = versionFieldRepo.findByFieldId(id);
         
         if (!versionsUsingField.isEmpty()) {
-    
+        
             String versionNumbers = versionsUsingField.stream()
                     .map(vf -> vf.getVersion().getVersionNumber().toString())
                     .distinct()
                     .collect(Collectors.joining(", "));
             
-            throw new RuntimeException("Este campo no se puede borrar porque forma parte de la versión de formulario " + versionNumbers);
+            throw new RuntimeException("Este campo no se puede borrar porque forma parte de las versiones: " + versionNumbers);
         }
 
         definitionRepo.deleteById(id);
