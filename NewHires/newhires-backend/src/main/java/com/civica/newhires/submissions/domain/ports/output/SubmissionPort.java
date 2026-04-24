@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import com.civica.newhires.submissions.domain.model.Submission;
 
-public interface SubmissionRepository {
+public interface SubmissionPort {
     
     Submission save(Submission submission); 
     

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
 
 import java.util.UUID;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
 public class AdminWebControllerDeleteSubmissions {
 
 
-    private final SubmissionRepository submissionRepository;
+    private final SubmissionPort submissionRepository;
 
     @DeleteMapping("/submissions/{id}")
     public ResponseEntity<Void> deleteSubmission(@PathVariable UUID id) {

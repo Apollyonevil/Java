@@ -8,9 +8,10 @@ import com.civica.newhires.fields.domain.ports.input.*;
 import com.civica.newhires.fields.domain.ports.output.*;
 import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.application.service.SubmitFormService;
-import com.civica.newhires.candidates.domain.ports.output.AccessTokenRepository;
-import com.civica.newhires.documents.domain.ports.output.FileStoragePort;
-import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.candidates.domain.ports.output.AccessTokenPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionStatusHistoryPort;
+import com.civica.newhires.documents.domain.ports.input.UploadFileUseCase;
 
 import jakarta.servlet.MultipartConfigElement;
 import org.springframework.context.annotation.Bean;
@@ -37,23 +38,26 @@ public class FieldsBeanConfig {
         return new FormDomainService();
     }
 
-    @Bean
-    public SubmitFormUseCase submitFormUseCase(
-            FormPort formRepo,
-            SubmissionRepository submissionRepo,
-            AccessTokenRepository accessTokenRepository,
-            UserIdentityPort identity,
-            FileStoragePort storage,
-            FormDomainService formDomainService,
-            NotificationPort notificationPort) {
+@Bean
+public SubmitFormUseCase submitFormUseCase(
+        FormPort formRepo,
+        SubmissionPort submissionRepo,
+        AccessTokenPort accessTokenRepository,
+        UserIdentityPort identity,
+        UploadFileUseCase uploadFileUseCase,
+        FormDomainService formDomainService,
+        NotificationPort notificationPort,
+        SubmissionStatusHistoryPort historyRepository) {
+        
         return new SubmitFormService(
             formRepo,
             submissionRepo,
             accessTokenRepository,
             identity,
-            storage,
+            uploadFileUseCase,
             formDomainService,
-            notificationPort
+            notificationPort,
+            historyRepository
         );
     }
 

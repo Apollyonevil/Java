@@ -35,7 +35,7 @@ public class AdminWebControllerPostInvite {
         private String candidateName;
         private String email;
 
-        @JsonProperty("employee_id") // Esto soluciona el error del JSON "employee_id"
+        //@JsonProperty("employee_id") // Esto soluciona el error del JSON "employee_id"
         private UUID employeeId;
 
         public InviteRequest() {}

@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { FieldDefinition, Submission } from '../../shared/models/form.model';
+import { FieldDefinition } from '../../shared/models/form.model';
+import { Submission } from '../../shared/models/submission.model';
 import { AuthService } from './auth';
 
 @Injectable({
@@ -31,15 +32,26 @@ export class FormService {
     return this.http.get<FieldDefinition[]>(`${this.userUrl}/structure`);
   }
 
+  /**
+   * Envía el formulario. 
+   * Se ha corregido el Blob de 'responses' para incluir charset=utf-8.
+   * El nombre de los archivos (file.name) se respeta tal cual viene del componente.
+   */
   submitForm(token: string, textResponses: any[], files: Map<string, File>): Observable<void> {
     const formData = new FormData();
+
     formData.append('token', token);
-    formData.append('responses', new Blob([JSON.stringify(textResponses)], {
-      type: 'application/json'
-    }));
+
+    // CORRECCIÓN: Añadido charset=utf-8 para evitar errores de tildes (S├¡, Di├®sel)
+    const responsesBlob = new Blob([JSON.stringify(textResponses)], {
+      type: 'application/json;charset=utf-8'
+    });
     
+    formData.append('responses', responsesBlob);
+    
+    // Se mantiene el envío de archivos con el nombre ya procesado/renombrado
     files.forEach((file, fieldId) => {
-      formData.append(fieldId, file, file.name);
+      formData.append(`files[${fieldId}]`, file, file.name);
     });
     
     return this.http.post<void>(`${this.userUrl}/submit`, formData);
@@ -48,18 +60,19 @@ export class FormService {
   // --- MÉTODOS ADMINISTRACIÓN ---
 
   createInvitation(name: string, email: string): Observable<any> {
-    const userId = sessionStorage.getItem('user_id');
+  const userId = sessionStorage.getItem('user_id');
 
-    return this.http.post(`${this.adminUrl}/invite`, {
-      candidateName: name,
-      email: email,
-      employee_id: userId 
-    }, this.getAdminHeaders());
-  }
+  return this.http.post(`${this.adminUrl}/invite`, {
+    candidateName: name,
+    email: email,
+    employeeId: userId 
+  }, this.getAdminHeaders());
+}
 
   getSubmissionHistory(candidateId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.adminUrl}/audit/candidate/${candidateId}`, this.getAdminHeaders());
   }
+
   getAllSubmissions(): Observable<Submission[]> {
     return this.http.get<Submission[]>(`${this.adminUrl}/submissions`, this.getAdminHeaders());
   }
@@ -102,18 +115,16 @@ export class FormService {
     return this.http.delete<void>(`${this.adminUrl}/submissions/${id}`, this.getAdminHeaders());
   }
 
-  // --- GESTIÓN DE USUARIOS (MODIFICADO CON ROLE) ---
+  // --- GESTIÓN DE USUARIOS ---
 
   getAdminUsers(): Observable<any[]> { 
     return this.http.get<any[]>(this.usersUrl, this.getAdminHeaders()); 
   }
 
-  // Ahora acepta 3 argumentos
   createAdminUser(username: string, password: string, role: string): Observable<any> { 
     return this.http.post(this.usersUrl, { username, password, role }, this.getAdminHeaders()); 
   }
 
-  // Ahora acepta 4 argumentos
   updateAdminUser(id: string, username: string, password: string, role: string): Observable<any> { 
     return this.http.put(`${this.usersUrl}/${id}`, { username, password, role }, this.getAdminHeaders()); 
   }

@@ -1,0 +1,37 @@
+package com.civica.newhires.auth.infrastructure.adapters.input.controller;
+
+import com.civica.newhires.auth.application.dto.UserResponseDTO;
+import com.civica.newhires.employee.infrastructure.persistence.repository.EmployeeUserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@CrossOrigin(originPatterns = "*", allowCredentials = "true")
+public class AuthController {
+
+    // Inyectamos el repositorio de empleados para buscar el ID real
+    private final EmployeeUserRepository userRepository;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return userRepository.findByUsername(principal.getName())
+            .map(user -> ResponseEntity.ok(new UserResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name()
+            )))
+            .orElse(ResponseEntity.status(404).build());
+    }
+}

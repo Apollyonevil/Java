@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
+import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.AccessTokenEntity;
 
 @Entity
 @Table(name = "submissions")
@@ -20,15 +21,15 @@ public class SubmissionEntity {
     @JoinColumn(name = "candidate_id")
     private CandidateEntity candidate;
 
+    // Relación para poder sacar el token y la caducidad
+    @OneToOne(mappedBy = "submission", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private AccessTokenEntity accessToken;
+
     @Column(name = "employee_id")
     private UUID employeeId;
 
-    // Cambiado a UUID para coincidir con el tipo de columna en la DB
     @Column(name = "version_id")
     private UUID versionId;
-
-    @Column(name = "token")
-    private String token;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -40,17 +41,9 @@ public class SubmissionEntity {
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
-    @Column(name = "expires_at")
-    private LocalDateTime expiresAt;
-
     @PrePersist
     protected void onCreate() {
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
-        }
-        if (this.versionId == null) {
-            // Generamos un UUID aleatorio para cumplir con la restricción de la DB
-            this.versionId = UUID.randomUUID();
-        }
+        if (this.createdAt == null) this.createdAt = LocalDateTime.now();
+        if (this.versionId == null) this.versionId = UUID.randomUUID();
     }
 }

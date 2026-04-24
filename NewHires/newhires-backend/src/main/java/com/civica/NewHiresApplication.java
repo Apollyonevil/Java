@@ -5,11 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class NewHiresApplication {
-
     public static void main(String[] args) {
-        SpringApplication.run(NewHiresApplication.class, args);
+    SpringApplication.run(NewHiresApplication.class, args);
+
     }
-
-    
-
 }

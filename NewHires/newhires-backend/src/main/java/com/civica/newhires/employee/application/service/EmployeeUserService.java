@@ -7,9 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.civica.newhires.employee.application.dto.EmployeeDTO;
 import com.civica.newhires.employee.application.dto.EmployeeRequest;
+import com.civica.newhires.employee.domain.model.Employee;
 import com.civica.newhires.employee.domain.model.UserRole;
-import com.civica.newhires.employee.infrastructure.persistence.entities.EmployeeUserEntity;
-import com.civica.newhires.employee.infrastructure.persistence.repository.EmployeeUserRepository;
+import com.civica.newhires.employee.domain.ports.output.EmployeePort;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EmployeeUserService {
 
-    private final EmployeeUserRepository repository;
+    private final EmployeePort repository;
     private final PasswordEncoder passwordEncoder;
 
     public List<EmployeeDTO> getAllUsers() {
@@ -34,31 +34,33 @@ public class EmployeeUserService {
             throw new RuntimeException("El empleado ya existe");
         }
 
-        EmployeeUserEntity user = new EmployeeUserEntity();
-        user.setId(UUID.randomUUID().toString());
-        user.setUsername(request.username());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setEnabled(true);
-        user.setRole(request.role() != null ? UserRole.valueOf(request.role()) : UserRole.EMPLOYEE);
-        
-        return mapToDTO(repository.save(user));
+        Employee employee = new Employee(
+            UUID.randomUUID().toString(),
+            request.username(),
+            passwordEncoder.encode(request.password()),
+            true,
+            request.role() != null ? UserRole.valueOf(request.role()) : UserRole.EMPLOYEE
+        );
+
+        return mapToDTO(repository.save(employee));
     }
 
     @Transactional
     public EmployeeDTO update(String id, EmployeeRequest request) {
-        EmployeeUserEntity user = repository.findById(id)
+        Employee existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        user.setUsername(request.username());
-        if (request.password() != null && !request.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
-        }
-        
-        if (request.role() != null) {
-            user.setRole(UserRole.valueOf(request.role()));
-        }
-        
-        return mapToDTO(repository.save(user));
+        Employee updated = new Employee(
+            existing.getId(),
+            request.username(),
+            request.password() != null && !request.password().isBlank()
+                ? passwordEncoder.encode(request.password())
+                : existing.getPassword(),
+            existing.isEnabled(),
+            request.role() != null ? UserRole.valueOf(request.role()) : existing.getRole()
+        );
+
+        return mapToDTO(repository.save(updated));
     }
 
     @Transactional
@@ -66,13 +68,12 @@ public class EmployeeUserService {
         repository.deleteById(id);
     }
 
-    // He dejado solo una versión de este método y bien cerrada
-    private EmployeeDTO mapToDTO(EmployeeUserEntity entity) {
+    private EmployeeDTO mapToDTO(Employee employee) {
         return new EmployeeDTO(
-            entity.getId(), 
-            entity.getUsername(), 
-            entity.isEnabled(), 
-            entity.getRole().name()
+            employee.getId(),
+            employee.getUsername(),
+            employee.isEnabled(),
+            employee.getRole().name()
         );
     }
 }

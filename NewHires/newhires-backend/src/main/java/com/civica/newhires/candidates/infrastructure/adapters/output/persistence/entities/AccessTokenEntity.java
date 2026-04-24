@@ -8,15 +8,13 @@ import com.civica.newhires.submissions.infrastructure.adapters.output.persistenc
 
 @Entity
 @Table(name = "access_tokens")
-@Getter
-@Setter
+@Getter @Setter
 public class AccessTokenEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submission_id", nullable = false)
     private SubmissionEntity submission;
 

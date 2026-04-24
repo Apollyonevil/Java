@@ -7,7 +7,6 @@ import java.util.UUID;
 
 public interface JpaSubmissionRepository extends JpaRepository<SubmissionEntity, UUID> {
     // Este método es el que permite que el validador encuentre el token
-    Optional<SubmissionEntity> findByToken(String token);
-    
+
     Optional<SubmissionEntity> findByCandidate_Id(UUID candidateId);
 }

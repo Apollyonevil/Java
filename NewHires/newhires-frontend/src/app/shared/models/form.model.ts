@@ -13,14 +13,3 @@ export interface FieldDefinition {
   options?: string[];
   sortOrder?: number;
 }
-
-export interface Submission {
-  id?: string;
-  candidateName: string;
-  email: string;
-  employee_id?: string;
-  status: string;
-  submittedAt?: string;
-  expiresAt?: string;  
-  token?: string;
-}

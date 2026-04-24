@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.civica.newhires.candidates.domain.model.Candidate;
 
-public interface CandidateRepository {
+public interface CandidatePort {
 
     Candidate save(Candidate candidate);
     Optional<Candidate> findById(UUID id);

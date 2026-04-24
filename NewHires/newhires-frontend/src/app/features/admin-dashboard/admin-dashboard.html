@@ -76,25 +76,28 @@
                     
                   <td>
                     <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">
-                      {{ sub.employee_id || 'Sistema' }}
+                      {{ sub.employeeFullName || 'Sistema' }}
                     </span>
                   </td>
 
                     <td>
                       <span class="badge badge-pending" style="font-size: 0.7rem;">{{ sub.status }}</span>
                     </td>
-                    <td>
-                      @if (sub.expiresAt) {
-                        <small [class.text-danger]="isExpired(sub.expiresAt)" [class.text-muted]="!isExpired(sub.expiresAt)">
-                          {{ sub.expiresAt | date:'dd/MM/yyyy HH:mm' }}
-                          @if (isExpired(sub.expiresAt)) {
-                            <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">Caducado</span>
-                          }
-                        </small>
-                      } @else {
-                        <small class="text-muted">—</small>
-                      }
-                    </td>
+                <td>
+                  @if (sub.status === 'PENDING_INVITE') {
+                    <small class="text-muted">
+                      <i class="bi bi-clock-history me-1"></i>
+                      Esperando respuesta
+                    </small>
+                  } @else if (sub.status === 'SUBMITTED') {
+                    <small class="text-success">
+                      <i class="bi bi-check-circle-fill me-1"></i>
+                      Completado el {{ sub.submittedAt | date:'dd/MM/yyyy' }}
+                    </small>
+                  } @else {
+                    <small class="text-muted">—</small>
+                  }
+                </td>
                     <td class="text-end px-4">
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-brand" (click)="viewDetail(sub.id!)">Ver</button>
@@ -102,7 +105,7 @@
                           {{ sendingEmails[sub.id!] ? '...' : 'Enviar Email' }}
                         </button>
                         <button class="btn btn-outline-secondary" (click)="renewToken(sub.id!)">↺ Renovar</button>
-                        <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token!)">Copiar Link</button>
+                        <button class="btn btn-outline-secondary" (click)="copyTokenLink(sub.token)">Copiar Link</button>
                         <button class="btn btn-outline-secondary" (click)="deleteSubmission(sub.id!)">✕</button>
                         </div>
                     </td>

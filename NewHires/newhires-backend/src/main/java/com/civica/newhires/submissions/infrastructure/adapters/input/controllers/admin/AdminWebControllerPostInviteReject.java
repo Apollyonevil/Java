@@ -1,65 +1,78 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
+import com.civica.newhires.candidates.domain.model.AccessToken;
+import com.civica.newhires.candidates.domain.ports.output.AccessTokenPort;
 import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
-import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
+import com.civica.newhires.submissions.domain.model.SubmissionStatusHistory;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
+import com.civica.newhires.submissions.domain.ports.output.SubmissionStatusHistoryPort;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/forms")
 @RequiredArgsConstructor
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AdminWebControllerPostInviteReject {
 
-    private final SubmissionRepository submissionRepository;
+    private final SubmissionPort submissionRepository;
+    private final AccessTokenPort accessTokenRepository;
     private final NotificationPort notificationPort;
+    private final SubmissionStatusHistoryPort historyRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;  // ← añade esto
 
+    @Transactional
     @PostMapping("/submissions/{id}/reject")
     public ResponseEntity<Submission> rejectSubmission(
             @PathVariable UUID id,
             @RequestBody RejectRequest request) {
 
-        // 1. Buscamos la submission (ya incluye datos del candidato y token)
+        log.info("[REJECT] Iniciando rechazo para submission: {}", id);
+
         Submission submission = submissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
 
-        // 2. Actualizamos a estado REJECTED
-        submission.setStatus(SubmissionStatus.REJECTED);
-        
-        // 3. Generamos un nuevo token para el re-intento (Reset de token y expiración)
-        // Nota: Asegúrate de tener un método resetToken() en tu clase Submission 
-        // que genere un nuevo UUID y ponga expiresAt a LocalDateTime.now().plusHours(48)
-        String newToken = UUID.randomUUID().toString();
-        
-        // Si no tienes el método en el dominio, puedes hacerlo vía setters:
-        // submission.setToken(newToken);
-        // submission.setExpiresAt(LocalDateTime.now().plusHours(48));
+        // Borrar tokens anteriores y forzar flush inmediato
+        accessTokenRepository.deleteBySubmissionId(id);
+        entityManager.flush();  
 
-        // 4. Persistimos los cambios
+        submission.setStatus(SubmissionStatus.REJECTED);
         submissionRepository.save(submission);
 
-        // 5. Notificaciones
-        try {
-            // Notificamos el rechazo
-            notificationPort.sendRejectionNotice(submission.getEmail(), request.reason());
-            
-            // Pausa breve para evitar bloqueos de SMTP si fuera necesario
-            Thread.sleep(1000); 
+        AccessToken accessToken = new AccessToken(id);
+        accessTokenRepository.save(accessToken);
 
-            // Enviamos la nueva invitación con el token actualizado
+        historyRepository.save(new SubmissionStatusHistory(
+        submission.getId(),
+        SubmissionStatus.REJECTED,
+        "admin"
+));
+
+        log.info("[REJECT] Nuevo token generado y persistido: {}", accessToken.getToken());
+
+        try {
+            notificationPort.sendRejectionNotice(submission.getEmail(), request.reason());
             notificationPort.sendInvitation(
                 submission.getEmail(),
                 submission.getCandidateName(),
-                newToken
+                accessToken.getToken()
             );
         } catch (Exception e) {
-            System.err.println("⚠️ Error en el flujo de notificaciones: " + e.getMessage());
+            log.error("[REJECT] Error en notificaciones: {}", e.getMessage());
         }
 
         return ResponseEntity.ok(submission);
