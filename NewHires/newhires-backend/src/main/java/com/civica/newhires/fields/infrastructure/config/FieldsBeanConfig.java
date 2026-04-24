@@ -6,7 +6,6 @@ import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 import com.civica.newhires.fields.application.service.*;
 import com.civica.newhires.fields.domain.ports.input.*;
 import com.civica.newhires.fields.domain.ports.output.*;
-import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.application.service.SubmitFormService;
 import com.civica.newhires.candidates.domain.ports.output.AccessTokenPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
@@ -46,20 +45,19 @@ public SubmitFormUseCase submitFormUseCase(
         UserIdentityPort identity,
         UploadFileUseCase uploadFileUseCase,
         FormDomainService formDomainService,
-        NotificationPort notificationPort,
         SubmissionStatusHistoryPort historyRepository) {
-        
-        return new SubmitFormService(
-            formRepo,
-            submissionRepo,
-            accessTokenRepository,
-            identity,
-            uploadFileUseCase,
-            formDomainService,
-            notificationPort,
-            historyRepository
-        );
-    }
+    
+    return new SubmitFormService(
+        formRepo,
+        submissionRepo,
+        accessTokenRepository,
+        identity,
+        uploadFileUseCase,
+        formDomainService,
+        historyRepository
+    );
+}
+
 
     @Bean
     public ManageFieldsUseCaseCreate manageFieldsUseCaseCreate(

@@ -4,7 +4,7 @@ import com.civica.newhires.fields.domain.model.FieldDefinition;
 import com.civica.newhires.fields.domain.ports.input.GetFormStructureUseCase;
 import com.civica.newhires.fields.domain.ports.output.FormPort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service; 
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -16,6 +16,10 @@ public class GetFormStructureService implements GetFormStructureUseCase {
 
     @Override
     public List<FieldDefinition> execute() {
-        return formRepository.findAllFieldDefinitions();
+        return formRepository.findAllFieldDefinitions()
+            .stream()
+         //   .filter(FieldDefinition::isActive) 
+            .toList();
     }
+
 }

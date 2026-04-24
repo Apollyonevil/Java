@@ -40,8 +40,7 @@ public class AdminSubmissionDetailController {
             String type = field != null ? field.getType().name() : "TEXT";
             boolean isFile = type.equals("PDF") || type.equals("JPG");
 
-            // Si es archivo, devolvemos el fileResourceId para que el front construya
-            // la URL de descarga: /api/documents/download/{fileResourceId}
+       
             String value = isFile
                     ? (fv.getFileResourceId() != null ? fv.getFileResourceId().toString() : null)
                     : fv.getValue();

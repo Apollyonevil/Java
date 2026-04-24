@@ -17,7 +17,7 @@ import java.security.Principal;
 @CrossOrigin(originPatterns = "*", allowCredentials = "true")
 public class AuthController {
 
-    // Inyectamos el repositorio de empleados para buscar el ID real
+
     private final EmployeeUserRepository userRepository;
 
     @GetMapping("/me")

@@ -33,7 +33,7 @@ public class SubmissionStatusHistoryPersistenceAdapter implements SubmissionStat
 
         SubmissionStatusHistoryEntity saved = historyRepo.save(entity);
 
-        // Devolvemos el objeto mapeado desde la entidad guardada
+
         return new SubmissionStatusHistory(
             saved.getId(),
             saved.getSubmission().getId(),

@@ -17,5 +17,6 @@ public class FieldDefinitionDTO {
     private boolean required;
     private String placeholder;
     private List<String> options; 
-    private Integer sortOrder;  
+    private Integer sortOrder; 
+    private boolean active; 
 }

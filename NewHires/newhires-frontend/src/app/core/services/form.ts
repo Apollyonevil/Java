@@ -26,30 +26,25 @@ export class FormService {
     };
   }
 
-  // --- MÉTODOS USUARIO (CANDIDATO) ---
 
   getFormStructure(): Observable<FieldDefinition[]> {
     return this.http.get<FieldDefinition[]>(`${this.userUrl}/structure`);
   }
 
-  /**
-   * Envía el formulario. 
-   * Se ha corregido el Blob de 'responses' para incluir charset=utf-8.
-   * El nombre de los archivos (file.name) se respeta tal cual viene del componente.
-   */
+
   submitForm(token: string, textResponses: any[], files: Map<string, File>): Observable<void> {
     const formData = new FormData();
 
     formData.append('token', token);
 
-    // CORRECCIÓN: Añadido charset=utf-8 para evitar errores de tildes (S├¡, Di├®sel)
+
     const responsesBlob = new Blob([JSON.stringify(textResponses)], {
       type: 'application/json;charset=utf-8'
     });
     
     formData.append('responses', responsesBlob);
     
-    // Se mantiene el envío de archivos con el nombre ya procesado/renombrado
+
     files.forEach((file, fieldId) => {
       formData.append(`files[${fieldId}]`, file, file.name);
     });
@@ -57,7 +52,7 @@ export class FormService {
     return this.http.post<void>(`${this.userUrl}/submit`, formData);
   }
 
-  // --- MÉTODOS ADMINISTRACIÓN ---
+
 
   createInvitation(name: string, email: string): Observable<any> {
   const userId = sessionStorage.getItem('user_id');
@@ -94,6 +89,10 @@ export class FormService {
   deleteField(id: string): Observable<void> {
     return this.http.delete<void>(`${this.adminUrl}/fields/${id}`, this.getAdminHeaders());
   }
+
+  toggleField(id: string): Observable<any> {
+  return this.http.patch(`${this.adminUrl}/fields/${id}/toggle`, {}, this.getAdminHeaders());
+  } 
 
   approveSubmission(id: string): Observable<any> {
     return this.http.post(`${this.adminUrl}/submissions/${id}/approve`, {}, this.getAdminHeaders());

@@ -29,7 +29,8 @@ public class AdminWebControllerCreateField {
         String placeholder,
         String fileNamingPrefix,
         List<String> options,
-        Integer sortOrder
+        Integer sortOrder,
+        boolean active
     ) {}
 
     @PostMapping("/fields")

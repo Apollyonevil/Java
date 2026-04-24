@@ -7,7 +7,6 @@ import com.civica.newhires.fields.domain.model.FieldDefinition;
 import com.civica.newhires.fields.domain.model.FieldValue;
 import com.civica.newhires.fields.domain.ports.input.SubmitFormUseCase;
 import com.civica.newhires.fields.domain.ports.output.FormPort;
-import com.civica.newhires.notification.domain.ports.output.NotificationPort;
 import com.civica.newhires.candidates.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
@@ -40,7 +39,6 @@ public class SubmitFormService implements SubmitFormUseCase {
     private final UserIdentityPort userIdentityPort;
     private final UploadFileUseCase uploadFileUseCase; 
     private final FormDomainService formDomainService;
-    private final NotificationPort notificationPort;
     private final SubmissionStatusHistoryPort historyRepository;
 
     @Override

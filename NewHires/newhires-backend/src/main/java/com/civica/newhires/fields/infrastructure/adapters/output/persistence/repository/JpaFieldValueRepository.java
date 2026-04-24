@@ -10,6 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface JpaFieldValueRepository extends JpaRepository<FieldValueEntity, UUID> {
-    // Útil para cuando RRHH quiera ver todas las respuestas de un empleado concreto
+
     List<FieldValueEntity> findByEmployeeId(UUID employeeId);
 }

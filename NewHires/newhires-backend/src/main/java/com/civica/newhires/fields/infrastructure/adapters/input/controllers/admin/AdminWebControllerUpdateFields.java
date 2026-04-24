@@ -30,8 +30,13 @@ public class AdminWebControllerUpdateFields {
             request.fileNamingPrefix(),
             request.options(),
             request.sortOrder(),
-            true
+            request.active()
         );
         return ResponseEntity.ok(manageFieldsUseCase.updateField(id, field));
+    }
+
+    @PatchMapping("/fields/{id}/toggle")
+    public ResponseEntity<FieldDefinition> toggleField(@PathVariable UUID id) {
+        return ResponseEntity.ok(manageFieldsUseCase.toggleField(id));
     }
 }

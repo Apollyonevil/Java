@@ -1,6 +1,6 @@
 package com.civica.newhires.candidates.application.service;
 
-import com.civica.newhires.candidates.domain.events.CandidateInvitedEvent;
+import com.civica.newhires.submissions.domain.events.SubmissionInvitationEvent;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
 import com.civica.newhires.submissions.domain.model.SubmissionStatusHistory;
@@ -44,7 +44,10 @@ public class InviteCandidateService implements InviteCandidateUseCase {
         saved.setToken(token.getToken());
         saved.setExpiresAt(token.getExpiresAt());
 
-        eventPublisher.publishEvent(new CandidateInvitedEvent(email, name, token.getToken()));
+        eventPublisher.publishEvent(new SubmissionInvitationEvent(
+                saved.getId(), 
+                token.getToken()
+            ));
 
         return saved;
     }
