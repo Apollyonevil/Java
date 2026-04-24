@@ -1,6 +1,7 @@
 package com.civica.newhires.forms.domain.model;
 
 import java.util.UUID;
+import com.civica.newhires.fields.domain.model.FieldDefinition;
 
 public class FormVersionField {
     private final UUID id;

@@ -1,11 +1,12 @@
 package com.civica.newhires.forms.infrastructure.adapters.output.persistence;
 
-import com.civica.newhires.forms.domain.model.FieldDefinition;
-import com.civica.newhires.forms.domain.model.FieldValue;
-import com.civica.newhires.forms.domain.ports.output.FormPort;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
-import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository; // Importante
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
+import com.civica.newhires.fields.domain.model.FieldDefinition;
+import com.civica.newhires.fields.domain.model.FieldValue;
+import com.civica.newhires.fields.domain.ports.output.FormPort;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

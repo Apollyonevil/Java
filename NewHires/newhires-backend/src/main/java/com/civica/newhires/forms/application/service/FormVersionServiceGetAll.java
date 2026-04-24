@@ -2,8 +2,9 @@ package com.civica.newhires.forms.application.service;
 
 import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseGetAll;
-import com.civica.newhires.forms.domain.ports.output.FormPort;
 import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
+import com.civica.newhires.fields.domain.ports.output.FormPort;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

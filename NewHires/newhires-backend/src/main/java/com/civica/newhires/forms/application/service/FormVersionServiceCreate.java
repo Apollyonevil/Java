@@ -1,11 +1,13 @@
 package com.civica.newhires.forms.application.service;
 
-import com.civica.newhires.forms.domain.model.FieldDefinition;
+import com.civica.newhires.fields.domain.model.FieldDefinition;
 import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.model.FormVersionField;
 import com.civica.newhires.forms.domain.ports.input.ManageFormVersionsUseCaseCreate;
-import com.civica.newhires.forms.domain.ports.output.FormPort;
+import com.civica.newhires.fields.domain.ports.output.FormPort;
 import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
+
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
