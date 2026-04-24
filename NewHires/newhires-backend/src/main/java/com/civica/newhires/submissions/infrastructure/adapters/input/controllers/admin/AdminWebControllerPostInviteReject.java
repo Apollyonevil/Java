@@ -1,15 +1,11 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.submissions.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.model.SubmissionStatus;
-import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
-import com.civica.newhires.submissions.domain.ports.output.CandidateRepository;
 import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +18,6 @@ import java.util.UUID;
 public class AdminWebControllerPostInviteReject {
 
     private final SubmissionRepository submissionRepository;
-    private final CandidateRepository candidateRepository;
-    private final AccessTokenRepository accessTokenRepository;
     private final NotificationPort notificationPort;
 
     @PostMapping("/submissions/{id}/reject")
@@ -31,29 +25,41 @@ public class AdminWebControllerPostInviteReject {
             @PathVariable UUID id,
             @RequestBody RejectRequest request) {
 
+        // 1. Buscamos la submission (ya incluye datos del candidato y token)
         Submission submission = submissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
 
-        var candidate = candidateRepository.findById(submission.getCandidateId())
-                .orElseThrow(() -> new RuntimeException("Candidato no encontrado: " + submission.getCandidateId()));
-
+        // 2. Actualizamos a estado REJECTED
         submission.setStatus(SubmissionStatus.REJECTED);
+        
+        // 3. Generamos un nuevo token para el re-intento (Reset de token y expiración)
+        // Nota: Asegúrate de tener un método resetToken() en tu clase Submission 
+        // que genere un nuevo UUID y ponga expiresAt a LocalDateTime.now().plusHours(48)
+        String newToken = UUID.randomUUID().toString();
+        
+        // Si no tienes el método en el dominio, puedes hacerlo vía setters:
+        // submission.setToken(newToken);
+        // submission.setExpiresAt(LocalDateTime.now().plusHours(48));
+
+        // 4. Persistimos los cambios
         submissionRepository.save(submission);
 
-        accessTokenRepository.invalidateAllBySubmissionId(submission.getId());
-        AccessToken newToken = new AccessToken(submission.getId());
-        accessTokenRepository.save(newToken);
-
+        // 5. Notificaciones
         try {
-            notificationPort.sendRejectionNotice(candidate.getEmail(), request.reason());
-            Thread.sleep(1500);
+            // Notificamos el rechazo
+            notificationPort.sendRejectionNotice(submission.getEmail(), request.reason());
+            
+            // Pausa breve para evitar bloqueos de SMTP si fuera necesario
+            Thread.sleep(1000); 
+
+            // Enviamos la nueva invitación con el token actualizado
             notificationPort.sendInvitation(
-                candidate.getEmail(),
-                candidate.getCandidateName(),
-                newToken.getToken()
+                submission.getEmail(),
+                submission.getCandidateName(),
+                newToken
             );
         } catch (Exception e) {
-            System.err.println("⚠️ Email no enviado: " + e.getMessage());
+            System.err.println("⚠️ Error en el flujo de notificaciones: " + e.getMessage());
         }
 
         return ResponseEntity.ok(submission);

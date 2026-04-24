@@ -1,38 +1,25 @@
 package com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import java.sql.Types;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.UUID;
 
 @Entity
 @Table(name = "candidates")
+@Getter
+@Setter
 public class CandidateEntity {
 
     @Id
-    @JdbcTypeCode(Types.VARCHAR)
-    @Column(name = "id", length = 36, columnDefinition = "VARCHAR(36)")
-    private UUID id;
+    @Column(name = "id", length = 36)
+    private UUID id; // Asignación manual vía UUID
 
-    @Column(name = "candidate_name")
+    @Column(name = "candidate_name", nullable = false)
     private String candidateName;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @JdbcTypeCode(Types.VARCHAR)
-    @Column(name = "employee_id", length = 36, columnDefinition = "VARCHAR(36)")
-    private UUID employeeId;
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public String getCandidateName() { return candidateName; }
-    public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public UUID getEmployeeId() { return employeeId; }
-    public void setEmployeeId(UUID employeeId) { this.employeeId = employeeId; }
+    public CandidateEntity() {}
 }

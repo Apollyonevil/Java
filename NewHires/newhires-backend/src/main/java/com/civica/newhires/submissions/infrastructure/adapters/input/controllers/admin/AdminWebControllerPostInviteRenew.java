@@ -1,17 +1,13 @@
 package com.civica.newhires.submissions.infrastructure.adapters.input.controllers.admin;
 
-import com.civica.newhires.submissions.domain.model.AccessToken;
 import com.civica.newhires.submissions.domain.model.Submission;
-import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
-import com.civica.newhires.submissions.domain.ports.output.CandidateRepository;
 import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -21,26 +17,30 @@ import java.util.UUID;
 public class AdminWebControllerPostInviteRenew {
 
     private final SubmissionRepository submissionRepository;
-    private final CandidateRepository candidateRepository;
-    private final AccessTokenRepository accessTokenRepository;
     private final NotificationPort notificationPort;
 
     @PostMapping("/submissions/{id}/renew")
     public ResponseEntity<Submission> renewToken(@PathVariable UUID id) {
+        // 1. Buscamos la submission por su ID
         Submission submission = submissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("No se encontró el registro: " + id));
 
-        var candidate = candidateRepository.findById(submission.getCandidateId())
-                .orElseThrow(() -> new RuntimeException("Candidato no encontrado: " + submission.getCandidateId()));
+        // 2. Generamos los nuevos datos del token directamente en la submission
+        // Al sobreescribir el token antiguo, el anterior queda automáticamente invalidado
+        String newTokenString = UUID.randomUUID().toString();
+        
+        // Seteamos el nuevo token y extendemos la fecha de expiración (ej. 48 horas más)
+        submission.setToken(newTokenString);
+        submission.setExpiresAt(LocalDateTime.now().plusHours(48));
 
-        accessTokenRepository.invalidateAllBySubmissionId(submission.getId());
-        AccessToken newToken = new AccessToken(submission.getId());
-        accessTokenRepository.save(newToken);
+        // 3. Persistimos los cambios (el adaptador se encarga de actualizar MariaDB)
+        submissionRepository.save(submission);
 
+        // 4. Enviamos la nueva invitación con los datos que ya tenemos en el objeto
         notificationPort.sendInvitation(
-            candidate.getEmail(),
-            candidate.getCandidateName(),
-            newToken.getToken()
+            submission.getEmail(),
+            submission.getCandidateName(),
+            submission.getToken()
         );
 
         return ResponseEntity.ok(submission);

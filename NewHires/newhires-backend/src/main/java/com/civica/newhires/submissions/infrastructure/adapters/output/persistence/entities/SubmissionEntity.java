@@ -1,51 +1,55 @@
 package com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-
-import com.civica.newhires.submissions.domain.model.SubmissionStatus;
-
-import java.sql.Types;
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "submissions")
+@Getter
+@Setter
 public class SubmissionEntity {
 
     @Id
-    @JdbcTypeCode(Types.VARCHAR)
-    @Column(name = "id", length = 36, columnDefinition = "VARCHAR(36)")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "candidate_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidate_id")
     private CandidateEntity candidate;
+
+    @Column(name = "employee_id")
+    private UUID employeeId;
+
+    // Cambiado a UUID para coincidir con el tipo de columna en la DB
+    @Column(name = "version_id")
+    private UUID versionId;
+
+    @Column(name = "token")
+    private String token;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private com.civica.newhires.submissions.domain.model.SubmissionStatus status;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private SubmissionStatus status;
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AccessTokenEntity> accessTokens = new ArrayList<>();
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public CandidateEntity getCandidate() { return candidate; }
-    public void setCandidate(CandidateEntity candidate) { this.candidate = candidate; }
-
-    public LocalDateTime getSubmittedAt() { return submittedAt; }
-    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
-
-    public SubmissionStatus getStatus() { return status; }
-    public void setStatus(SubmissionStatus status) { this.status = status; }
-
-    public List<AccessTokenEntity> getAccessTokens() { return accessTokens; }
-    public void setAccessTokens(List<AccessTokenEntity> accessTokens) { this.accessTokens = accessTokens; }
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.versionId == null) {
+            // Generamos un UUID aleatorio para cumplir con la restricción de la DB
+            this.versionId = UUID.randomUUID();
+        }
+    }
 }

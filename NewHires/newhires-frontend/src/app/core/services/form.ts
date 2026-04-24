@@ -47,13 +47,19 @@ export class FormService {
 
   // --- MÉTODOS ADMINISTRACIÓN ---
 
-  createInvitation(name: string, email: string): Observable<Submission> {
-    return this.http.post<Submission>(`${this.adminUrl}/invite`, {
+  createInvitation(name: string, email: string): Observable<any> {
+    const userId = sessionStorage.getItem('user_id');
+
+    return this.http.post(`${this.adminUrl}/invite`, {
       candidateName: name,
-      email: email
+      email: email,
+      employee_id: userId 
     }, this.getAdminHeaders());
   }
 
+  getSubmissionHistory(candidateId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.adminUrl}/audit/candidate/${candidateId}`, this.getAdminHeaders());
+  }
   getAllSubmissions(): Observable<Submission[]> {
     return this.http.get<Submission[]>(`${this.adminUrl}/submissions`, this.getAdminHeaders());
   }

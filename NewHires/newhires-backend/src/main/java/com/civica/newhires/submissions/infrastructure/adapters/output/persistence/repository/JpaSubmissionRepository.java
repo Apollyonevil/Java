@@ -1,15 +1,13 @@
 package com.civica.newhires.submissions.infrastructure.adapters.output.persistence.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.entities.SubmissionEntity;
-
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
 public interface JpaSubmissionRepository extends JpaRepository<SubmissionEntity, UUID> {
-    Optional<SubmissionEntity> findByCandidateEmployeeId(UUID employeeId);
-    void deleteById(UUID id);
+    // Este método es el que permite que el validador encuentre el token
+    Optional<SubmissionEntity> findByToken(String token);
+    
+    Optional<SubmissionEntity> findByCandidate_Id(UUID candidateId);
 }

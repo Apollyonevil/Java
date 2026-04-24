@@ -33,7 +33,7 @@
     }
   </ul>
 
-  @if (activeTab === 'candidatos') {
+@if (activeTab === 'candidatos') {
     <div class="row mb-5">
       <div class="col-12">
         <div class="card shadow-sm mb-4 invite-card">
@@ -63,7 +63,7 @@
                 <tr class="small text-uppercase">
                   <th>Nombre</th>
                   <th>Email</th>
-                  <th>Estado</th>
+                  <th>Invitado por</th> <th>Estado</th>
                   <th>Caduca</th>
                   <th class="text-end px-4">Acciones</th>
                 </tr>
@@ -73,6 +73,13 @@
                   <tr>
                     <td class="small fw-bold">{{ sub.candidateName }}</td>
                     <td class="small text-muted">{{ sub.email }}</td>
+                    
+                  <td>
+                    <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">
+                      {{ sub.employee_id || 'Sistema' }}
+                    </span>
+                  </td>
+
                     <td>
                       <span class="badge badge-pending" style="font-size: 0.7rem;">{{ sub.status }}</span>
                     </td>
