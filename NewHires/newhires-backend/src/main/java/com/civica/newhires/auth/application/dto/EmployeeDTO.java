@@ -2,11 +2,9 @@ package com.civica.newhires.auth.application.dto;
 
 import java.io.Serializable;
 
-public record AdminUserDTO(
+public record EmployeeDTO(
     String id,
     String username,
-    boolean enabled
+    boolean enabled,
+    String role 
 ) implements Serializable {}
-
-// ---
-

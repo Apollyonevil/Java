@@ -44,10 +44,10 @@ class AdminSubmissionDetailControllerTest {
         UUID submissionId = UUID.randomUUID();
         UUID employeeId = UUID.randomUUID();
         UUID fieldId = UUID.randomUUID();
+        UUID candidateId = UUID.randomUUID();
 
-        Submission submission = new Submission(
-            employeeId, "Juan García", "juan@test.com", "token123"
-        );
+        Submission submission = new Submission(candidateId, employeeId, "token123");
+
 
         FieldValueEntity fieldValue = new FieldValueEntity();
         fieldValue.setId(UUID.randomUUID());
@@ -89,10 +89,9 @@ class AdminSubmissionDetailControllerTest {
         UUID submissionId = UUID.randomUUID();
         UUID employeeId = UUID.randomUUID();
         UUID fieldId = UUID.randomUUID();
-
-        Submission submission = new Submission(
-            employeeId, "Juan García", "juan@test.com", "token123"
-        );
+        UUID candidateId = UUID.randomUUID();
+        
+        Submission submission = new Submission(candidateId, employeeId, "token123");
 
         FieldValueEntity fieldValue = new FieldValueEntity();
         fieldValue.setId(UUID.randomUUID());

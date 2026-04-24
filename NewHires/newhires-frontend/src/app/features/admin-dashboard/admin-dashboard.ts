@@ -21,7 +21,7 @@ export class AdminDashboardComponent implements OnInit {
   isGenerating: boolean = false;
   sendingEmails: { [key: string]: boolean } = {};
   editingField: any = null;
-  editingUser: any = null;
+  editingUser: any = null; // Ahora incluirá el campo 'role'
   optionsText: string = '';
   newCandidateName: string = '';
   newCandidateEmail: string = '';
@@ -31,6 +31,9 @@ export class AdminDashboardComponent implements OnInit {
   rejectReason: string = '';
   selectedSubmission: any = null;
   submissionDetail: any = null;
+  
+  // NUEVO: Para identificar al usuario actual
+  currentUser: string = '';
 
   constructor(
     private formService: FormService,
@@ -39,13 +42,23 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Obtenemos el usuario del localStorage (asegúrate de guardarlo al hacer login)
+    this.currentUser = localStorage.getItem('username') || '';
     this.refreshData();
+  }
+
+  // NUEVO: Verifica si es el administrador principal
+  isAdminPrincipal(): boolean {
+    return this.currentUser === 'admin';
   }
 
   refreshData() {
     this.loadFormStructure();
     this.loadSubmissions();
-    this.loadAdminUsers();
+    // Solo cargamos usuarios si tenemos permiso
+    if (this.isAdminPrincipal()) {
+      this.loadAdminUsers();
+    }
     this.loadFormVersions();
   }
 
@@ -109,23 +122,23 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   approveSubmission(id: string) {
-  if (confirm('¿Confirmar aprobación de la documentación?')) {
-    this.formService.approveSubmission(id).subscribe({
-      next: (updated) => {
-        const index = this.submissions.findIndex(s => s.id === id);
-        if (index !== -1) {
-          const newSubmissions = [...this.submissions];
-          newSubmissions[index] = updated;
-          this.submissions = newSubmissions;
-        }
-        this.submissionDetail = null; // Cerramos el detalle si estaba abierto
-        this.cdr.markForCheck();
-        alert('Candidato aprobado correctamente');
-      },
-      error: (err) => console.error('Error al aprobar:', err)
-    });
+    if (confirm('¿Confirmar aprobación de la documentación?')) {
+      this.formService.approveSubmission(id).subscribe({
+        next: (updated) => {
+          const index = this.submissions.findIndex(s => s.id === id);
+          if (index !== -1) {
+            const newSubmissions = [...this.submissions];
+            newSubmissions[index] = updated;
+            this.submissions = newSubmissions;
+          }
+          this.submissionDetail = null;
+          this.cdr.markForCheck();
+          alert('Candidato aprobado correctamente');
+        },
+        error: (err) => console.error('Error al aprobar:', err)
+      });
+    }
   }
-}
 
   openRejectModal(id: string) {
     this.rejectingSubmissionId = id;
@@ -302,20 +315,22 @@ export class AdminDashboardComponent implements OnInit {
     this.optionsText = '';
   }
 
+  // MODIFICADO: Añadimos rol por defecto
   addNewUser() {
-    this.editingUser = { username: '', password: '' };
+    this.editingUser = { username: '', password: '', role: 'EMPLOYEE' };
   }
 
   editUser(user: any) {
     this.editingUser = { ...user, password: '' };
   }
 
+  // MODIFICADO: Se asume que el service ahora acepta el objeto completo con role
   saveUser() {
     if (!this.editingUser.username) return;
 
     const request$ = this.editingUser.id
-      ? this.formService.updateAdminUser(this.editingUser.id, this.editingUser.username, this.editingUser.password)
-      : this.formService.createAdminUser(this.editingUser.username, this.editingUser.password);
+      ? this.formService.updateAdminUser(this.editingUser.id, this.editingUser.username, this.editingUser.password, this.editingUser.role)
+      : this.formService.createAdminUser(this.editingUser.username, this.editingUser.password, this.editingUser.role);
 
     request$.subscribe({
       next: () => {
@@ -337,7 +352,7 @@ export class AdminDashboardComponent implements OnInit {
 
   createVersion() {
     if (!this.newVersionDescription) return;
-    this.formService.createFormVersion('admin', this.newVersionDescription).subscribe({
+    this.formService.createFormVersion(this.currentUser, this.newVersionDescription).subscribe({
       next: () => {
         this.newVersionDescription = '';
         this.loadFormVersions();

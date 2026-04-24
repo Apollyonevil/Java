@@ -31,7 +31,7 @@ class AdminWebControllerPostInviteTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void deberiaCrearInvitacionCorrectamente() throws Exception {
-        Submission submission = new Submission(UUID.randomUUID(), "Juan García", "juan@test.com", "token123");
+        Submission submission = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
         when(inviteCandidateUseCase.execute("Juan García", "juan@test.com")).thenReturn(submission);
 
         mockMvc.perform(post("/api/admin/forms/invite")

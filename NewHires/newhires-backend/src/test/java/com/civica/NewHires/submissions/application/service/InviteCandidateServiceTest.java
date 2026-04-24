@@ -26,21 +26,21 @@ class InviteCandidateServiceTest {
 
     @Test
     void debeGenerarInvitacionCorrectamente() {
-        // Arrange
+
         String name = "Pepe Perez";
         String email = "pepe@civica.com";
 
-        // Act
+ 
         Submission result = inviteCandidateService.execute(name, email);
 
-        // Assert
+
         assertNotNull(result);
-        assertEquals(name, result.getCandidateName());
-        assertEquals(email, result.getEmail());
+        assertNotNull(result.getCandidateId());
+        assertNotNull(result.getEmployeeId());
         assertEquals(SubmissionStatus.PENDING_INVITE, result.getStatus());
         assertNotNull(result.getToken());
 
-        // Verificar que se llamó a los puertos (salidas)
+
         verify(userIdentityPort).registerPendingInvite(eq(name), eq(email), anyString());
         verify(submissionRepository).save(any(Submission.class));
         verify(notificationPort).sendInvitation(eq(email), eq(name), anyString());

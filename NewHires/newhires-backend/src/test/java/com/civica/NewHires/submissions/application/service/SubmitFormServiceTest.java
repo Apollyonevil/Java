@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +36,7 @@ class SubmitFormServiceTest {
         // Arrange
         String token = "token-secreto";
         UUID employeeId = UUID.randomUUID();
-        Submission submission = new Submission(employeeId, "Juan", "juan@test.com", token);
+        Submission submission = new Submission(UUID.randomUUID(), UUID.randomUUID(), "token");
         submission.setStatus(SubmissionStatus.PENDING_INVITE);
 
         when(userIdentityPort.findEmployeeIdByToken(token)).thenReturn(Optional.of(employeeId));

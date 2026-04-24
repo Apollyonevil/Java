@@ -20,38 +20,38 @@ public class FormVersionServiceActivate implements ManageFormVersionsUseCaseActi
     private final FormVersionPort formVersionRepository;
     private final FormPort formRepository;
 
+    @Override
+    @Transactional
+    public FormVersion activateVersion(UUID versionId) {
+        FormVersion version = formVersionRepository.findById(versionId)
+                .orElseThrow(() -> new RuntimeException("Versión no encontrada: " + versionId));
 
-@Override
-@Transactional
-public FormVersion activateVersion(UUID versionId) {
-    FormVersion version = formVersionRepository.findById(versionId)
-            .orElseThrow(() -> new RuntimeException("Versión no encontrada: " + versionId));
+        List<UUID> versionFieldIds = version.getFields().stream()
+                .map(vf -> vf.getField().getId())
+                .collect(Collectors.toList());
 
-    List<UUID> versionFieldIds = version.getFields().stream()
-            .map(vf -> vf.getField().getId())
-            .collect(Collectors.toList());
+        List<FieldDefinition> currentFields = formRepository.findAllFieldDefinitions();
+        currentFields.stream()
+                .filter(f -> !versionFieldIds.contains(f.getId()))
+                .forEach(f -> formRepository.deleteDefinition(f.getId()));
 
-    List<FieldDefinition> currentFields = formRepository.findAllFieldDefinitions();
-    currentFields.stream()
-            .filter(f -> !versionFieldIds.contains(f.getId()))
-            .forEach(f -> formRepository.deleteDefinition(f.getId()));
+        version.getFields().forEach(versionField -> {
+            FieldDefinition updated = new FieldDefinition(
+                versionField.getField().getId(),
+                versionField.getField().getLabel(),
+                versionField.getField().getType(),
+                versionField.getField().isRequired(),
+                versionField.getField().getPlaceholder(),
+                versionField.getField().getFileNamingPrefix(),
+                versionField.getField().getOptions(),
+                versionField.getSortOrder(),
+                versionField.getField().isActive()
+            );
+            formRepository.saveDefinition(updated);
+        });
 
-    version.getFields().forEach(versionField -> {
-        FieldDefinition updated = new FieldDefinition(
-            versionField.getField().getId(),
-            versionField.getField().getLabel(),
-            versionField.getField().getType(),
-            versionField.getField().isRequired(),
-            versionField.getField().getPlaceholder(),
-            versionField.getField().getOptions(),
-            versionField.getSortOrder()
-        );
-        formRepository.saveDefinition(updated);
-    });
-
-    formVersionRepository.deactivateAll();
-    version.activate();
-    return formVersionRepository.save(version);
+        formVersionRepository.deactivateAll();
+        version.activate();
+        return formVersionRepository.save(version);
     }
-
 }

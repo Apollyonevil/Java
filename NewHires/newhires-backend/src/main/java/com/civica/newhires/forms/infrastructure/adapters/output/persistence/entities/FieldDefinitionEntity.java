@@ -22,6 +22,11 @@ public class FieldDefinitionEntity {
     private boolean required;
     private String placeholder;
 
+    @Column(name = "file_naming_prefix")
+    private String fileNamingPrefix;
+
+    private boolean active;
+
     @Column(name = "sort_order") 
     private Integer sortOrder;
 

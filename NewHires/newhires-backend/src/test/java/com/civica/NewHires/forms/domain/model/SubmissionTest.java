@@ -11,37 +11,47 @@ import java.util.UUID;
 
 class SubmissionTest {
 
+    private Submission crearSubmission() {
+        return new Submission(UUID.randomUUID(), UUID.randomUUID(), "token123");
+    }
+
     @Test
     void deberiaCrearseConEstadoPendingInvite() {
-        Submission submission = new Submission(
-            UUID.randomUUID(), "Juan García", "juan@test.com", "token123"
-        );
+        Submission submission = crearSubmission();
         assertEquals(SubmissionStatus.PENDING_INVITE, submission.getStatus());
     }
 
     @Test
     void deberiaCaducarCuandoExpiresAtEsAnteriorAHoy() {
-        Submission submission = new Submission(
-            UUID.randomUUID(), "Juan García", "juan@test.com", "token123"
-        );
+        Submission submission = crearSubmission();
         submission.setExpiresAt(LocalDateTime.now().minusHours(1));
         assertTrue(submission.isTokenExpired());
     }
 
     @Test
     void noDeberiaCaducarCuandoExpiresAtEsPosteriorAHoy() {
-        Submission submission = new Submission(
-            UUID.randomUUID(), "Juan García", "juan@test.com", "token123"
-        );
+        Submission submission = crearSubmission();
+        submission.setExpiresAt(LocalDateTime.now().plusHours(48));
         assertFalse(submission.isTokenExpired());
     }
 
     @Test
     void deberiaCambiarEstado() {
-        Submission submission = new Submission(
-            UUID.randomUUID(), "Juan García", "juan@test.com", "token123"
-        );
+        Submission submission = crearSubmission();
         submission.setStatus(SubmissionStatus.SUBMITTED);
         assertEquals(SubmissionStatus.SUBMITTED, submission.getStatus());
+    }
+
+    @Test
+    void deberiaTenerTokenNoNulo() {
+        Submission submission = crearSubmission();
+        assertNotNull(submission.getToken());
+    }
+
+    @Test
+    void deberiaActualizarToken() {
+        Submission submission = crearSubmission();
+        submission.setToken("token-nuevo");
+        assertEquals("token-nuevo", submission.getToken());
     }
 }

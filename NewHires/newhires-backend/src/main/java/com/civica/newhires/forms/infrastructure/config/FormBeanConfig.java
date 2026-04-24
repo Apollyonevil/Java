@@ -6,6 +6,7 @@ import com.civica.newhires.forms.domain.ports.input.*;
 import com.civica.newhires.forms.domain.ports.output.*;
 import com.civica.newhires.forms.domain.service.FormDomainService;
 import com.civica.newhires.submissions.application.service.SubmitFormService;
+import com.civica.newhires.submissions.domain.ports.output.AccessTokenRepository;
 import com.civica.newhires.submissions.domain.ports.output.NotificationPort;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionRepository;
 
@@ -19,15 +20,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 public class FormBeanConfig {
 
-@Bean
-public MultipartConfigElement multipartConfigElement() {
-    return new MultipartConfigElement(
-        "",
-        20971520,  // 20MB en bytes
-        52428800,  // 50MB en bytes
-        0
-    );
-}
+    @Bean
+    public MultipartConfigElement multipartConfigElement() {
+        return new MultipartConfigElement(
+            "",
+            20971520,
+            52428800,
+            0
+        );
+    }
 
     @Bean
     public FormDomainService formDomainService() {
@@ -38,6 +39,7 @@ public MultipartConfigElement multipartConfigElement() {
     public SubmitFormUseCase submitFormUseCase(
             FormPort formRepo,
             SubmissionRepository submissionRepo,
+            AccessTokenRepository accessTokenRepository,
             UserIdentityPort identity,
             FileStoragePort storage,
             FormDomainService formDomainService,
@@ -45,6 +47,7 @@ public MultipartConfigElement multipartConfigElement() {
         return new SubmitFormService(
             formRepo,
             submissionRepo,
+            accessTokenRepository,
             identity,
             storage,
             formDomainService,
@@ -52,26 +55,25 @@ public MultipartConfigElement multipartConfigElement() {
         );
     }
 
-
     @Bean
     public ManageFieldsUseCaseCreate manageFieldsUseCaseCreate(
-        FormPort formRepository,
-        FormVersionPort formVersionRepository) {
-    return new FieldManagementServiceCreate(formRepository, formVersionRepository);
+            FormPort formRepository,
+            FormVersionPort formVersionRepository) {
+        return new FieldManagementServiceCreate(formRepository, formVersionRepository);
     }
 
     @Bean
     public ManageFieldsUseCaseUpdate manageFieldsUseCaseUpdate(
-        FormPort formRepository,
-        FormVersionPort formVersionRepository) {
-    return new FieldManagementServiceUpdate(formRepository, formVersionRepository);
+            FormPort formRepository,
+            FormVersionPort formVersionRepository) {
+        return new FieldManagementServiceUpdate(formRepository, formVersionRepository);
     }
 
     @Bean
     public ManageFieldsUseCaseDelete manageFieldsUseCaseDelete(
-        FormPort formRepository,
-        FormVersionPort formVersionRepository) {
-    return new FieldManagementServiceDelete(formRepository, formVersionRepository);
+            FormPort formRepository,
+            FormVersionPort formVersionRepository) {
+        return new FieldManagementServiceDelete(formRepository, formVersionRepository);
     }
 
     @Bean
@@ -79,14 +81,11 @@ public MultipartConfigElement multipartConfigElement() {
         return new GetFormStructureService(formRepository);
     }
 
-        @Bean
-        public ObjectMapper objectMapper() {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            return mapper;
-        }
-
-
-    
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
+    }
 }
