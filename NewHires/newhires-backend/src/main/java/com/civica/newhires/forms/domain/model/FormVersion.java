@@ -13,16 +13,31 @@ public class FormVersion {
     private boolean active;
     private final List<FormVersionField> fields;
 
+
     public FormVersion(UUID id, Integer versionNumber, LocalDateTime createdAt,
                        String createdBy, String description, boolean active,
                        List<FormVersionField> fields) {
-        this.id = id != null ? id : UUID.randomUUID();
+        this.id = id;
         this.versionNumber = versionNumber;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.description = description;
         this.active = active;
         this.fields = fields;
+    }
+
+  
+    public static FormVersion create(Integer versionNumber, String createdBy,
+                                     String description, List<FormVersionField> fields) {
+        return new FormVersion(
+            UUID.randomUUID(),
+            versionNumber,
+            LocalDateTime.now(),
+            createdBy,
+            description,
+            false, 
+            fields
+        );
     }
 
     public void activate() { this.active = true; }

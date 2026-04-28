@@ -43,16 +43,14 @@ public class SecurityConfig {
                 }
             }
 
-@Override
-public boolean matches(CharSequence rawPassword, String encodedPassword) {
-    System.out.println("Recibido: " + rawPassword);
-    System.out.println("En BD:    " + encodedPassword);
-    return rawPassword.toString().equals(encodedPassword);
-}
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword.toString().equals(encodedPassword);
+            }
         };
     }
 
-    @Bean
+   @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(Customizer.withDefaults())
@@ -75,7 +73,7 @@ public boolean matches(CharSequence rawPassword, String encodedPassword) {
                 .requestMatchers("/api/admin/**").authenticated()
                 .anyRequest().permitAll()
             )
-            .httpBasic(Customizer.withDefaults()); // 👈 volver a añadir
+            .httpBasic(Customizer.withDefaults()); 
 
         return http.build();
     }

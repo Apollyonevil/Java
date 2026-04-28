@@ -1,18 +1,19 @@
 package com.civica.newhires.employee.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.civica.newhires.employee.application.dto.EmployeeDTO;
 import com.civica.newhires.employee.application.dto.EmployeeRequest;
+import com.civica.newhires.employee.application.mapper.EmployeeMapper;
+import com.civica.newhires.employee.domain.exception.EmployeeAlreadyExistsException;
+import com.civica.newhires.employee.domain.exception.EmployeeNotFoundException;
 import com.civica.newhires.employee.domain.model.Employee;
-import com.civica.newhires.employee.domain.model.UserRole;
 import com.civica.newhires.employee.domain.ports.output.EmployeePort;
+import com.civica.newhires.employee.domain.ports.output.PasswordHasher;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,60 +21,47 @@ import java.util.stream.Collectors;
 public class EmployeeUserService {
 
     private final EmployeePort repository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordHasher passwordHasher;  // tu nuevo puerto
 
     public List<EmployeeDTO> getAllUsers() {
         return repository.findAll().stream()
-                .map(this::mapToDTO)
+                .map(EmployeeMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public EmployeeDTO create(EmployeeRequest request) {
         if (repository.findByUsername(request.username()).isPresent()) {
-            throw new RuntimeException("El empleado ya existe");
+            throw new EmployeeAlreadyExistsException(request.username());
         }
 
-        Employee employee = new Employee(
-            UUID.randomUUID().toString(),
+        Employee employee = Employee.create(
             request.username(),
-            passwordEncoder.encode(request.password()),
-            true,
-            request.role() != null ? UserRole.valueOf(request.role()) : UserRole.EMPLOYEE
+            passwordHasher.hash(request.password()),
+            request.role()
         );
 
-        return mapToDTO(repository.save(employee));
+        return EmployeeMapper.toDTO(repository.save(employee));
     }
 
     @Transactional
     public EmployeeDTO update(String id, EmployeeRequest request) {
         Employee existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
 
-        Employee updated = new Employee(
-            existing.getId(),
+        String hashedPassword = request.password() != null && !request.password().isBlank()
+                ? passwordHasher.hash(request.password())
+                : null;
+
+        return EmployeeMapper.toDTO(repository.save(existing.updateWith(
             request.username(),
-            request.password() != null && !request.password().isBlank()
-                ? passwordEncoder.encode(request.password())
-                : existing.getPassword(),
-            existing.isEnabled(),
-            request.role() != null ? UserRole.valueOf(request.role()) : existing.getRole()
-        );
-
-        return mapToDTO(repository.save(updated));
+            hashedPassword,
+            request.role()
+        )));
     }
 
     @Transactional
     public void delete(String id) {
         repository.deleteById(id);
-    }
-
-    private EmployeeDTO mapToDTO(Employee employee) {
-        return new EmployeeDTO(
-            employee.getId(),
-            employee.getUsername(),
-            employee.isEnabled(),
-            employee.getRole().name()
-        );
     }
 }

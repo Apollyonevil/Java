@@ -10,10 +10,15 @@ public class FormVersionField {
     private final Integer sortOrder;
 
     public FormVersionField(UUID id, UUID versionId, FieldDefinition field, Integer sortOrder) {
-        this.id = id != null ? id : UUID.randomUUID();
+        this.id = id;
         this.versionId = versionId;
         this.field = field;
         this.sortOrder = sortOrder;
+    }
+
+
+    public static FormVersionField create(UUID versionId, FieldDefinition field, Integer sortOrder) {
+        return new FormVersionField(UUID.randomUUID(), versionId, field, sortOrder);
     }
 
     public UUID getId() { return id; }

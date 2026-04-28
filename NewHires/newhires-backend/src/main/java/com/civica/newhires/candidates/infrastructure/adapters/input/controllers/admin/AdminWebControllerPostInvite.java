@@ -2,7 +2,7 @@ package com.civica.newhires.candidates.infrastructure.adapters.input.controllers
 
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.candidates.domain.ports.input.InviteCandidateUseCase;
-import com.fasterxml.jackson.annotation.JsonProperty; 
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ public class AdminWebControllerPostInvite {
 
     @PostMapping("/invite")
     public ResponseEntity<Submission> invite(@RequestBody InviteRequest request) {
-        // Usamos los getters del objeto interno para pasar los datos al caso de uso
+
         Submission submission = inviteCandidateUseCase.execute(
             request.getCandidateName(), 
             request.getEmail(),
@@ -30,17 +30,15 @@ public class AdminWebControllerPostInvite {
         return ResponseEntity.ok(submission);
     }
 
-    // --- AQUÍ VA LA CLASE INTERNA ---
+
     public static class InviteRequest {
         private String candidateName;
         private String email;
 
-        //@JsonProperty("employee_id") // Esto soluciona el error del JSON "employee_id"
         private UUID employeeId;
 
         public InviteRequest() {}
 
-        // Getters y Setters manuales para evitar fallos de Lombok en el DTO
         public String getCandidateName() { return candidateName; }
         public void setCandidateName(String candidateName) { this.candidateName = candidateName; }
 

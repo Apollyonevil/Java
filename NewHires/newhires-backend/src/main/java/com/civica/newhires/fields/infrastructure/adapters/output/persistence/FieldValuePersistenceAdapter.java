@@ -1,7 +1,7 @@
 package com.civica.newhires.fields.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
-import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
+import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FieldPersistenceMapper;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldValueRepository;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionFieldEntity;
@@ -26,7 +26,7 @@ public class FieldValuePersistenceAdapter implements FormPort {
 
     private final JpaFieldDefinitionRepository definitionRepo;
     private final JpaFieldValueRepository valueRepo; 
-    private final FormPersistenceMapper mapper;
+    private final FieldPersistenceMapper mapper;
     private final JpaFormVersionFieldRepository versionFieldRepo;
 
     @Override

@@ -1,15 +1,16 @@
 package com.civica.newhires.forms.infrastructure.adapters.output.persistence;
 
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.entities.FieldDefinitionEntity;
-import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
 import com.civica.newhires.fields.infrastructure.adapters.output.persistence.repository.JpaFieldDefinitionRepository;
 import com.civica.newhires.forms.domain.model.FormVersion;
 import com.civica.newhires.forms.domain.model.FormVersionField;
 import com.civica.newhires.forms.domain.ports.output.FormVersionPort;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionEntity;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.entities.FormVersionFieldEntity;
+import com.civica.newhires.forms.infrastructure.adapters.output.persistence.mappers.FormVersionPersistenceMapper;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFormVersionRepository;
 import lombok.RequiredArgsConstructor;
+import com.civica.newhires.fields.domain.exception.FieldNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ public class FormVersionPersistenceAdapter implements FormVersionPort {
 
     private final JpaFormVersionRepository versionRepo;
     private final JpaFieldDefinitionRepository fieldRepo;
-    private final FormPersistenceMapper mapper;
+    private final FormVersionPersistenceMapper mapper;
 
     @Override
     @Transactional
@@ -37,22 +38,19 @@ public class FormVersionPersistenceAdapter implements FormVersionPort {
         entity.setDescription(version.getDescription());
         entity.setActive(version.isActive());
 
-
         FormVersionEntity saved = versionRepo.save(entity);
-
 
         if (version.getFields() != null) {
             List<FormVersionFieldEntity> fieldEntities = version.getFields().stream()
                     .map(vf -> {
+                        FieldDefinitionEntity fieldEntity = fieldRepo.findById(vf.getField().getId())
+                                .orElseThrow(() -> new FieldNotFoundException(vf.getField().getId()));
+
                         FormVersionFieldEntity vfe = new FormVersionFieldEntity();
-                        vfe.setId(vf.getId() != null ? vf.getId() : UUID.randomUUID());
+                        vfe.setId(vf.getId()); 
                         vfe.setVersion(saved);
                         vfe.setSortOrder(vf.getSortOrder());
-
-                        FieldDefinitionEntity fieldEntity = fieldRepo.findById(vf.getField().getId())
-                                .orElseThrow(() -> new RuntimeException("Campo no encontrado: " + vf.getField().getId()));
                         vfe.setField(fieldEntity);
-
                         return vfe;
                     })
                     .collect(Collectors.toList());
@@ -61,61 +59,35 @@ public class FormVersionPersistenceAdapter implements FormVersionPort {
             versionRepo.save(saved);
         }
 
-        return toDomain(saved);
+        return mapper.toDomain(saved); // ← delega al mapper
     }
 
     @Override
     public Optional<FormVersion> findById(UUID id) {
-        return versionRepo.findById(id).map(this::toDomain);
+        return versionRepo.findById(id).map(mapper::toDomain);
     }
 
     @Override
     public Optional<FormVersion> findActive() {
-        return versionRepo.findByActiveTrue().map(this::toDomain);
+        return versionRepo.findByActiveTrue().map(mapper::toDomain);
     }
 
     @Override
     public List<FormVersion> findAll() {
         return versionRepo.findAllByOrderByVersionNumberDesc()
                 .stream()
-                .map(this::toDomain)
+                .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void deactivateAll() {
-        versionRepo.findAll().forEach(v -> {
-            v.setActive(false);
-            versionRepo.save(v);
-        });
+        versionRepo.deactivateAll(); 
     }
 
     @Override
     public void deleteById(UUID id) {
         versionRepo.deleteById(id);
     }
-
-    private FormVersion toDomain(FormVersionEntity entity) {
-        List<FormVersionField> fields = entity.getFields() == null ? List.of() :
-                entity.getFields().stream()
-                        .map(vf -> new FormVersionField(
-                                vf.getId(),
-                                entity.getId(),
-                                mapper.toDomain(vf.getField()),
-                                vf.getSortOrder()
-                        ))
-                        .collect(Collectors.toList());
-
-        return new FormVersion(
-                entity.getId(),
-                entity.getVersionNumber(),
-                entity.getCreatedAt(),
-                entity.getCreatedBy(),
-                entity.getDescription(),
-                entity.isActive(),
-                fields
-        );
-    }
-    
 }
