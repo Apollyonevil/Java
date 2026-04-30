@@ -1,31 +1,36 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   constructor(private router: Router, private http: HttpClient) {}
 
   login(username: string, password: string, callbacks?: { onError?: () => void }): void {
-  const credentials = btoa(`${username}:${password}`);
-  const headers = new HttpHeaders({ Authorization: `Basic ${credentials}` });
+    this.hashPassword(password).then(hashedPassword => {
+      this.http.post<any>('http://localhost:8080/api/auth/login', { username, password: hashedPassword })
+        .subscribe({
+          next: (user) => {
+            const credentials = btoa(`${username}:${hashedPassword}`);
+            sessionStorage.setItem('admin_credentials', credentials);
+            sessionStorage.setItem('username', user.username);
+            sessionStorage.setItem('user_id', user.id);
+            sessionStorage.setItem('role', user.role);
+            this.router.navigate(['/admin/']);
+          },
+          error: () => callbacks?.onError?.()
+        });
+    });
+  }
 
-  this.http.get<any>('http://localhost:8080/api/auth/me', { headers }).subscribe({
-    next: (user) => {
-      sessionStorage.setItem('admin_credentials', credentials);
-      sessionStorage.setItem('username', user.username);
-      sessionStorage.setItem('user_id', user.id);
-      sessionStorage.setItem('role', user.role);
-      this.router.navigate(['/admin/']);
-    },
-    error: () => {
-      callbacks?.onError?.();
-    }
-  });
-}
+  private async hashPassword(password: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
 
   logout(): void {
     sessionStorage.clear();
@@ -37,6 +42,6 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getCredentials();
+    return !!sessionStorage.getItem('username');
   }
 }
