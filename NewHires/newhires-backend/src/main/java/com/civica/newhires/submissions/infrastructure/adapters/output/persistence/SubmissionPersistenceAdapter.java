@@ -4,7 +4,7 @@ import com.civica.newhires.candidates.infrastructure.adapters.output.persistence
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.entities.CandidateEntity;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaAccessTokenRepository;
 import com.civica.newhires.candidates.infrastructure.adapters.output.persistence.repository.JpaCandidateRepository;
-import com.civica.newhires.fields.infrastructure.adapters.output.persistence.mappers.FormPersistenceMapper;
+import com.civica.newhires.submissions.infrastructure.adapters.output.persistence.mappers.SubmissionPersistenceMapper;
 import com.civica.newhires.forms.infrastructure.adapters.output.persistence.repository.JpaFormVersionRepository;
 import com.civica.newhires.submissions.domain.model.Submission;
 import com.civica.newhires.submissions.domain.ports.output.SubmissionPort;
@@ -26,7 +26,7 @@ public class SubmissionPersistenceAdapter implements SubmissionPort {
     private final JpaCandidateRepository candidateRepo;
     private final JpaAccessTokenRepository tokenRepo;
     private final JpaFormVersionRepository versionRepo;
-    private final FormPersistenceMapper mapper;
+    private final SubmissionPersistenceMapper mapper;
 
 
 @Override
